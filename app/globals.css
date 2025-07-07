@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* Simple glass card effect */
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-sm border border-gray-200/50 shadow-sm;
+  }
+  
+  /* Simple floating effect */
+  .floating-card {
+    @apply transition-all duration-200 hover:shadow-md hover:-translate-y-0.5;
+  }
+  
+  /* Simple search input */
+  .search-input {
+    @apply w-full px-4 py-3 bg-white border border-gray-200 rounded-lg 
+           focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400
+           transition-all duration-200 placeholder-gray-400;
+  }
+  
+  /* Simple activity card */
+  .activity-card {
+    @apply p-4 rounded-lg border transition-all duration-200 cursor-pointer
+           hover:shadow-sm hover:border-gray-300;
+  }
+  
+  .activity-card.selected {
+    @apply bg-blue-50 border-blue-300;
+  }
+  
+  .activity-card:not(.selected) {
+    @apply bg-white border-gray-200 hover:bg-gray-50;
+  }
+  
+  /* Simple result card */
+  .result-card {
+    @apply bg-white border border-gray-200 rounded-lg p-4 
+           shadow-sm hover:shadow-md transition-all duration-200;
+  }
+  
+  /* Calendar day card */
+  .day-card {
+    @apply p-2 rounded border-l-4 bg-gray-50 border-gray-300;
+  }
+  
+  .day-card.has-activity {
+    @apply bg-blue-50 border-blue-400;
+  }
+  
+  .gradient-border::before {
+    content: '';
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: xor;
+    -webkit-mask-composite: xor;
+  }
+  
+
+  
+  .fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  
+  .scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+  
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  
+  /* Custom scrollbar */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(203 213 225) transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgb(203 213 225);
+    border-radius: 6px;
+    transition: background 0.2s ease;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgb(148 163 184);
+  }
+  
+  /* Enhanced hover effects */
+  .floating-card:hover {
+    transform: translateY(-2px) scale(1.01);
+  }
+  
+  /* Improved selection animations */
+  .activity-card {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .activity-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba(59, 130, 246, 0.1), 
+      transparent);
+    transition: left 0.5s ease;
+  }
+  
+  .activity-card:hover::before {
+    left: 100%;
+  }
+  
+  /* Pulse animation for active elements */
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  
+  .pulse-slow {
+    animation: pulse-slow 2s infinite;
+  }
+}

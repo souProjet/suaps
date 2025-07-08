@@ -1,4 +1,4 @@
-import { ActiviteAPI, Creneau, ActiviteOption } from '@/types/suaps';
+import { ActiviteAPI, Creneau, ActiviteOption, ContraintesHoraires } from '@/types/suaps';
 
 /**
  * Transforme les données de l'API en créneaux formatés
@@ -164,4 +164,44 @@ export function formaterHeure(heure: string): string {
  */
 export function formaterJour(jour: string): string {
   return jour;
+} 
+
+/**
+ * Vérifie si un créneau respecte les contraintes horaires
+ */
+export function creneauRespectContraintes(creneau: Creneau, contraintes: ContraintesHoraires): boolean {
+  const contrainte = contraintes[creneau.jour];
+  
+  // Si pas de contrainte pour ce jour, le créneau est valide
+  if (!contrainte || !contrainte.actif) {
+    return true;
+  }
+  
+  // Si pas d'heures définies dans la contrainte, le créneau est valide
+  if (!contrainte.heureDebut || !contrainte.heureFin) {
+    return true;
+  }
+  
+  const debutCreneau = heureToMin(creneau.début);
+  const finCreneau = heureToMin(creneau.fin);
+  const debutContrainte = heureToMin(contrainte.heureDebut);
+  const finContrainte = heureToMin(contrainte.heureFin);
+  
+  // Le créneau doit être entièrement inclus dans la contrainte
+  return debutCreneau >= debutContrainte && finCreneau <= finContrainte;
+}
+
+/**
+ * Filtre les activités selon les contraintes horaires
+ */
+export function filtrerActivitesParContraintes(
+  activites: ActiviteOption[],
+  contraintes: ContraintesHoraires
+): ActiviteOption[] {
+  return activites.map(activite => ({
+    ...activite,
+    creneaux: activite.creneaux.filter(creneau => 
+      creneauRespectContraintes(creneau, contraintes)
+    )
+  })).filter(activite => activite.creneaux.length > 0); // Garder seulement les activités qui ont encore des créneaux
 } 

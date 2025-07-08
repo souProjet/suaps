@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { ActiviteAPI, ActiviteOption, Creneau } from '@/types/suaps';
+import { ActiviteAPI, ActiviteOption, Creneau, ContraintesHoraires } from '@/types/suaps';
 import { 
   extractCreneaux, 
   getActivitesDisponibles, 
-  trouverCombinaisons 
+  trouverCombinaisons,
+  filtrerActivitesParContraintes
 } from '@/utils/suaps';
 import ActivitySelector from '@/components/ActivitySelector';
 import CreneauxResults from '@/components/CreneauxResults';
+import HoraireConstraints from '@/components/HoraireConstraints';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { RefreshCw, Calendar, Clock, Users, Target } from 'lucide-react';
 
@@ -17,6 +19,15 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activitesSelectionnees, setActivitesSelectionnees] = useState<string[]>([]);
+  const [contraintesHoraires, setContraintesHoraires] = useState<ContraintesHoraires>(() => {
+    // Initialiser les contraintes pour tous les jours
+    const contraintes: ContraintesHoraires = {};
+    const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+    jours.forEach(jour => {
+      contraintes[jour] = { jour, actif: false };
+    });
+    return contraintes;
+  });
 
   // Extraction et transformation des données
   const creneaux = useMemo(() => {
@@ -25,8 +36,10 @@ export default function HomePage() {
   }, [activitesAPI]);
 
   const activitesDisponibles = useMemo(() => {
-    return getActivitesDisponibles(creneaux);
-  }, [creneaux]);
+    const toutes = getActivitesDisponibles(creneaux);
+    // Appliquer les contraintes horaires
+    return filtrerActivitesParContraintes(toutes, contraintesHoraires);
+  }, [creneaux, contraintesHoraires]);
 
   // Filtrage des activités sélectionnées
   const activitesSelectionneesFiltrees = useMemo(() => {
@@ -178,27 +191,35 @@ export default function HomePage() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Sélecteur d'activités */}
-            <div>
-              <ActivitySelector
-                activites={activitesDisponibles}
-                activitesSelectionnees={activitesSelectionnees}
-                onSelectionChange={handleSelectionChange}
-                loading={loading}
-              />
-            </div>
+          <>
+            {/* Contraintes horaires */}
+            <HoraireConstraints
+              contraintes={contraintesHoraires}
+              onChange={setContraintesHoraires}
+            />
 
-            {/* Résultats */}
-            <div>
-              <CreneauxResults
-                combinaisons={resultats.compatibles}
-                totalCombinaisons={resultats.totalCombinaisons}
-                loading={loading}
-                activitesSelectionnees={activitesSelectionnees}
-              />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Sélecteur d'activités */}
+              <div>
+                <ActivitySelector
+                  activites={activitesDisponibles}
+                  activitesSelectionnees={activitesSelectionnees}
+                  onSelectionChange={handleSelectionChange}
+                  loading={loading}
+                />
+              </div>
+
+              {/* Résultats */}
+              <div>
+                <CreneauxResults
+                  combinaisons={resultats.compatibles}
+                  totalCombinaisons={resultats.totalCombinaisons}
+                  loading={loading}
+                  activitesSelectionnees={activitesSelectionnees}
+                />
+              </div>
             </div>
-          </div>
+          </>
         )}
 
 

@@ -17,11 +17,23 @@ export function extractCreneaux(data: ActiviteAPI[]): Creneau[] {
     for (const c of creneauxList) {
       if (!c.horaireDebut || !c.horaireFin || !c.jour) continue;
       
+      // Extraction des informations de localisation
+      let localisation = undefined;
+      if (c.localisation) {
+        localisation = {
+          nom: c.localisation.nom,
+          adresse: c.localisation.adresse,
+          ville: c.localisation.ville,
+          codePostal: c.localisation.codePostal
+        };
+      }
+
       creneaux.push({
         activité: nom,
         jour: c.jour.charAt(0).toUpperCase() + c.jour.slice(1).toLowerCase(),
         début: c.horaireDebut,
-        fin: c.horaireFin
+        fin: c.horaireFin,
+        localisation
       });
     }
   }

@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { Creneau } from '@/types/suaps';
 import { 
   Clock, Calendar, AlertCircle, CheckCircle, Target, 
-  Copy
+  Copy, MapPin, ExternalLink
 } from 'lucide-react';
 
 interface CreneauxResultsProps {
@@ -66,13 +66,30 @@ export default function CreneauxResults({
   }, [combinaisons]);
 
 
-
   const copyToClipboard = (combinaison: Creneau[]) => {
     const text = combinaison.map(c => 
-      `${c.activité}: ${c.jour} ${c.début}-${c.fin}`
+      `${c.activité}: ${c.jour} ${c.début}-${c.fin}${c.localisation ? ` - ${c.localisation.nom}` : ''}`
     ).join('\n');
     navigator.clipboard.writeText(text);
   };
+
+  const createGoogleMapsLink = (localisation: { nom: string; adresse: string; ville: string; codePostal: string }) => {
+    const address = `${localisation.adresse}, ${localisation.codePostal} ${localisation.ville}`;
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+  };
+
+  const formateHour = (debut: string, fin?: string) => {
+    if (!fin) {
+      //debut est une heure au format float
+      const hours = Math.floor(Number(debut));
+      const mins = Math.round((Number(debut) - hours) * 60);
+      return `${hours}h${mins.toString().padStart(2, '0')}`;
+    }
+    const minutes = heureToMin(fin) - heureToMin(debut);
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h${mins.toString().padStart(2, '0')}`;
+  }
 
   if (loading) {
     return (
@@ -205,7 +222,7 @@ export default function CreneauxResults({
                       <div className="flex items-center text-xs text-gray-500 space-x-4">
                         <span className="flex items-center">
                           <Clock className="w-3 h-3 mr-1" />
-                          {combinaisonStats.totalHeures.toFixed(1)}h
+                          {formateHour(combinaisonStats.totalHeures.toFixed(1))}
                         </span>
                         <span>
                           {combinaisonStats.joursUtilises.join(' • ')}
@@ -226,23 +243,48 @@ export default function CreneauxResults({
                 {/* Simple activities view */}
                 <div className="space-y-2">
                   {combinaisonStats.creneaux.map((creneau, creneauIndex) => (
-                    <div key={creneauIndex} className="flex items-center justify-between p-3 
-                                                     bg-gray-50 rounded-lg border border-gray-200">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                        <div>
-                          <h5 className="font-medium text-gray-900">
-                            {creneau.activité.charAt(0).toUpperCase() + creneau.activité.slice(1)}
-                          </h5>
-                          <p className="text-sm text-gray-600">
-                            {creneau.jour} • {creneau.début} - {creneau.fin}
-                          </p>
+                    <div key={creneauIndex} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                          <div>
+                            <h5 className="font-medium text-gray-900">
+                              {creneau.activité.charAt(0).toUpperCase() + creneau.activité.slice(1)}
+                            </h5>
+                            <p className="text-sm text-gray-600">
+                              {creneau.jour} • {creneau.début} - {creneau.fin}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                          {formateHour(creneau.début, creneau.fin)}
                         </div>
                       </div>
                       
-                      <div className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                        {((heureToMin(creneau.fin) - heureToMin(creneau.début)) / 60).toFixed(1)}h
-                      </div>
+                      {/* Localisation avec lien Google Maps */}
+                      {creneau.localisation && (
+                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200">
+                          <div className="flex items-center space-x-2">
+                            <MapPin className="w-4 h-4 text-gray-500" />
+                            <div className="text-xs text-gray-600">
+                              <p className="font-medium">{creneau.localisation.nom}</p>
+                              <p>{creneau.localisation.adresse}, {creneau.localisation.ville}</p>
+                            </div>
+                          </div>
+                          
+                          <a
+                            href={createGoogleMapsLink(creneau.localisation)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center space-x-1 text-xs text-blue-600 hover:text-blue-800 
+                                     bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
+                            title="Ouvrir dans Google Maps"
+                          >
+                            <span>Maps</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

@@ -43,7 +43,15 @@ export async function GET() {
       creneaux: Array.isArray(item.creneaux) ? item.creneaux.map((c: any) => ({
         horaireDebut: c.horaireDebut || '',
         horaireFin: c.horaireFin || '',
-        jour: c.jour || ''
+        jour: c.jour || '',
+        localisation: c.localisation ? {
+          id: c.localisation.id || '',
+          nom: c.localisation.nom || '',
+          adresse: c.localisation.adresse || '',
+          ville: c.localisation.ville || '',
+          codePostal: c.localisation.codePostal || '',
+          complementAdresse: c.localisation.complementAdresse
+        } : undefined
       })) : []
     }));
 

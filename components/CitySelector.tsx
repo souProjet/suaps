@@ -84,17 +84,17 @@ export default function CitySelector({
   }
 
   return (
-    <div className="mb-4">
-      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+    <div className="mb-3 sm:mb-4">
+      <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-              <MapPin className="w-4 h-4 text-white" />
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-3 sm:p-4">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white/20 rounded-full flex items-center justify-center">
+              <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
             </div>
             <div>
-              <h2 className="text-white font-semibold text-base">Choisissez votre ville</h2>
-              <p className="text-blue-100 text-sm">
+              <h2 className="text-white font-semibold text-sm sm:text-base">Choisissez votre ville</h2>
+              <p className="text-blue-100 text-xs sm:text-sm">
                 {catalogues.length} ville{catalogues.length > 1 ? 's' : ''} disponible{catalogues.length > 1 ? 's' : ''}
               </p>
             </div>
@@ -102,23 +102,23 @@ export default function CitySelector({
         </div>
 
         {/* Cities Grid - Mobile First */}
-        <div className="p-4">
+        <div className="p-3 sm:p-4">
           {catalogues.length === 1 ? (
             /* Single city - show as info */
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                  <Check className="w-3 h-3 text-white" />
+            <div className="bg-blue-50 border border-blue-200 rounded-lg sm:rounded-xl p-3 sm:p-4">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                  <Check className="w-2 h-2 sm:w-3 sm:h-3 text-white" />
                 </div>
                 <div>
-                  <p className="font-medium text-blue-900">{catalogues[0].ville}</p>
-                  <p className="text-sm text-blue-700">Ville sélectionnée automatiquement</p>
+                  <p className="font-medium text-blue-900 text-sm">{catalogues[0].ville}</p>
+                  <p className="text-xs text-blue-700">Ville sélectionnée automatiquement</p>
                 </div>
               </div>
             </div>
           ) : (
             /* Multiple cities - show as selection cards */
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {catalogues.map((catalogue) => {
                 const isSelected = selectedCatalogueId === catalogue.id;
                 
@@ -128,39 +128,39 @@ export default function CitySelector({
                     onClick={() => onCatalogueChange(catalogue.id)}
                     disabled={disabled}
                     className={`
-                      w-full p-4 rounded-xl border-2 transition-all duration-200 text-left
+                      w-full p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 text-left touch-manipulation
                       ${isSelected 
                         ? 'border-blue-500 bg-blue-50 shadow-lg' 
-                        : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-gray-100'
+                        : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-gray-100 active:bg-gray-200'
                       }
                       ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-[0.98]'}
                     `}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-2 sm:space-x-3">
                         <div className={`
-                          w-6 h-6 rounded-full border-2 flex items-center justify-center
+                          w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-colors
                           ${isSelected 
                             ? 'border-blue-500 bg-blue-500' 
                             : 'border-gray-300'
                           }
                         `}>
                           {isSelected && (
-                            <Check className="w-3 h-3 text-white" />
+                            <Check className="w-2 h-2 sm:w-3 sm:h-3 text-white" />
                           )}
                         </div>
                         <div>
-                          <p className={`font-semibold ${isSelected ? 'text-blue-900' : 'text-gray-900'}`}>
+                          <p className={`font-semibold text-sm sm:text-base ${isSelected ? 'text-blue-900' : 'text-gray-900'}`}>
                             {catalogue.ville}
                           </p>
-                          <p className={`text-sm ${isSelected ? 'text-blue-700' : 'text-gray-600'}`}>
+                          <p className={`text-xs sm:text-sm ${isSelected ? 'text-blue-700' : 'text-gray-600'}`}>
                             Activités SUAPS
                           </p>
                         </div>
                       </div>
                       
                       {isSelected && (
-                        <div className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                        <div className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium">
                           Sélectionnée
                         </div>
                       )}

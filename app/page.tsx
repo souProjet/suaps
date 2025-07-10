@@ -171,13 +171,13 @@ export default function HomePage() {
     <div className="h-screen bg-gray-100 flex flex-col">
       {/* Header compact avec nom du site */}
       <header className="bg-gradient-to-r from-blue-500 to-blue-600 shadow-sm flex-shrink-0">
-        <div className="max-w-4xl mx-auto px-4 py-3">
+        <div className="max-w-4xl mx-auto px-3 py-2 sm:px-4 sm:py-3">
           <div className="flex items-center justify-center">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                <Calendar className="w-4 h-4 text-white" />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-white/20 rounded-full flex items-center justify-center">
+                <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
               </div>
-              <h1 className="text-white font-bold text-lg">
+              <h1 className="text-white font-bold text-base sm:text-lg">
                 Planificateur SUAPS
               </h1>
             </div>
@@ -202,7 +202,7 @@ export default function HomePage() {
         >
           {/* Étape 1: Sélection de la ville */}
           {currentStep === 1 && (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {/* Sélecteur de ville */}
               <CitySelector
                 selectedCatalogueId={selectedCatalogueId}
@@ -212,16 +212,16 @@ export default function HomePage() {
 
               {/* Stats rapides si ville sélectionnée */}
               {selectedCatalogueId && !loading && !error && (
-                <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-blue-50 rounded-xl p-3 text-center">
-                      <div className="text-2xl font-bold text-blue-600">
+                <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-3 sm:p-4 shadow-sm">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                    <div className="bg-blue-50 rounded-lg sm:rounded-xl p-2 sm:p-3 text-center">
+                      <div className="text-xl sm:text-2xl font-bold text-blue-600">
                         {activitesDisponibles.length}
                       </div>
                       <div className="text-xs text-blue-700">Activités</div>
                     </div>
-                    <div className="bg-green-50 rounded-xl p-3 text-center">
-                      <div className="text-2xl font-bold text-green-600">
+                    <div className="bg-green-50 rounded-lg sm:rounded-xl p-2 sm:p-3 text-center">
+                      <div className="text-xl sm:text-2xl font-bold text-green-600">
                         {creneaux.length}
                       </div>
                       <div className="text-xs text-green-700">Créneaux</div>
@@ -232,9 +232,9 @@ export default function HomePage() {
 
               {/* Erreur si applicable */}
               {error && (
-                <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-center">
-                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <RefreshCw className="w-6 h-6 text-red-500" />
+                <div className="bg-red-50 border border-red-200 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-center">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <RefreshCw className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" />
                   </div>
                   <h3 className="font-bold text-red-900 text-sm mb-1">Erreur</h3>
                   <p className="text-red-700 text-xs">{error}</p>
@@ -245,7 +245,7 @@ export default function HomePage() {
 
           {/* Étape 2: Configuration des disponibilités */}
           {currentStep === 2 && (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {/* Contraintes horaires */}
               <HoraireConstraints
                 contraintes={contraintesHoraires}
@@ -253,7 +253,7 @@ export default function HomePage() {
               />
 
               {/* Info compacte */}
-              <div className="bg-purple-50 border border-purple-200 rounded-xl p-3">
+              <div className="bg-purple-50 border border-purple-200 rounded-lg sm:rounded-xl p-2 sm:p-3">
                 <p className="text-xs text-purple-700 text-center">
                   💡 Optionnel - Laissez vide pour tous les créneaux
                 </p>
@@ -263,7 +263,7 @@ export default function HomePage() {
 
           {/* Étape 3: Choix des activités */}
           {currentStep === 3 && (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {/* Sélecteur d'activités */}
               <ActivitySelector
                 activites={activitesDisponibles}
@@ -276,7 +276,7 @@ export default function HomePage() {
 
           {/* Étape 4: Résultats */}
           {currentStep === 4 && (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {/* Résultats */}
               <CreneauxResults
                 combinaisons={resultats.compatibles}
@@ -287,13 +287,13 @@ export default function HomePage() {
 
               {/* Action compacte */}
               {resultats.compatibles.length > 0 && (
-                <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
+                <div className="bg-green-50 border border-green-200 rounded-lg sm:rounded-xl p-3 sm:p-4 text-center">
                   <p className="text-green-700 text-sm mb-3">
                     🎉 {resultats.compatibles.length} combinaison{resultats.compatibles.length > 1 ? 's' : ''} trouvée{resultats.compatibles.length > 1 ? 's' : ''}
                   </p>
                   <button
                     onClick={() => setCurrentStep(3)}
-                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                    className="bg-green-500 hover:bg-green-600 active:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors touch-manipulation"
                   >
                     Modifier
                   </button>

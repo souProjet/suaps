@@ -84,19 +84,19 @@ export default function ActivitySelector({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-500 to-green-600 p-4">
+      <div className="bg-gradient-to-r from-green-500 to-green-600 p-3 sm:p-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-              <Search className="w-4 h-4 text-white" />
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white/20 rounded-full flex items-center justify-center">
+              <Search className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
             </div>
             <div>
-              <h2 className="text-white font-bold text-base">
+              <h2 className="text-white font-bold text-sm sm:text-base">
                 Choisissez vos activités
               </h2>
-              <p className="text-green-100 text-sm">
+              <p className="text-green-100 text-xs sm:text-sm">
                 {activites.length} activités • {activitesSelectionnees.length} sélectionnées
               </p>
             </div>
@@ -105,17 +105,17 @@ export default function ActivitySelector({
           {activitesSelectionnees.length > 0 && (
             <button
               onClick={clearAll}
-              className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full text-white text-sm font-medium transition-colors"
+              className="bg-white/20 hover:bg-white/30 active:bg-white/40 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-white text-xs sm:text-sm font-medium transition-colors touch-manipulation"
             >
-              Tout effacer
+              Effacer
             </button>
           )}
         </div>
       </div>
 
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         {/* Search Bar */}
-        <div className="mb-4">
+        <div className="mb-3 sm:mb-4">
           <SearchInput
             value={searchTerm}
             onChange={setSearchTerm}
@@ -126,17 +126,17 @@ export default function ActivitySelector({
 
         {/* Filtre rapide */}
         {activitesSelectionnees.length > 0 && (
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-3 sm:mb-4 flex items-center justify-between">
             <button
               onClick={() => setShowSelected(!showSelected)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+              className={`flex items-center space-x-2 px-3 py-2 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-colors touch-manipulation ${
                 showSelected 
                   ? 'bg-green-500 text-white' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300'
               }`}
             >
               <span>Mes sélections</span>
-              <div className="bg-white/20 px-2 py-0.5 rounded-full text-xs">
+              <div className="bg-white/20 px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-full text-xs">
                 {activitesSelectionnees.length}
               </div>
             </button>
@@ -144,14 +144,14 @@ export default function ActivitySelector({
         )}
 
         {/* Activities List */}
-        <div className="space-y-3 max-h-80 overflow-y-auto">
+        <div className="space-y-2 sm:space-y-3 max-h-80 overflow-y-auto">
           {filteredActivites.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <Search className="w-8 h-8 mx-auto mb-3 opacity-50" />
-              <p className="font-medium">
+            <div className="text-center py-6 sm:py-8 text-gray-500">
+              <Search className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 sm:mb-3 opacity-50" />
+              <p className="font-medium text-sm">
                 {showSelected ? 'Aucune activité sélectionnée' : 'Aucune activité trouvée'}
               </p>
-              <p className="text-sm">
+              <p className="text-xs sm:text-sm">
                 {showSelected 
                   ? 'Commencez par sélectionner des activités' 
                   : 'Essayez un autre terme de recherche'
@@ -166,28 +166,28 @@ export default function ActivitySelector({
                 <button
                   key={activite.nom}
                   onClick={() => handleToggle(activite.nom)}
-                  className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${
+                  className={`w-full text-left p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 touch-manipulation ${
                     isSelected 
                       ? 'border-green-500 bg-green-50 shadow-md' 
-                      : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-gray-100'
+                      : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-gray-100 active:bg-gray-200'
                   }`}
                 >
-                  <div className="flex items-start space-x-3">
+                  <div className="flex items-start space-x-2 sm:space-x-3">
                     {/* Checkbox */}
-                    <div className={`mt-1 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
+                    <div className={`mt-0.5 w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
                       isSelected 
                         ? 'bg-green-500 border-green-500' 
                         : 'border-gray-300'
                     }`}>
                       {isSelected && (
-                        <Check className="w-3 h-3 text-white" />
+                        <Check className="w-2 h-2 sm:w-3 sm:h-3 text-white" />
                       )}
                     </div>
                     
                     {/* Activity Info */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className={`font-semibold text-sm truncate ${
+                      <div className="flex items-center justify-between mb-1 sm:mb-2">
+                        <h3 className={`font-semibold text-xs sm:text-sm truncate ${
                           isSelected ? 'text-green-900' : 'text-gray-900'
                         }`}>
                           {activite.displayName}
@@ -195,8 +195,8 @@ export default function ActivitySelector({
                         <div className={`flex items-center text-xs ${
                           isSelected ? 'text-green-700' : 'text-gray-500'
                         }`}>
-                          <Clock className="w-3 h-3 mr-1" />
-                          {activite.creneaux.length} créneaux
+                          <Clock className="w-2 h-2 sm:w-3 sm:h-3 mr-1" />
+                          {activite.creneaux.length}
                         </div>
                       </div>
                       

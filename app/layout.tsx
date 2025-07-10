@@ -1,15 +1,23 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
+export const viewport: Viewport = {
+  themeColor: "#3b82f6",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover"
+};
+
 export const metadata: Metadata = {
+  metadataBase: new URL('https://suaps-planner.vercel.app'),
   title: "Planificateur SUAPS - Université de Nantes",
   description: "Trouvez facilement des créneaux compatibles pour vos activités sportives SUAPS",
   manifest: "/manifest.json",
-  themeColor: "#3b82f6",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -60,9 +68,6 @@ export default function RootLayout({
         
         {/* Theme color */}
         <meta name="theme-color" content="#3b82f6" />
-        
-        {/* Viewport for PWA */}
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
         
         {/* Service Worker Registration */}
         <script

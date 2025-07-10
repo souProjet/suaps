@@ -1,13 +1,27 @@
 import { NextResponse } from 'next/server';
 import { ActiviteAPI } from '@/types/suaps';
 
-const SUAPS_API_URL = process.env.SUAPS_API_URL || '';
+const SUAPS_API_URL = process.env.SUAPS_API_URL || 'https://u-sport.univ-nantes.fr/api/extended/activites';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const catalogueId = searchParams.get('catalogueId');
+    
+    if (!catalogueId) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'ID du catalogue requis',
+          data: []
+        },
+        { status: 400 }
+      );
+    }
+
     const params = new URLSearchParams({
       idPeriode: process.env.SUAPS_PERIODE_ID || '',
-      idCatalogue: process.env.SUAPS_CATALOGUE_ID || '',
+      idCatalogue: catalogueId,
       inscriptionsOuvertes: 'false'
     });
 

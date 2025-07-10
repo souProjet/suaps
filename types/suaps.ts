@@ -54,4 +54,25 @@ export interface ContrainteHoraire {
 
 export interface ContraintesHoraires {
   [jour: string]: ContrainteHoraire;
+}
+
+export interface AnneeAPI {
+  id: string;
+  annee: number;
+}
+
+export interface CatalogueAPI {
+  id: string;
+  nom: string;
+  description: string;
+  ordreAffichage: number;
+  type: string;
+  annee: AnneeAPI;
+  affichageHome: boolean;
+}
+
+export interface CatalogueOption {
+  id: string;
+  nom: string;
+  ville: string;
 } 

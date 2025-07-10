@@ -5,7 +5,7 @@ import React from 'react'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'Planificateur SUAPS - Université de Nantes',
+  title: 'Planificateur SUAPS',
   description: 'Trouvez des créneaux compatibles pour vos activités sportives',
 }
 

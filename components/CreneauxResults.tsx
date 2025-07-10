@@ -136,25 +136,25 @@ export default function CreneauxResults({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
       {/* Header */}
-      <div className={`p-4 ${combinaisons.length > 0 
+      <div className={`p-3 sm:p-4 ${combinaisons.length > 0 
         ? 'bg-gradient-to-r from-purple-500 to-purple-600' 
         : 'bg-gradient-to-r from-orange-500 to-orange-600'
       }`}>
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white/20 rounded-full flex items-center justify-center">
             {combinaisons.length > 0 ? (
-              <CheckCircle className="w-4 h-4 text-white" />
+              <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
             ) : (
-              <AlertCircle className="w-4 h-4 text-white" />
+              <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
             )}
           </div>
           <div>
-            <h3 className="text-white font-bold text-base">
+            <h3 className="text-white font-bold text-sm sm:text-base">
               {combinaisons.length > 0 ? 'Créneaux trouvés !' : 'Aucun créneau compatible'}
             </h3>
-            <p className={`text-sm ${combinaisons.length > 0 ? 'text-purple-100' : 'text-orange-100'}`}>
+            <p className={`text-xs sm:text-sm ${combinaisons.length > 0 ? 'text-purple-100' : 'text-orange-100'}`}>
               {combinaisons.length > 0 
                 ? `${combinaisons.length} combinaison${combinaisons.length > 1 ? 's' : ''} possible${combinaisons.length > 1 ? 's' : ''}`
                 : 'Essayez d\'autres activités'
@@ -164,39 +164,39 @@ export default function CreneauxResults({
         </div>
       </div>
 
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         {/* Results */}
         {combinaisons.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="w-8 h-8 text-orange-500" />
+          <div className="text-center py-6 sm:py-8">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+              <AlertCircle className="w-6 h-6 sm:w-8 sm:h-8 text-orange-500" />
             </div>
-            <h4 className="text-lg font-bold text-gray-900 mb-2">
+            <h4 className="text-base sm:text-lg font-bold text-gray-900 mb-2">
               Aucun créneau compatible
             </h4>
-            <p className="text-sm text-gray-600 mb-6">
+            <p className="text-sm text-gray-600 mb-4 sm:mb-6">
               Les activités sélectionnées ont des créneaux qui se chevauchent.
             </p>
-            <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
-              <p className="text-sm text-orange-700">
+            <div className="bg-orange-50 border border-orange-200 rounded-lg sm:rounded-xl p-3 sm:p-4">
+              <p className="text-xs sm:text-sm text-orange-700">
                 💡 <strong>Conseil :</strong> Essayez de sélectionner d'autres activités ou modifiez vos contraintes horaires
               </p>
             </div>
           </div>
         ) : (
-          <div className="space-y-4 max-h-96 overflow-y-auto">
+          <div className="space-y-3 sm:space-y-4 max-h-96 overflow-y-auto">
             {/* Meilleure combinaison en premier */}
             {combinaisonsWithStats.map((combination, index) => (
               <div 
                 key={index}
-                className={`border-2 rounded-xl p-4 transition-all duration-200 ${
+                className={`border-2 rounded-lg sm:rounded-xl p-3 sm:p-4 transition-all duration-200 ${
                   index === 0 
                     ? 'border-purple-500 bg-purple-50 shadow-md' 
                     : 'border-gray-200 bg-gray-50 hover:border-gray-300'
                 }`}
               >
                 {/* En-tête de la combinaison */}
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-2 sm:mb-3">
                   <div className="flex items-center space-x-2">
                     {index === 0 && (
                       <div className="flex items-center space-x-1 bg-purple-500 text-white px-2 py-1 rounded-full text-xs font-medium">
@@ -204,40 +204,45 @@ export default function CreneauxResults({
                         <span>Recommandé</span>
                       </div>
                     )}
-                    <span className="text-sm font-medium text-gray-600">
-                      Option {index + 1}
-                    </span>
                   </div>
                   
-                  <div className="flex items-center space-x-4 text-xs text-gray-600">
-                    <div className="flex items-center space-x-1">
-                      <Clock className="w-3 h-3" />
-                      <span>{formatDuration(combination.totalHeures)}</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="text-xs text-gray-600">
+                      {formatDuration(combination.totalHeures)}
                     </div>
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-3 h-3" />
-                      <span>{combination.joursUtilises.length} jour{combination.joursUtilises.length > 1 ? 's' : ''}</span>
-                    </div>
+                    <button
+                      onClick={() => copyToClipboard(combination.creneaux)}
+                      className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 active:bg-gray-200 rounded-lg transition-colors touch-manipulation"
+                      title="Copier"
+                    >
+                      <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                    </button>
                   </div>
                 </div>
 
                 {/* Liste des créneaux */}
                 <div className="space-y-2">
                   {combination.creneaux.map((creneau, creneauIndex) => (
-                    <div 
-                      key={creneauIndex}
-                      className="bg-white rounded-lg p-3 border border-gray-200"
-                    >
-                      <div className="flex items-center justify-between">
+                    <div key={creneauIndex} className="bg-white rounded-lg border border-gray-200 p-2 sm:p-3">
+                      <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-gray-900 text-sm truncate">
-                            {creneau.activité}
-                          </h4>
-                          <div className="flex items-center space-x-2 text-xs text-gray-600 mt-1">
-                            <span className="font-medium">{creneau.jour}</span>
-                            <span>•</span>
-                            <span>{creneau.début} - {creneau.fin}</span>
+                          <div className="flex items-center space-x-2 mb-1">
+                            <h4 className="font-semibold text-xs sm:text-sm text-gray-900 truncate">
+                              {creneau.activité}
+                            </h4>
                           </div>
+                          
+                          <div className="flex items-center space-x-3 text-xs text-gray-600">
+                            <div className="flex items-center space-x-1">
+                              <Calendar className="w-3 h-3" />
+                              <span>{creneau.jour}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <Clock className="w-3 h-3" />
+                              <span>{creneau.début} - {creneau.fin}</span>
+                            </div>
+                          </div>
+                          
                           {creneau.localisation && (
                             <div className="flex items-center space-x-1 text-xs text-gray-500 mt-1">
                               <MapPin className="w-3 h-3" />
@@ -250,36 +255,19 @@ export default function CreneauxResults({
                   ))}
                 </div>
 
-                {/* Actions */}
-                <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-200">
-                  <div className="text-xs text-gray-500">
-                    {combination.joursUtilises.join(', ')}
+                {/* Statistiques compactes */}
+                <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-200">
+                  <div className="flex items-center justify-between text-xs text-gray-600">
+                    <span>
+                      {combination.joursUtilises.length} jour{combination.joursUtilises.length > 1 ? 's' : ''} • {combination.creneaux.length} créneaux
+                    </span>
+                    <span className="font-medium">
+                      Total: {formatDuration(combination.totalHeures)}
+                    </span>
                   </div>
-                  
-                  <button
-                    onClick={() => copyToClipboard(combination.creneaux)}
-                    className="flex items-center space-x-1 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-lg text-xs font-medium text-gray-700 transition-colors"
-                  >
-                    <Copy className="w-3 h-3" />
-                    <span>Copier</span>
-                  </button>
                 </div>
               </div>
             ))}
-
-            {/* Message de succès */}
-            {combinaisons.length > 0 && (
-              <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 mt-4">
-                <div className="flex items-center space-x-2 mb-2">
-                  <CheckCircle className="w-4 h-4 text-purple-600" />
-                  <span className="font-semibold text-purple-900 text-sm">Parfait !</span>
-                </div>
-                <p className="text-sm text-purple-700">
-                  Vous avez trouvé <strong>{combinaisons.length} combinaison{combinaisons.length > 1 ? 's' : ''}</strong> d'activités sans conflit.
-                  {combinaisons.length > 1 && " La première option est recommandée."}
-                </p>
-              </div>
-            )}
           </div>
         )}
       </div>

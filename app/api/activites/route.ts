@@ -3,12 +3,25 @@ import { ActiviteAPI } from '@/types/suaps';
 
 const SUAPS_API_URL = process.env.SUAPS_API_URL || 'https://u-sport.univ-nantes.fr/api/extended/activites';
 
-export const dynamic = 'force-dynamic';
-
 export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const catalogueId = searchParams.get('catalogueId');
+    
+    if (!catalogueId) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'ID du catalogue requis',
+          data: []
+        },
+        { status: 400 }
+      );
+    }
+
     const params = new URLSearchParams({
       idPeriode: process.env.SUAPS_PERIODE_ID || '',
+      idCatalogue: catalogueId,
       inscriptionsOuvertes: 'false'
     });
 
@@ -21,6 +34,7 @@ export async function GET(request: Request) {
     
     const response = await fetch(`${SUAPS_API_URL}?${params}`, {
       headers,
+      // Désactiver le cache pour avoir les données les plus récentes
       cache: 'no-store'
     });
 
@@ -30,12 +44,14 @@ export async function GET(request: Request) {
 
     const data = await response.json();
 
+    // Vérifier que les données sont bien un array
     if (!Array.isArray(data)) {
       throw new Error('Format de données inattendu : la réponse n\'est pas une liste');
     }
 
     console.log(`✅ ${data.length} activités récupérées`);
 
+    // Typer les données pour TypeScript
     const activites: ActiviteAPI[] = data.map((item: any) => ({
       nom: item.nom || '',
       creneaux: Array.isArray(item.creneaux) ? item.creneaux.map((c: any) => ({

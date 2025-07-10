@@ -14,6 +14,7 @@ import HoraireConstraints from '@/components/HoraireConstraints';
 import CitySelector from '@/components/CitySelector';
 import StepIndicator from '@/components/StepIndicator';
 import StepContainer from '@/components/StepContainer';
+import PWAInstaller from '@/components/PWAInstaller';
 import { RefreshCw, Calendar, MapPin, Clock, Search, Target } from 'lucide-react';
 
 export default function HomePage() {
@@ -303,6 +304,9 @@ export default function HomePage() {
           )}
         </StepContainer>
       </div>
+
+      {/* PWA Installer */}
+      <PWAInstaller />
     </div>
   );
 } 

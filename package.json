@@ -1,12 +1,16 @@
 {
-  "name": "scaping-suaps-nextjs",
-  "version": "0.1.0",
+  "name": "planificateur-suaps-pwa",
+  "version": "1.0.0",
   "private": true,
+  "description": "Application PWA pour planifier vos activités sportives SUAPS",
+  "keywords": ["suaps", "sport", "université", "nantes", "planning", "pwa"],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generate-icons": "node scripts/generate-icons.js",
+    "build-pwa": "npm run generate-icons && npm run build"
   },
   "dependencies": {
     "next": "14.0.4",

@@ -38,7 +38,6 @@ Créez un fichier `.env.local` à la racine du projet :
 ```env
 SUAPS_API_URL=https://api.suaps.univ-nantes.fr/activites
 SUAPS_PERIODE_ID=123
-SUAPS_CATALOGUE_ID=456
 ```
 
 4. **Lancer le serveur de développement**

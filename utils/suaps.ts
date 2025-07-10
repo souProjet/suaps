@@ -1,7 +1,5 @@
 import { ActiviteAPI, Creneau, ActiviteOption, ContraintesHoraires } from '@/types/suaps';
 
-const SUAPS_API_URL = process.env.SUAPS_API_URL || 'https://u-sport.univ-nantes.fr/api/extended';
-
 /**
  * Transforme les données de l'API en créneaux formatés
  */
@@ -206,86 +204,4 @@ export function filtrerActivitesParContraintes(
       creneauRespectContraintes(creneau, contraintes)
     )
   })).filter(activite => activite.creneaux.length > 0); // Garder seulement les activités qui ont encore des créneaux
-}
-
-/**
- * Récupère les activités SUAPS pour un catalogue et une année donnés
- */
-export async function fetchActivites(catalogue: string, annee: string): Promise<ActiviteAPI[]> {
-  const params = new URLSearchParams({
-    idPeriode: process.env.SUAPS_PERIODE_ID || '',
-    idCatalogue: catalogue,
-    annee: annee,
-    inscriptionsOuvertes: 'false'
-  });
-
-  const headers = {
-    'User-Agent': 'Mozilla/5.0',
-    'Accept': 'application/json'
-  };
-
-  console.log('🔄 Récupération des données SUAPS...');
-  
-  const response = await fetch(`${SUAPS_API_URL}/activites?${params}`, {
-    headers,
-    // Désactiver le cache pour avoir les données les plus récentes
-    cache: 'no-store'
-  });
-
-  if (!response.ok) {
-    throw new Error(`Erreur HTTP: ${response.status} ${response.statusText}`);
-  }
-
-  const data = await response.json();
-
-  // Vérifier que les données sont bien un array
-  if (!Array.isArray(data)) {
-    throw new Error('Format de données inattendu : la réponse n\'est pas une liste');
-  }
-
-  console.log(`✅ ${data.length} activités récupérées`);
-
-  // Typer les données pour TypeScript
-  return data.map((item: any) => ({
-    nom: item.nom || '',
-    creneaux: Array.isArray(item.creneaux) ? item.creneaux.map((c: any) => ({
-      horaireDebut: c.horaireDebut || '',
-      horaireFin: c.horaireFin || '',
-      jour: c.jour || '',
-      localisation: c.localisation ? {
-        id: c.localisation.id || '',
-        nom: c.localisation.nom || '',
-        adresse: c.localisation.adresse || '',
-        ville: c.localisation.ville || '',
-        codePostal: c.localisation.codePostal || '',
-        complementAdresse: c.localisation.complementAdresse
-      } : undefined
-    })) : []
-  }));
-}
-
-/**
- * Récupère les catalogues SUAPS disponibles
- */
-export async function fetchCatalogues() {
-  const headers = {
-    'User-Agent': 'Mozilla/5.0',
-    'Accept': 'application/json'
-  };
-
-  console.log('🔄 Récupération des catalogues SUAPS...');
-  
-  const response = await fetch(`${SUAPS_API_URL}/catalogues/home`, {
-    headers,
-    cache: 'no-store'
-  });
-
-  if (!response.ok) {
-    throw new Error(`Erreur HTTP: ${response.status} ${response.statusText}`);
-  }
-
-  const data = await response.json();
-  console.log(`✅ ${data.length} catalogues récupérés`);
-  
-  return data;
 } 

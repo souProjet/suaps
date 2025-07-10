@@ -124,14 +124,14 @@ export default function HoraireConstraints({ contraintes, onChange }: HoraireCon
       {expanded && (
         <div className="border-t border-gray-200 p-4 bg-white">
           {/* Presets rapides */}
-          <div className="mb-4">
+          <div className="mb-4 sm:mb-6">
             <p className="text-xs text-gray-500 mb-2">Presets rapides :</p>
-            <div className="flex flex-wrap gap-1">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-1">
               {PRESETS.map((preset) => (
                 <button
                   key={preset.nom}
                   onClick={() => appliquerPreset(preset)}
-                  className="px-3 py-1.5 bg-gray-100 hover:bg-blue-100 text-xs text-gray-700 hover:text-blue-700 rounded-lg transition-all duration-200 font-medium"
+                  className="px-3 py-2 sm:py-1.5 bg-gray-100 hover:bg-blue-100 text-xs sm:text-xs text-gray-700 hover:text-blue-700 rounded-lg transition-all duration-200 font-medium touch-target"
                 >
                   {preset.nom}
                 </button>
@@ -139,61 +139,126 @@ export default function HoraireConstraints({ contraintes, onChange }: HoraireCon
             </div>
           </div>
           
-          {/* Jours de la semaine - Design moderne */}
-          <div className="grid grid-cols-7 gap-2">
-            {JOURS_SEMAINE.map(({ nom, court, couleur }) => {
-              const contrainte = contraintes[nom] || { jour: nom, actif: false };
-              const isActive = contrainte.actif;
-              
-              return (
-                <div key={nom} className="space-y-2">
-                  {/* Bouton jour moderne */}
-                  <button
-                    onClick={() => toggleJour(nom)}
-                    className={`w-full p-2 rounded-xl border-2 transition-all duration-200 ${
-                      isActive 
-                        ? `bg-${couleur}-500 border-${couleur}-500 text-white shadow-lg shadow-${couleur}-200` 
-                        : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="text-xs font-bold">{court}</div>
-                    {isActive && contrainte.heureDebut && contrainte.heureFin && (
-                      <div className="text-[10px] opacity-90 mt-0.5">
-                        {contrainte.heureDebut?.slice(0,2)}h-{contrainte.heureFin?.slice(0,2)}h
+          {/* Jours de la semaine - Design mobile-friendly */}
+          <div className="block sm:hidden">
+            {/* Version mobile avec stack vertical */}
+            <div className="space-y-3">
+              {JOURS_SEMAINE.map(({ nom, court, couleur }) => {
+                const contrainte = contraintes[nom] || { jour: nom, actif: false };
+                const isActive = contrainte.actif;
+                
+                return (
+                  <div key={nom} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                    <div className="flex items-center justify-between mb-2">
+                      <button
+                        onClick={() => toggleJour(nom)}
+                        className={`flex-1 p-3 rounded-lg border-2 transition-all duration-200 touch-target ${
+                          isActive 
+                            ? 'bg-blue-500 border-blue-500 text-white shadow-lg' 
+                            : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        <div className="font-semibold">{nom}</div>
+                        {isActive && contrainte.heureDebut && contrainte.heureFin && (
+                          <div className="text-sm opacity-90 mt-1">
+                            {contrainte.heureDebut} - {contrainte.heureFin}
+                          </div>
+                        )}
+                      </button>
+                    </div>
+                    
+                    {/* Contrôles horaires */}
+                    {isActive && (
+                      <div className="grid grid-cols-2 gap-2 mt-3">
+                        <div>
+                          <label className="block text-xs text-gray-600 mb-1">Début</label>
+                          <input
+                            type="time"
+                            value={contrainte.heureDebut || ''}
+                            onChange={(e) => updateContrainte(nom, 'heureDebut', e.target.value || undefined)}
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200 bg-white"
+                            min="06:00"
+                            max="23:30"
+                            step="1800"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-600 mb-1">Fin</label>
+                          <input
+                            type="time"
+                            value={contrainte.heureFin || ''}
+                            onChange={(e) => updateContrainte(nom, 'heureFin', e.target.value || undefined)}
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200 bg-white"
+                            min="06:00"
+                            max="23:30"
+                            step="1800"
+                          />
+                        </div>
                       </div>
                     )}
-                  </button>
-                  
-                  {/* Contrôles horaires élégants */}
-                  {isActive && (
-                    <div className="space-y-1">
-                      <div className="relative">
-                        <input
-                          type="time"
-                          value={contrainte.heureDebut || ''}
-                          onChange={(e) => updateContrainte(nom, 'heureDebut', e.target.value || undefined)}
-                          className={`w-full px-2 py-1 text-xs border-2 border-${couleur}-200 rounded-lg focus:border-${couleur}-500 focus:ring-1 focus:ring-${couleur}-200 bg-${couleur}-50`}
-                          min="06:00"
-                          max="23:30"
-                          step="1800"
-                        />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Version desktop avec grid */}
+          <div className="hidden sm:block">
+            <div className="grid grid-cols-7 gap-2">
+              {JOURS_SEMAINE.map(({ nom, court, couleur }) => {
+                const contrainte = contraintes[nom] || { jour: nom, actif: false };
+                const isActive = contrainte.actif;
+                
+                return (
+                  <div key={nom} className="space-y-2">
+                    {/* Bouton jour moderne */}
+                    <button
+                      onClick={() => toggleJour(nom)}
+                      className={`w-full p-2 rounded-xl border-2 transition-all duration-200 ${
+                        isActive 
+                          ? `bg-${couleur}-500 border-${couleur}-500 text-white shadow-lg shadow-${couleur}-200` 
+                          : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="text-xs font-bold">{court}</div>
+                      {isActive && contrainte.heureDebut && contrainte.heureFin && (
+                        <div className="text-[10px] opacity-90 mt-0.5">
+                          {contrainte.heureDebut?.slice(0,2)}h-{contrainte.heureFin?.slice(0,2)}h
+                        </div>
+                      )}
+                    </button>
+                    
+                    {/* Contrôles horaires élégants */}
+                    {isActive && (
+                      <div className="space-y-1">
+                        <div className="relative">
+                          <input
+                            type="time"
+                            value={contrainte.heureDebut || ''}
+                            onChange={(e) => updateContrainte(nom, 'heureDebut', e.target.value || undefined)}
+                            className={`w-full px-2 py-1 text-xs border-2 border-${couleur}-200 rounded-lg focus:border-${couleur}-500 focus:ring-1 focus:ring-${couleur}-200 bg-${couleur}-50`}
+                            min="06:00"
+                            max="23:30"
+                            step="1800"
+                          />
+                        </div>
+                        <div className="relative">
+                          <input
+                            type="time"
+                            value={contrainte.heureFin || ''}
+                            onChange={(e) => updateContrainte(nom, 'heureFin', e.target.value || undefined)}
+                            className={`w-full px-2 py-1 text-xs border-2 border-${couleur}-200 rounded-lg focus:border-${couleur}-500 focus:ring-1 focus:ring-${couleur}-200 bg-${couleur}-50`}
+                            min="06:00"
+                            max="23:30"
+                            step="1800"
+                          />
+                        </div>
                       </div>
-                      <div className="relative">
-                        <input
-                          type="time"
-                          value={contrainte.heureFin || ''}
-                          onChange={(e) => updateContrainte(nom, 'heureFin', e.target.value || undefined)}
-                          className={`w-full px-2 py-1 text-xs border-2 border-${couleur}-200 rounded-lg focus:border-${couleur}-500 focus:ring-1 focus:ring-${couleur}-200 bg-${couleur}-50`}
-                          min="06:00"
-                          max="23:30"
-                          step="1800"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Message d'aide moderne */}

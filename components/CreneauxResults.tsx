@@ -128,19 +128,19 @@ export default function CreneauxResults({
 
   if (activitesSelectionnees.length < 2) {
     return (
-      <div className="glass-card rounded-xl p-6 fade-in">
-        <div className="flex items-center text-gray-500 mb-4">
-          <Target className="w-6 h-6 mr-3 text-blue-500" />
-          <h3 className="text-xl font-semibold">Résultats de recherche</h3>
+      <div className="glass-card rounded-xl p-4 sm:p-6 fade-in">
+        <div className="flex items-center text-gray-500 mb-3 sm:mb-4">
+          <Target className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-blue-500 flex-shrink-0" />
+          <h3 className="text-lg sm:text-xl font-semibold">Résultats de recherche</h3>
         </div>
-        <div className="text-center py-12">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="w-8 h-8 text-blue-500" />
+        <div className="text-center py-8 sm:py-12">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <AlertCircle className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500" />
           </div>
-          <h4 className="text-lg font-semibold text-gray-800 mb-2">
+          <h4 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">
             Prêt à chercher !
           </h4>
-          <p className="text-gray-600 max-w-sm mx-auto">
+          <p className="text-sm sm:text-base text-gray-600 max-w-sm mx-auto px-2">
             Sélectionnez au moins 2 activités dans la liste de gauche pour découvrir 
             les créneaux compatibles.
           </p>
@@ -152,19 +152,19 @@ export default function CreneauxResults({
   const compatibilityRate = totalCombinaisons > 0 ? (combinaisons.length / totalCombinaisons) * 100 : 0;
 
       return (
-      <div className="glass-card rounded-lg p-6">
-        {/* Header */}
-        <div className="flex items-center mb-4">
+      <div className="glass-card rounded-lg p-4 sm:p-6">
+        {/* Header mobile-optimized */}
+        <div className="flex items-center mb-3 sm:mb-4">
           {combinaisons.length > 0 ? (
-            <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
+            <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 mr-2 flex-shrink-0" />
           ) : (
-            <AlertCircle className="w-5 h-5 text-orange-500 mr-2" />
+            <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500 mr-2 flex-shrink-0" />
           )}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800">
+          <div className="min-w-0">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-800 truncate">
               Créneaux compatibles
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-xs sm:text-sm text-gray-600">
               {combinaisons.length} résultat{combinaisons.length > 1 ? 's' : ''} trouvé{combinaisons.length > 1 ? 's' : ''}
             </p>
           </div>
@@ -172,13 +172,13 @@ export default function CreneauxResults({
 
               {/* Simple stats */}
         {combinaisons.length > 0 && (
-          <div className="flex items-center space-x-6 mb-4 text-sm text-gray-600">
+          <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-6 mb-3 sm:mb-4 text-xs sm:text-sm text-gray-600">
             <div className="flex items-center">
-              <Target className="w-4 h-4 mr-1" />
+              <Target className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
               {combinaisons.length} option{combinaisons.length > 1 ? 's' : ''}
             </div>
             <div className="flex items-center">
-              <CheckCircle className="w-4 h-4 mr-1" />
+              <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
               {Math.round(compatibilityRate)}% compatibilité
             </div>
           </div>
@@ -186,14 +186,14 @@ export default function CreneauxResults({
 
       {/* Results */}
       {combinaisons.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <AlertCircle className="w-10 h-10 text-orange-500" />
+        <div className="text-center py-8 sm:py-12">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+            <AlertCircle className="w-8 h-8 sm:w-10 sm:h-10 text-orange-500" />
           </div>
-          <h4 className="text-xl font-semibold text-gray-800 mb-3">
+          <h4 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3">
             Aucun créneau compatible
           </h4>
-          <p className="text-gray-600 max-w-md mx-auto mb-6">
+          <p className="text-sm sm:text-base text-gray-600 max-w-md mx-auto mb-4 sm:mb-6 px-2">
             Les activités sélectionnées ont des créneaux qui se chevauchent.
             Essayez différentes combinaisons d'activités pour trouver des créneaux compatibles.
           </p>

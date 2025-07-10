@@ -20,6 +20,12 @@
            transition-all duration-200 placeholder-gray-400;
   }
   
+  @media (max-width: 640px) {
+    .search-input {
+      @apply py-2 text-sm;
+    }
+  }
+  
   /* Simple activity card */
   .activity-card {
     @apply p-4 rounded-lg border transition-all duration-200 cursor-pointer
@@ -147,5 +153,18 @@
   
   .pulse-slow {
     animation: pulse-slow 2s infinite;
+  }
+  
+  /* Touch targets for mobile */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  @media (max-width: 640px) {
+    .touch-target {
+      min-height: 48px;
+      min-width: 48px;
+    }
   }
 }

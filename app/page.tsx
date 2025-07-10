@@ -94,17 +94,17 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header simple */}
+      {/* Header mobile-optimized */}
       <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <Calendar className="w-8 h-8 text-blue-600 mr-3" />
-              <div>
-                <h1 className="text-xl font-semibold text-gray-900">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+            <div className="flex items-center min-w-0 flex-1">
+              <Calendar className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600 mr-2 sm:mr-3 flex-shrink-0" />
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
                   Planificateur SUAPS
                 </h1>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs sm:text-sm text-gray-600 hidden xs:block">
                   Université de Nantes
                 </p>
               </div>
@@ -113,59 +113,60 @@ export default function HomePage() {
             <button
               onClick={handleRefresh}
               disabled={loading}
-              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg 
+              className="flex items-center justify-center min-w-0 px-3 py-2 sm:px-4 bg-blue-600 text-white rounded-lg 
                        hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed 
-                       transition-colors"
+                       transition-colors touch-target"
+              aria-label="Actualiser les données"
             >
-              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Actualiser
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''} ${loading ? '' : 'sm:mr-2'}`} />
+              <span className="hidden sm:inline ml-2">Actualiser</span>
             </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Titre simple */}
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+        {/* Titre mobile-optimized */}
         {!loading && !error && (
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+          <div className="text-center mb-6 sm:mb-8 px-2">
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">
               Trouvez vos créneaux compatibles
             </h2>
-            <p className="text-gray-600">
+            <p className="text-sm sm:text-base text-gray-600">
               Sélectionnez vos activités et découvrez les combinaisons possibles
             </p>
           </div>
         )}
 
-        {/* Statistiques simples */}
+        {/* Statistiques mobile-optimized */}
         {!loading && !error && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-white rounded-lg border border-gray-200 p-4 text-center">
-              <div className="text-2xl font-semibold text-blue-600">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+            <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 text-center">
+              <div className="text-xl sm:text-2xl font-semibold text-blue-600">
                 {activitesDisponibles.length}
               </div>
-              <div className="text-sm text-gray-600">Activités</div>
+              <div className="text-xs sm:text-sm text-gray-600">Activités</div>
             </div>
             
-            <div className="bg-white rounded-lg border border-gray-200 p-4 text-center">
-              <div className="text-2xl font-semibold text-green-600">
+            <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 text-center">
+              <div className="text-xl sm:text-2xl font-semibold text-green-600">
                 {creneaux.length}
               </div>
-              <div className="text-sm text-gray-600">Créneaux</div>
+              <div className="text-xs sm:text-sm text-gray-600">Créneaux</div>
             </div>
             
-            <div className="bg-white rounded-lg border border-gray-200 p-4 text-center">
-              <div className="text-2xl font-semibold text-purple-600">
+            <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 text-center">
+              <div className="text-xl sm:text-2xl font-semibold text-purple-600">
                 {resultats.compatibles.length}
               </div>
-              <div className="text-sm text-gray-600">Compatibles</div>
+              <div className="text-xs sm:text-sm text-gray-600">Compatibles</div>
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-4 text-center">
-              <div className="text-2xl font-semibold text-orange-600">
+            <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 text-center">
+              <div className="text-xl sm:text-2xl font-semibold text-orange-600">
                 {activitesSelectionnees.length}
               </div>
-              <div className="text-sm text-gray-600">Sélectionnées</div>
+              <div className="text-xs sm:text-sm text-gray-600">Sélectionnées</div>
             </div>
           </div>
         )}
@@ -198,7 +199,7 @@ export default function HomePage() {
               onChange={setContraintesHoraires}
             />
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
               {/* Sélecteur d'activités */}
               <div>
                 <ActivitySelector

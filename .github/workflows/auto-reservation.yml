@@ -1,0 +1,52 @@
+name: Auto-Réservation SUAPS
+
+on:
+  schedule:
+    # Exécution tous les jours à 18h00 UTC (20h00 heure française)
+    - cron: '0 18 * * *'
+  workflow_dispatch: # Permet d'exécuter manuellement
+
+jobs:
+  auto-reserve:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Call auto-reservation endpoint
+      env:
+        AUTO_RESERVATION_URL: ${{ secrets.AUTO_RESERVATION_URL }}
+        AUTO_RESERVATION_SECRET: ${{ secrets.AUTO_RESERVATION_SECRET }}
+      run: |
+        echo "🚀 Exécution de l'auto-réservation à $(date)"
+        
+        # Appel de l'endpoint avec retry logic
+        for attempt in 1 2 3; do
+          echo "Tentative $attempt/3..."
+          
+          response=$(curl -s -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: Bearer $AUTO_RESERVATION_SECRET" \
+            -H "Content-Type: application/json" \
+            "$AUTO_RESERVATION_URL/api/auto-reservation/execute")
+          
+          http_code="${response: -3}"
+          response_body="${response%???}"
+          
+          echo "Code de réponse HTTP: $http_code"
+          
+          if [ "$http_code" -eq 200 ]; then
+            echo "✅ Auto-réservation exécutée avec succès"
+            echo "Réponse: $response_body"
+            exit 0
+          else
+            echo "❌ Échec de l'auto-réservation (tentative $attempt)"
+            echo "Réponse: $response_body"
+            
+            if [ $attempt -lt 3 ]; then
+              echo "Attente de 30 secondes avant nouvelle tentative..."
+              sleep 30
+            fi
+          fi
+        done
+        
+        echo "❌ Échec après 3 tentatives"
+        exit 1

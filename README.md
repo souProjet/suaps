@@ -5,6 +5,8 @@ Une application web interactive pour trouver des créneaux compatibles entre dif
 ## 🚀 Fonctionnalités
 
 - ✅ **Récupération automatique** des données depuis l'API SUAPS en temps réel
+- ✅ **Cache intelligent** avec mise à jour automatique (1 semaine)
+- ✅ **Sauvegarde des préférences** : vos choix sont automatiquement conservés
 - ✅ **Sélection intuitive** des activités avec interface moderne et recherche
 - ✅ **Contraintes horaires personnalisées** par jour de la semaine
 - ✅ **Calcul automatique** des créneaux compatibles sans conflit
@@ -13,6 +15,7 @@ Une application web interactive pour trouver des créneaux compatibles entre dif
 - ✅ **Gestion d'erreurs** et états de chargement élégants
 - ✅ **Vue calendrier** pour visualiser les créneaux
 - ✅ **Statistiques en temps réel** (activités, créneaux, compatibilité)
+- ✅ **Expérience fluide** : reprise automatique de votre dernière session
 
 ## 📋 Prérequis
 
@@ -54,12 +57,27 @@ npm run dev
 
 ## 📱 Utilisation
 
-1. **Contraintes horaires** : Définissez vos disponibilités par jour de la semaine
-2. **Sélection des activités** : Cochez les activités qui vous intéressent dans la liste de gauche
-3. **Recherche intelligente** : Utilisez la barre de recherche pour filtrer les activités
-4. **Calcul automatique** : L'application trouve automatiquement toutes les combinaisons compatibles
-5. **Visualisation** : Consultez les créneaux sans conflit horaire avec les détails de localisation
-6. **Actualisation** : Utilisez le bouton "Actualiser" pour recharger les données SUAPS
+### 🔄 Expérience fluide et cache intelligent
+
+L'application mémorise automatiquement :
+- 💾 **Votre ville sélectionnée** : pas besoin de la rechoisir à chaque visite
+- 🕒 **Vos contraintes horaires** : vos disponibilités sont conservées
+- 🏃 **Vos activités préférées** : la sélection est restaurée automatiquement
+- 📍 **Votre progression** : reprise là où vous vous êtes arrêté
+
+### 📋 Guide d'utilisation
+
+1. **Sélection du campus** : Choisissez votre ville (sauvegardé automatiquement)
+2. **Contraintes horaires** : Définissez vos disponibilités par jour de la semaine
+3. **Sélection des activités** : Cochez les activités qui vous intéressent
+4. **Résultats** : Consultez les créneaux compatibles sans conflit horaire
+
+### 🔧 Fonctionnalités avancées
+
+- 🔄 **Cache intelligent** : Les données SUAPS sont mises en cache pendant 1 semaine pour des performances optimales
+- 💾 **Sauvegarde automatique** : Vos préférences sont conservées dans votre navigateur
+- 🔄 **Actualisation manuelle** : Bouton "Actualiser" pour recharger les données si nécessaire
+- 🗑️ **Réinitialisation** : Bouton pour effacer toutes les préférences sauvegardées
 
 ## 🏗️ Architecture
 
@@ -82,7 +100,10 @@ scraping-suaps/
 ├── types/
 │   └── suaps.ts                      # Types TypeScript pour l'API SUAPS
 ├── utils/
+│   ├── storage.ts                    # Gestion du localStorage et du cache
 │   └── suaps.ts                      # Logique métier (extraction, conflits, algorithmes)
+├── hooks/
+│   └── useUserPreferences.ts         # Hook pour la persistance des préférences
 ├── data_activites.json               # Cache local des données (si nécessaire)
 ├── start.bat                         # Script de démarrage Windows
 └── package.json                      # Dépendances et scripts npm
@@ -116,6 +137,8 @@ scraping-suaps/
 
 ### 🛠️ Améliorations techniques :
 - ⚡ **Performance optimisée** avec useMemo, React 18 et rendu conditionnel
+- 💾 **Cache intelligent** avec revalidation automatique (1 semaine)
+- 🏪 **Persistance des données** avec localStorage et hooks personnalisés
 - 🎨 **CSS modulaire** avec classes utilitaires Tailwind et composants réutilisables
 - 🔧 **Composants TypeScript** stricts avec interfaces complètes
 - 🌐 **API RESTful** séparée avec gestion d'erreurs robuste
@@ -160,10 +183,77 @@ npm run lint     # Vérification du code
 N'hésitez pas à améliorer l'application en ajoutant :
 - 📅 **Export en calendrier** (ICS, Google Calendar)
 - 🔔 **Notifications** de changements de créneaux
-- 💾 **Sauvegarde des préférences** utilisateur
 - 🎨 **Thèmes personnalisés** (mode sombre)
 - 📱 **Application mobile** avec React Native
-- 🔄 **Synchronisation automatique** des données
+- 🔄 **Synchronisation cloud** des préférences utilisateur
+- 🔍 **Filtres avancés** (niveau, type d'activité)
+- 📈 **Analytics** d'utilisation des créneaux
+
+## 🤖 Auto-réservation
+
+L'application inclut maintenant un système d'auto-réservation automatisé :
+
+### ✨ Fonctionnalités de l'auto-réservation
+
+- 🎯 **Réservation automatique** : Les créneaux sont automatiquement réservés 7 jours à l'avance
+- ⏰ **Programmation intelligente** : Exécution quotidienne à 20h heure française (18h UTC)
+- 🔐 **Authentification sécurisée** : Système d'authentification pour accéder aux fonctionnalités
+- 📊 **Historique complet** : Suivi de toutes les tentatives et réservations
+- 🎛️ **Gestion prioritaire** : Système de priorités pour les créneaux multiples
+- 🔄 **Retry automatique** : Jusqu'à 3 tentatives en cas d'échec
+- 📱 **API REST** : Endpoints pour gérer les créneaux d'auto-réservation
+
+### 🚀 Configuration de l'auto-réservation
+
+L'auto-réservation utilise un endpoint Next.js appelé par GitHub Actions :
+
+1. **Endpoint API** : `/api/auto-reservation/execute`
+2. **Programmation** : Workflow GitHub Actions avec cron à 18h UTC (20h France)
+3. **Sécurité** : Authentification par token Bearer
+4. **Logs** : Historique détaillé de toutes les opérations
+
+### 🔧 Variables d'environnement requises
+
+```env
+# Secret pour l'auto-réservation (utilisé par GitHub Actions)
+AUTO_RESERVATION_SECRET="your_secure_random_secret_here"
+
+# URL de l'application (pour les appels d'endpoint)
+AUTO_RESERVATION_URL="https://your-app-url.com"
+
+# Base de données
+DATABASE_URL="your_database_url_here"
+
+# Configuration SUAPS
+SUAPS_BASE_URL="https://u-sport.univ-nantes.fr"
+```
+
+### 📋 Secrets GitHub Actions
+
+Configurez les secrets suivants dans votre repository GitHub :
+
+- `AUTO_RESERVATION_SECRET` : Token d'authentification sécurisé
+- `AUTO_RESERVATION_URL` : URL de votre application déployée
+
+### 🎯 Utilisation
+
+1. **Connexion** : Authentifiez-vous avec votre code carte SUAPS
+2. **Ajout de créneaux** : Sélectionnez vos créneaux préférés et ajoutez-les à l'auto-réservation
+3. **Configuration** : Définissez les priorités et options pour chaque créneau
+4. **Automatisation** : Le système réserve automatiquement vos créneaux à 20h chaque jour
+
+## 📋 Nouvelles fonctionnalités v2.0.0
+
+- 🤖 **Auto-réservation automatisée** : Système complet d'auto-réservation des créneaux
+- ⏰ **Programmation avancée** : Workflow GitHub Actions avec horaire français (20h)
+- 🔐 **Système d'authentification** : Connexion sécurisée avec code carte SUAPS
+- 📊 **Gestion des logs** : Historique détaillé de toutes les réservations
+- 🎛️ **Interface de gestion** : Ajout/suppression/modification des créneaux automatiques
+- ✨ **Cache intelligent** : Données mises en cache pendant 1 semaine pour des performances optimales
+- 💾 **Sauvegarde automatique** : Vos préférences (ville, horaires, activités) sont conservées automatiquement
+- 🔄 **Reprise de session** : L'application reprend là où vous vous êtes arrêté
+- 🗑️ **Gestion des préférences** : Bouton pour effacer toutes les données sauvegardées
+- ⚡ **Performance améliorée** : Chargement plus rapide grâce au cache côté serveur
 
 ## 📄 Licence
 

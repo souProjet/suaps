@@ -1,0 +1,63 @@
+// Schéma Prisma pour MongoDB Atlas
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model CreneauAutoReservation {
+  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId               String   // Code carte SUAPS
+  activiteId           String
+  activiteNom          String
+  creneauId            String
+  jour                 String   // LUNDI, MARDI, etc.
+  horaireDebut         String
+  horaireFin           String
+  localisation         Localisation?
+  actif                Boolean  @default(true)
+  dateCreation         DateTime @default(now())
+  derniereTentative    DateTime?
+  derniereReservation  DateTime?
+  nbTentatives         Int      @default(0)
+  nbReussites          Int      @default(0)
+  options              OptionsReservation?
+
+  @@map("auto_reservations")
+}
+
+model LogReservation {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   // Code carte SUAPS
+  creneauAutoId String   @db.ObjectId
+  timestamp     DateTime @default(now())
+  statut        StatutReservation
+  message       String
+  details       Json?
+
+  @@map("logs_reservations")
+}
+
+// Types embarqués
+type Localisation {
+  nom     String
+  adresse String
+  ville   String
+}
+
+type OptionsReservation {
+  maxTentatives  Int?    @default(5)
+  notifierEchec  Boolean? @default(true)
+  priorite       Int?    @default(3) // 1-5, 1 = plus prioritaire
+}
+
+enum StatutReservation {
+  SUCCESS
+  FAILED
+  QUOTA_FULL
+  AUTH_ERROR
+  NETWORK_ERROR
+}

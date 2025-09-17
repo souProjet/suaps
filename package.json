@@ -1,6 +1,16 @@
 {
-  "name": "scaping-suaps-nextjs",
-  "version": "0.1.0",
+  "name": "planificateur-suaps",
+  "version": "1.1.0",
+  "description": "Planificateur intelligent pour les activités sportives du SUAPS de l'Université de Nantes. Permet de trouver des créneaux compatibles entre différentes activités avec contraintes horaires personnalisées.",
+  "keywords": [
+    "suaps",
+    "sport",
+    "université",
+    "nantes",
+    "planificateur",
+    "activités"
+  ],
+  "author": "Équipe SUAPS",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,13 +19,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@prisma/client": "^6.16.2",
+    "lucide-react": "^0.294.0",
     "next": "14.0.4",
+    "node-cron": "^3.0.3",
     "react": "^18",
-    "react-dom": "^18",
-    "lucide-react": "^0.294.0"
+    "react-dom": "^18"
   },
   "devDependencies": {
-    "typescript": "^5",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -23,6 +34,8 @@
     "eslint": "^8",
     "eslint-config-next": "14.0.4",
     "postcss": "^8",
-    "tailwindcss": "^3.3.0"
+    "prisma": "^6.16.2",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5"
   }
-} 
+}

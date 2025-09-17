@@ -3,6 +3,9 @@ import { ActiviteAPI } from '@/types/suaps';
 
 const SUAPS_API_URL = process.env.SUAPS_API_URL || 'https://u-sport.univ-nantes.fr/api/extended/activites';
 
+// Cette route est dynamique car elle dépend des paramètres de query
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -34,7 +37,8 @@ export async function GET(request: Request) {
     
     const response = await fetch(`${SUAPS_API_URL}?${params}`, {
       headers,
-      // Désactiver le cache pour avoir les données les plus récentes
+      // Pas de cache Next.js pour éviter l'erreur des données > 2MB
+      // Le cache sera géré par IndexedDB côté client
       cache: 'no-store'
     });
 

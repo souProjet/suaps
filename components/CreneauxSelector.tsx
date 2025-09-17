@@ -1,103 +1,124 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { ActiviteOption } from '@/types/suaps';
+import { ActiviteOption, CreneauSelectionne, Creneau } from '@/types/suaps';
 import SearchInput from './SearchInput';
-import CalendarView from './CalendarView';
-import { Check, Search, Clock, ChevronDown } from 'lucide-react';
+import { Check, Clock, Calendar, MapPin, Search } from 'lucide-react';
 
-interface ActivitySelectorProps {
+interface CreneauxSelectorProps {
   activites: ActiviteOption[];
-  activitesSelectionnees: string[];
-  onSelectionChange: (activites: string[]) => void;
+  creneauxSelectionnes: CreneauSelectionne[];
+  onSelectionChange: (creneaux: CreneauSelectionne[]) => void;
   loading?: boolean;
 }
 
-export default function ActivitySelector({
+export default function CreneauxSelector({
   activites,
-  activitesSelectionnees,
+  creneauxSelectionnes,
   onSelectionChange,
   loading = false
-}: ActivitySelectorProps) {
+}: CreneauxSelectorProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [showSelected, setShowSelected] = useState(false);
 
-  // Filter activities based on search
-  const filteredActivites = useMemo(() => {
-    let filtered = activites.filter(activite =>
-      activite.displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      activite.nom.toLowerCase().includes(searchTerm.toLowerCase())
+  // Convertir tous les créneaux en liste plate avec informations d'activité
+  const tousLesCreneaux = useMemo(() => {
+    const creneaux: (Creneau & { activiteDisplayName: string })[] = [];
+    
+    activites.forEach(activite => {
+      activite.creneaux.forEach(creneau => {
+        creneaux.push({
+          ...creneau,
+          activiteDisplayName: activite.displayName
+        });
+      });
+    });
+    
+    return creneaux;
+  }, [activites]);
+
+  // Filtrer les créneaux selon la recherche
+  const creneauxFiltres = useMemo(() => {
+    let filtered = tousLesCreneaux.filter(creneau =>
+      creneau.activiteDisplayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      creneau.activité.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      creneau.jour.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Si on veut afficher seulement les sélectionnées
+    // Si on veut afficher seulement les sélectionnés
     if (showSelected) {
-      filtered = filtered.filter(activite => 
-        activitesSelectionnees.includes(activite.nom)
+      filtered = filtered.filter(creneau => 
+        creneauxSelectionnes.some(selected => 
+          selected.activite === creneau.activité &&
+          selected.jour === creneau.jour &&
+          selected.debut === creneau.début &&
+          selected.fin === creneau.fin
+        )
       );
     }
 
-    return filtered.sort((a, b) => a.displayName.localeCompare(b.displayName));
-  }, [activites, searchTerm, showSelected, activitesSelectionnees]);
-
-  const handleToggle = (nomActivite: string) => {
-    if (activitesSelectionnees.includes(nomActivite)) {
-      // Retirer l'activité
-      onSelectionChange(activitesSelectionnees.filter(a => a !== nomActivite));
-    } else {
-      // Ajouter l'activité avec vérification des limites
-      const nouvellesActivites = [...activitesSelectionnees, nomActivite];
-      
-      // Vérifier les contraintes
-      if (canAddActivity(nomActivite, nouvellesActivites)) {
-        onSelectionChange(nouvellesActivites);
+    // Trier par activité puis par jour puis par heure
+    const JOURS_ORDRE = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+    
+    return filtered.sort((a, b) => {
+      // D'abord par activité
+      if (a.activiteDisplayName !== b.activiteDisplayName) {
+        return a.activiteDisplayName.localeCompare(b.activiteDisplayName);
       }
-    }
+      
+      // Puis par jour
+      const jourA = JOURS_ORDRE.indexOf(a.jour);
+      const jourB = JOURS_ORDRE.indexOf(b.jour);
+      if (jourA !== jourB) return jourA - jourB;
+      
+      // Enfin par heure
+      return a.début.localeCompare(b.début);
+    });
+  }, [tousLesCreneaux, searchTerm, showSelected, creneauxSelectionnes]);
+
+  // Vérifier si un créneau est sélectionné
+  const isCreneauSelected = (creneau: Creneau): boolean => {
+    return creneauxSelectionnes.some(selected => 
+      selected.activite === creneau.activité &&
+      selected.jour === creneau.jour &&
+      selected.debut === creneau.début &&
+      selected.fin === creneau.fin
+    );
   };
 
-  // Fonction pour vérifier si on peut ajouter une activité
-  const canAddActivity = (nomActivite: string, activitesActuelles: string[]): boolean => {
-    // Limite 1: Max 3 sports différents
-    if (activitesActuelles.length > 3) {
-      return false;
+  // Gérer la sélection/désélection d'un créneau
+  const handleToggleCreneau = (creneau: Creneau) => {
+    const isSelected = isCreneauSelected(creneau);
+    
+    if (isSelected) {
+      // Retirer le créneau
+      const nouveauxCreneaux = creneauxSelectionnes.filter(selected => 
+        !(selected.activite === creneau.activité &&
+          selected.jour === creneau.jour &&
+          selected.debut === creneau.début &&
+          selected.fin === creneau.fin)
+      );
+      onSelectionChange(nouveauxCreneaux);
+    } else {
+      // Ajouter le créneau avec limite de 4 créneaux maximum
+      if (creneauxSelectionnes.length >= 4) {
+        return; // Ne pas ajouter si limite atteinte
+      }
+      
+      const nouveauCreneau: CreneauSelectionne = {
+        activite: creneau.activité,
+        jour: creneau.jour,
+        debut: creneau.début,
+        fin: creneau.fin,
+        localisation: creneau.localisation
+      };
+      
+      onSelectionChange([...creneauxSelectionnes, nouveauCreneau]);
     }
-
-    // Limite 2: Max 4 créneaux au total
-    const totalCreneaux = activitesActuelles.reduce((total, nom) => {
-      const activite = activites.find(a => a.nom === nom);
-      return total + (activite?.creneaux.length || 0);
-    }, 0);
-
-    if (totalCreneaux > 4) {
-      return false;
-    }
-
-    return true;
   };
 
   const clearAll = () => {
     onSelectionChange([]);
-  };
-
-  // Calculs pour les limites
-  const totalCreneauxSelectionnes = useMemo(() => {
-    return activitesSelectionnees.reduce((total, nom) => {
-      const activite = activites.find(a => a.nom === nom);
-      return total + (activite?.creneaux.length || 0);
-    }, 0);
-  }, [activites, activitesSelectionnees]);
-
-  const peutAjouterSport = activitesSelectionnees.length < 3;
-  const peutAjouterCreneau = totalCreneauxSelectionnes < 4;
-
-  // Fonction pour vérifier si une activité spécifique peut être ajoutée
-  const isActivityDisabled = (activite: ActiviteOption): boolean => {
-    if (activitesSelectionnees.includes(activite.nom)) {
-      return false; // Déjà sélectionnée, on peut la désélectionner
-    }
-    
-    // Vérifier si ajouter cette activité dépasserait les limites
-    const nouvellesActivites = [...activitesSelectionnees, activite.nom];
-    return !canAddActivity(activite.nom, nouvellesActivites);
   };
 
   if (loading) {
@@ -114,7 +135,7 @@ export default function ActivitySelector({
         {/* Loading search bar */}
         <div className="h-12 bg-gray-200 rounded-xl animate-pulse mb-4"></div>
         
-        {/* Loading activities */}
+        {/* Loading slots */}
         <div className="space-y-3">
           {[1, 2, 3, 4].map(i => (
             <div key={i} className="bg-gray-50 rounded-xl p-4">
@@ -139,19 +160,19 @@ export default function ActivitySelector({
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 sm:space-x-3">
             <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white/20 rounded-full flex items-center justify-center">
-              <Search className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+              <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
             </div>
             <div>
               <h2 className="text-white font-bold text-sm sm:text-base">
-                Choisissez vos activités
+                Choisissez vos créneaux
               </h2>
               <p className="text-green-100 text-xs sm:text-sm">
-                {activites.length} activités • {activitesSelectionnees.length}/3 sports • {totalCreneauxSelectionnes}/4 créneaux
+                {tousLesCreneaux.length} créneaux • {creneauxSelectionnes.length}/4 sélectionnés
               </p>
             </div>
           </div>
           
-          {activitesSelectionnees.length > 0 && (
+          {creneauxSelectionnes.length > 0 && (
             <button
               onClick={clearAll}
               className="bg-white/20 hover:bg-white/30 active:bg-white/40 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-white text-xs sm:text-sm font-medium transition-colors touch-manipulation"
@@ -168,13 +189,13 @@ export default function ActivitySelector({
           <SearchInput
             value={searchTerm}
             onChange={setSearchTerm}
-            placeholder="Rechercher une activité..."
+            placeholder="Rechercher par activité, jour..."
             className="w-full"
           />
         </div>
 
         {/* Filtre rapide */}
-        {activitesSelectionnees.length > 0 && (
+        {creneauxSelectionnes.length > 0 && (
           <div className="mb-3 sm:mb-4 flex items-center justify-between">
             <button
               onClick={() => setShowSelected(!showSelected)}
@@ -186,36 +207,36 @@ export default function ActivitySelector({
             >
               <span>Mes sélections</span>
               <div className="bg-white/20 px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-full text-xs">
-                {activitesSelectionnees.length}
+                {creneauxSelectionnes.length}
               </div>
             </button>
           </div>
         )}
 
-        {/* Activities List */}
+        {/* Slots List */}
         <div className="space-y-2 sm:space-y-3 max-h-80 overflow-y-auto">
-          {filteredActivites.length === 0 ? (
+          {creneauxFiltres.length === 0 ? (
             <div className="text-center py-6 sm:py-8 text-gray-500">
               <Search className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 sm:mb-3 opacity-50" />
               <p className="font-medium text-sm">
-                {showSelected ? 'Aucune activité sélectionnée' : 'Aucune activité trouvée'}
+                {showSelected ? 'Aucun créneau sélectionné' : 'Aucun créneau trouvé'}
               </p>
               <p className="text-xs sm:text-sm">
                 {showSelected 
-                  ? 'Commencez par sélectionner des activités' 
+                  ? 'Commencez par sélectionner des créneaux' 
                   : 'Essayez un autre terme de recherche'
                 }
               </p>
             </div>
           ) : (
-            filteredActivites.map((activite) => {
-              const isSelected = activitesSelectionnees.includes(activite.nom);
-              const isDisabled = isActivityDisabled(activite);
+            creneauxFiltres.map((creneau, index) => {
+              const isSelected = isCreneauSelected(creneau);
+              const isDisabled = !isSelected && creneauxSelectionnes.length >= 4;
               
               return (
                 <button
-                  key={activite.nom}
-                  onClick={() => handleToggle(activite.nom)}
+                  key={`${creneau.activité}-${creneau.jour}-${creneau.début}-${index}`}
+                  onClick={() => handleToggleCreneau(creneau)}
                   disabled={isDisabled}
                   className={`w-full text-left p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 touch-manipulation ${
                     isSelected 
@@ -237,28 +258,37 @@ export default function ActivitySelector({
                       )}
                     </div>
                     
-                    {/* Activity Info */}
+                    {/* Slot Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1 sm:mb-2">
                         <h3 className={`font-semibold text-xs sm:text-sm truncate ${
                           isSelected ? 'text-green-900' : 'text-gray-900'
                         }`}>
-                          {activite.displayName}
+                          {creneau.activiteDisplayName}
                         </h3>
-                        <div className={`flex items-center text-xs ${
-                          isSelected ? 'text-green-700' : 'text-gray-500'
-                        }`}>
-                          <Clock className="w-2 h-2 sm:w-3 sm:h-3 mr-1" />
-                          {activite.creneaux.length}
+                      </div>
+                      
+                      <div className={`flex items-center space-x-3 text-xs ${
+                        isSelected ? 'text-green-700' : 'text-gray-600'
+                      }`}>
+                        <div className="flex items-center space-x-1">
+                          <Calendar className="w-3 h-3" />
+                          <span>{creneau.jour}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Clock className="w-3 h-3" />
+                          <span>{creneau.début} - {creneau.fin}</span>
                         </div>
                       </div>
                       
-                      {/* Calendar view compact */}
-                      <CalendarView 
-                        creneaux={activite.creneaux} 
-                        activite={activite.nom}
-                        className="text-xs"
-                      />
+                      {creneau.localisation && (
+                        <div className={`flex items-center space-x-1 text-xs mt-1 ${
+                          isSelected ? 'text-green-600' : 'text-gray-500'
+                        }`}>
+                          <MapPin className="w-3 h-3" />
+                          <span className="truncate">{creneau.localisation.nom}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </button>
@@ -268,51 +298,40 @@ export default function ActivitySelector({
         </div>
         
         {/* Selection Summary */}
-        {activitesSelectionnees.length > 0 && (
+        {creneauxSelectionnes.length > 0 && (
           <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-semibold text-green-900">
-                {activitesSelectionnees.length} activité{activitesSelectionnees.length > 1 ? 's' : ''} sélectionnée{activitesSelectionnees.length > 1 ? 's' : ''}
+                {creneauxSelectionnes.length} créneau{creneauxSelectionnes.length > 1 ? 'x' : ''} sélectionné{creneauxSelectionnes.length > 1 ? 's' : ''}
               </span>
               
-              {activitesSelectionnees.length >= 2 ? (
+              {creneauxSelectionnes.length >= 2 ? (
                 <div className="flex items-center text-xs text-green-600">
                   <Check className="w-3 h-3 mr-1" />
                   Prêt !
                 </div>
               ) : (
                 <div className="text-xs text-green-700">
-                  +{2 - activitesSelectionnees.length} pour comparer
+                  +{2 - creneauxSelectionnes.length} pour comparer
                 </div>
               )}
             </div>
             
-            {/* Limites */}
+            {/* Limite */}
             <div className="flex items-center justify-between text-xs text-green-700 mb-2">
-              <span>Sports: {activitesSelectionnees.length}/3</span>
-              <span>Créneaux: {totalCreneauxSelectionnes}/4</span>
+              <span>Créneaux: {creneauxSelectionnes.length}/4</span>
             </div>
             
-            {activitesSelectionnees.length < 2 && (
+            {creneauxSelectionnes.length < 2 && (
               <p className="text-xs text-green-700">
-                💡 Sélectionnez au moins 2 activités pour voir les créneaux compatibles
+                💡 Sélectionnez au moins 2 créneaux pour voir les compatibilités
               </p>
             )}
             
             {/* Messages d'avertissement pour les limites */}
-            {!peutAjouterSport && peutAjouterCreneau && (
-              <p className="text-xs text-orange-700 mt-2">
-                ⚠️ Limite de 3 sports atteinte
-              </p>
-            )}
-            {!peutAjouterCreneau && peutAjouterSport && (
+            {creneauxSelectionnes.length >= 4 && (
               <p className="text-xs text-orange-700 mt-2">
                 ⚠️ Limite de 4 créneaux atteinte
-              </p>
-            )}
-            {!peutAjouterSport && !peutAjouterCreneau && (
-              <p className="text-xs text-red-700 mt-2">
-                🚫 Limites maximales atteintes (3 sports, 4 créneaux)
               </p>
             )}
           </div>
@@ -320,4 +339,4 @@ export default function ActivitySelector({
       </div>
     </div>
   );
-} 
+}

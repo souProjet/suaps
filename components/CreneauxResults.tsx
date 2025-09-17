@@ -2,9 +2,10 @@
 
 import { useMemo, useState } from 'react';
 import { Creneau } from '@/types/suaps';
+import { getCurrentUser } from '@/utils/auth';
 import { 
   Clock, Calendar, AlertCircle, CheckCircle, Target, 
-  Copy, MapPin, ExternalLink, Trophy
+  Copy, MapPin, ExternalLink, Trophy, Bot, Plus
 } from 'lucide-react';
 
 interface CreneauxResultsProps {
@@ -28,6 +29,9 @@ export default function CreneauxResults({
 }: CreneauxResultsProps) {
 
   const [selectedCombination, setSelectedCombination] = useState<number | null>(null);
+  const [addingToAutoReservation, setAddingToAutoReservation] = useState<number | null>(null);
+  const [addingIndividualCreneau, setAddingIndividualCreneau] = useState<string | null>(null);
+  const user = getCurrentUser();
   
   // Calculate enhanced stats for each combination
   const JOURS_ORDRE = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
@@ -78,6 +82,119 @@ export default function CreneauxResults({
     if (h === 0) return `${m}min`;
     if (m === 0) return `${h}h`;
     return `${h}h${m.toString().padStart(2, '0')}`;
+  };
+
+  const ajouterCombinaisonAutoReservation = async (combinaison: Creneau[], index: number) => {
+    if (!user) {
+      alert('Vous devez être connecté pour utiliser l\'auto-réservation');
+      return;
+    }
+
+    setAddingToAutoReservation(index);
+
+    try {
+      // Ajouter chaque créneau de la combinaison individuellement
+      const promises = combinaison.map(creneau => 
+        fetch('/api/auto-reservation/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            activiteId: `${creneau.activité}-${creneau.jour}-${creneau.début}`, // ID unique basé sur les données
+            activiteNom: creneau.activité,
+            creneauId: `${creneau.activité}-${creneau.jour}-${creneau.début}-${creneau.fin}`,
+            jour: creneau.jour.toUpperCase(),
+            horaireDebut: creneau.début,
+            horaireFin: creneau.fin,
+            localisation: creneau.localisation ? {
+              nom: creneau.localisation.nom,
+              adresse: creneau.localisation.adresse || '',
+              ville: creneau.localisation.ville || '',
+            } : undefined,
+            options: {
+              priorite: index === 0 ? 1 : 3, // Priorité plus élevée pour la meilleure combinaison
+              maxTentatives: 5,
+              notifierEchec: true
+            }
+          })
+        })
+      );
+
+      const results = await Promise.allSettled(promises);
+      
+      // Vérifier les résultats
+      const errors = results.filter(result => result.status === 'rejected');
+      const successes = results.filter(result => result.status === 'fulfilled');
+
+      if (errors.length > 0) {
+        console.error('Erreurs lors de l\'ajout:', errors);
+        alert(`Erreur lors de l'ajout de ${errors.length} créneau(x) à l'auto-réservation`);
+      } else {
+        alert(`✅ ${successes.length} créneau(x) ajouté(s) à l'auto-réservation !`);
+      }
+
+    } catch (error) {
+      console.error('Erreur:', error);
+      alert('Erreur lors de l\'ajout à l\'auto-réservation');
+    } finally {
+      setAddingToAutoReservation(null);
+    }
+  };
+
+  const ajouterCreneauIndividuel = async (creneau: Creneau) => {
+    if (!user) {
+      alert('Vous devez être connecté pour utiliser l\'auto-réservation');
+      return;
+    }
+
+    const creneauKey = `${creneau.activité}-${creneau.jour}-${creneau.début}-${creneau.fin}`;
+    setAddingIndividualCreneau(creneauKey);
+
+    try {
+      const response = await fetch('/api/auto-reservation/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          activiteId: `${creneau.activité}-${creneau.jour}-${creneau.début}`,
+          activiteNom: creneau.activité,
+          creneauId: creneauKey,
+          jour: creneau.jour.toUpperCase(),
+          horaireDebut: creneau.début,
+          horaireFin: creneau.fin,
+          localisation: creneau.localisation ? {
+            nom: creneau.localisation.nom,
+            adresse: creneau.localisation.adresse || '',
+            ville: creneau.localisation.ville || '',
+          } : undefined,
+          options: {
+            priorite: 3,
+            maxTentatives: 5,
+            notifierEchec: true
+          }
+        })
+      });
+
+      if (response.ok) {
+        alert('✅ Créneau ajouté à l\'auto-réservation !');
+      } else {
+        const error = await response.json();
+        if (error.error === 'Ce créneau est déjà programmé pour auto-réservation') {
+          alert('ℹ️ Ce créneau est déjà configuré pour l\'auto-réservation');
+        } else {
+          alert('❌ Erreur : ' + error.error);
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout du créneau:', error);
+      alert('❌ Erreur lors de l\'ajout du créneau');
+    } finally {
+      setAddingIndividualCreneau(null);
+    }
   };
 
   if (loading) {
@@ -210,6 +327,28 @@ export default function CreneauxResults({
                     <div className="text-xs text-gray-600">
                       {formatDuration(combination.totalHeures)}
                     </div>
+                    
+                    {/* Bouton Auto-Réservation */}
+                    {user && (
+                      <button
+                        onClick={() => ajouterCombinaisonAutoReservation(combination.creneaux, index)}
+                        disabled={addingToAutoReservation === index}
+                        className={`p-1.5 sm:p-2 rounded-lg transition-colors touch-manipulation flex items-center space-x-1 text-xs font-medium ${
+                          index === 0
+                            ? 'bg-purple-500 hover:bg-purple-600 text-white'
+                            : 'bg-blue-500 hover:bg-blue-600 text-white'
+                        } ${addingToAutoReservation === index ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        title="Ajouter à l'auto-réservation"
+                      >
+                        {addingToAutoReservation === index ? (
+                          <div className="w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          <Bot className="w-3 h-3 sm:w-4 sm:h-4" />
+                        )}
+                        <span className="hidden sm:inline">Auto</span>
+                      </button>
+                    )}
+                    
                     <button
                       onClick={() => copyToClipboard(combination.creneaux)}
                       className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 active:bg-gray-200 rounded-lg transition-colors touch-manipulation"
@@ -250,6 +389,25 @@ export default function CreneauxResults({
                             </div>
                           )}
                         </div>
+
+                        {/* Bouton auto-réservation pour créneau individuel */}
+                        {user && (
+                          <div className="ml-2">
+                            <button
+                              onClick={() => ajouterCreneauIndividuel(creneau)}
+                              disabled={addingIndividualCreneau === `${creneau.activité}-${creneau.jour}-${creneau.début}-${creneau.fin}`}
+                              className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors text-xs flex items-center gap-1 disabled:opacity-50"
+                              title="Ajouter à l'auto-réservation"
+                            >
+                              {addingIndividualCreneau === `${creneau.activité}-${creneau.jour}-${creneau.début}-${creneau.fin}` ? (
+                                <div className="w-3 h-3 border border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                              ) : (
+                                <Bot className="w-3 h-3" />
+                              )}
+                              <span className="hidden sm:inline">Auto</span>
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}

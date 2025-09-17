@@ -56,6 +56,18 @@ export interface ContraintesHoraires {
   [jour: string]: ContrainteHoraire;
 }
 
+// Interface pour la sélection de créneaux spécifiques
+export interface CreneauSelectionne {
+  activite: string;
+  jour: string;
+  debut: string;
+  fin: string;
+  localisation?: Localisation;
+}
+
+// Mode de sélection : par sport ou par créneaux spécifiques
+export type SelectionMode = 'sports' | 'creneaux';
+
 export interface AnneeAPI {
   id: string;
   annee: number;
@@ -75,4 +87,56 @@ export interface CatalogueOption {
   id: string;
   nom: string;
   ville: string;
+}
+
+// Types pour l'authentification SUAPS
+export interface AuthRequest {
+  codeCarte: string;
+}
+
+export interface AuthError {
+  type: string;
+  title: string;
+  status: number;
+  detail: string;
+  path: string;
+  message: string;
+}
+
+export interface UserProfile {
+  code: string;
+  numero: string;
+  type: string;
+  typeExterne: string;
+  civilite: string;
+  nom: string;
+  prenom: string;
+  email: string;
+  telephone: string;
+  dateNaissance: string;
+  estBoursier: boolean;
+  composante: string;
+  departement: string | null;
+  estInscrit: boolean;
+  paiementEffectue: boolean;
+  casContact: string | null;
+  reduction: string | null;
+  etablissementOrigine: string;
+  tagHexa: string;
+  majorite: string;
+}
+
+export interface AuthResult {
+  success: boolean;
+  accessToken?: string;
+  profile?: UserProfile;
+  error?: AuthError;
+}
+
+export interface StoredAuth {
+  codeCarte: string;
+  accessToken: string;
+  profile: UserProfile;
+  expiresAt: number;
+  createdAt: number;
 } 

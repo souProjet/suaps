@@ -3,6 +3,9 @@ import { CatalogueAPI, CatalogueOption } from '@/types/suaps';
 
 const CATALOGUES_API_URL = 'https://u-sport.univ-nantes.fr/api/extended/catalogues/home';
 
+// Cette route peut être mise en cache mais on garde la dynamique pour le revalidate
+export const revalidate = 604800; // 1 semaine
+
 export async function GET() {
   try {
     const headers = {
@@ -14,8 +17,8 @@ export async function GET() {
     
     const response = await fetch(CATALOGUES_API_URL, {
       headers,
-      // Désactiver le cache pour avoir les données les plus récentes
-      cache: 'no-store'
+      // Cache de 1 semaine (604800 secondes)
+      next: { revalidate: 604800 }
     });
 
     if (!response.ok) {

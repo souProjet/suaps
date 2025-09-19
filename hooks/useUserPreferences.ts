@@ -84,7 +84,7 @@ export function useUserPreferences(): UseUserPreferencesReturn {
       }
       
       if (storedPrefs.selectionMode) {
-        setSelectionModeState(storedPrefs.selectionMode);
+        setSelectionModeState(storedPrefs.selectionMode as SelectionMode);
       }
       
       if (storedPrefs.currentStep) {

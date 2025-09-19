@@ -6,6 +6,7 @@ import {
   calculerProchaineReservation,
   disconnectDatabase
 } from '@/utils/database';
+import { processCodeCarte, validateCodeCarte } from '@/utils/codeConverter';
 
 // Configuration
 const SUAPS_BASE_URL = process.env.SUAPS_BASE_URL || 'https://u-sport.univ-nantes.fr';
@@ -29,29 +30,47 @@ async function loginSuaps(codeCarte: string) {
   try {
     console.log(`Tentative de connexion pour l'utilisateur ${codeCarte}`);
     
-    const response = await fetch(`${SUAPS_BASE_URL}/api/auth/connexion`, {
+    // Valider le format du code carte
+    const validation = validateCodeCarte(codeCarte);
+    if (!validation.isValid) {
+      throw new Error(`Code carte invalide: ${validation.message}`);
+    }
+
+    // Convertir le code carte au format hexadécimal attendu par SUAPS (même logique que l'auth classique)
+    const codeCarteProcessed = processCodeCarte(codeCarte);
+    console.log(`Conversion code carte: ${codeCarte} -> ${codeCarteProcessed}`);
+    
+    // Utiliser le même endpoint que le système d'authentification classique
+    const response = await fetch(`${SUAPS_BASE_URL}/api/extended/cartes/auth/login`, {
       method: 'POST',
       headers: DEFAULT_HEADERS,
-      body: JSON.stringify({
-        login: codeCarte,
-        password: '' // Le système SUAPS utilise seulement le code carte
-      })
+      credentials: "include",
+      body: JSON.stringify({ codeCarte: codeCarteProcessed }),
+      mode: "cors"
     });
 
     if (!response.ok) {
-      throw new Error(`Erreur HTTP ${response.status}: ${response.statusText}`);
+      let errorData: any;
+      try {
+        errorData = await response.json();
+        throw new Error(`Erreur d'authentification: ${errorData.message || errorData.detail || response.statusText}`);
+      } catch {
+        throw new Error(`Erreur HTTP ${response.status}: ${response.statusText}`);
+      }
     }
 
-    const data = await response.json();
-    
-    // Extraire le token des cookies
-    const cookies = response.headers.get('set-cookie');
+    // Extraire le token des cookies (même logique que l'auth classique)
+    const setCookieHeaders = response.headers.getSetCookie();
     let accessToken = null;
-    
-    if (cookies) {
-      const tokenMatch = cookies.match(/accessToken=([^;]+)/);
-      if (tokenMatch) {
-        accessToken = tokenMatch[1];
+
+    // Chercher le token d'accès dans les cookies
+    for (const cookieHeader of setCookieHeaders) {
+      if (cookieHeader.includes('accessToken=')) {
+        const match = cookieHeader.match(/accessToken=([^;]+)/);
+        if (match) {
+          accessToken = match[1];
+          break;
+        }
       }
     }
 
@@ -60,7 +79,42 @@ async function loginSuaps(codeCarte: string) {
     }
 
     console.log(`Connexion réussie pour ${codeCarte}`);
-    return { success: true, accessToken, userData: data };
+    
+    // Récupérer les données utilisateur via l'API profil (même logique que le système classique)
+    let userData = null;
+    try {
+      const profileResponse = await fetch(`${SUAPS_BASE_URL}/api/individus/me`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          ...DEFAULT_HEADERS,
+          "Cookie": `accessToken=${accessToken}`
+        },
+        mode: "cors"
+      });
+
+      if (profileResponse.ok) {
+        userData = await profileResponse.json();
+        console.log(`Données utilisateur récupérées pour ${codeCarte}:`, userData?.login);
+      } else {
+        console.warn(`Impossible de récupérer les données utilisateur pour ${codeCarte}, utilisation des données de base`);
+        // Données de fallback basées sur le code carte
+        userData = {
+          login: codeCarte,
+          typeUtilisateur: 'EXTERNE',
+          codeCarte: codeCarteProcessed
+        };
+      }
+    } catch (profileError) {
+      console.warn(`Erreur lors de la récupération du profil pour ${codeCarte}:`, profileError);
+      userData = {
+        login: codeCarte,
+        typeUtilisateur: 'EXTERNE', 
+        codeCarte: codeCarteProcessed
+      };
+    }
+    
+    return { success: true, accessToken, userData };
     
   } catch (error: any) {
     console.error(`Erreur de connexion pour ${codeCarte}: ${error.message}`);
@@ -103,7 +157,7 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
       individuDTO: userData
     };
 
-    const response = await fetch(`${SUAPS_BASE_URL}/api/extended/reservation-creneaux`, {
+    const response = await fetch(`${SUAPS_BASE_URL}/api/extended/reservation-creneaux?idPeriode=${process.env.SUAPS_PERIODE_ID}`, {
       method: 'POST',
       headers: {
         ...DEFAULT_HEADERS,
@@ -177,6 +231,7 @@ async function traiterCreneau(creneau: any, logs: string[]) {
     }
 
     // Tentative de connexion
+    // Note: creneau.userId devrait contenir le code carte brut de l'utilisateur
     const authResult = await loginSuaps(creneau.userId);
     if (!authResult.success) {
       await enregistrerLogReservation({

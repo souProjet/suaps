@@ -242,6 +242,7 @@ export async function creneauDejaPrograme(userId: string, creneauId: string): Pr
 
 /**
  * Calcule le prochain jour de réservation (7 jours glissants)
+ * Règle : on peut réserver pour un jour donné à partir de ce même jour jusqu'au même jour de la semaine suivante
  */
 export function calculerProchaineReservation(jour: string): Date {
   const joursMap: { [key: string]: number } = {
@@ -256,17 +257,22 @@ export function calculerProchaineReservation(jour: string): Date {
   
   const jourCible = joursMap[jour.toUpperCase()];
   const maintenant = new Date();
-  const demain = new Date(maintenant);
-  demain.setDate(demain.getDate() + 1);
+  const jourActuel = maintenant.getDay();
   
-  // Trouve le prochain jour correspondant dans 7 jours
-  const prochaineDate = new Date(demain);
-  prochaineDate.setDate(prochaineDate.getDate() + 7);
+  // Calcule combien de jours jusqu'au prochain jour cible
+  let joursJusquauCible = (jourCible - jourActuel + 7) % 7;
   
-  // Ajuste au bon jour de la semaine
-  const jourActuel = prochaineDate.getDay();
-  const diffJours = (jourCible - jourActuel + 7) % 7;
-  prochaineDate.setDate(prochaineDate.getDate() + diffJours);
+  // Si c'est 0 (même jour), on prend la semaine suivante (7 jours)
+  if (joursJusquauCible === 0) {
+    joursJusquauCible = 7;
+  }
+  
+  // La date cible est dans joursJusquauCible jours
+  const prochaineDate = new Date(maintenant);
+  prochaineDate.setDate(prochaineDate.getDate() + joursJusquauCible);
+  
+  // Remettre l'heure à minuit pour éviter les problèmes de comparaison
+  prochaineDate.setHours(0, 0, 0, 0);
   
   return prochaineDate;
 }

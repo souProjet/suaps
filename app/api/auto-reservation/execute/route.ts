@@ -137,16 +137,31 @@ async function traiterCreneau(creneau: any, logs: string[]) {
     const prochaineReservation = calculerProchaineReservation(creneau.jour);
     const maintenant = new Date();
     
-    // Vérifier si on est dans la fenêtre de réservation (après 20h le jour J-7)
-    const heureReservation = new Date(maintenant);
-    heureReservation.setHours(20, 0, 0, 0); // 20h00:00
+    // Calculer le jour de la semaine du créneau et le jour actuel
+    const joursMap: { [key: string]: number } = {
+      'DIMANCHE': 0, 'LUNDI': 1, 'MARDI': 2, 'MERCREDI': 3,
+      'JEUDI': 4, 'VENDREDI': 5, 'SAMEDI': 6
+    };
     
-    const jourReservation = new Date(prochaineReservation);
-    jourReservation.setDate(jourReservation.getDate() - 7); // 7 jours avant
-    jourReservation.setHours(20, 0, 0, 0);
+    const jourCreneauNum = joursMap[creneau.jour.toUpperCase()];
+    const jourActuel = maintenant.getDay();
     
-    if (maintenant < jourReservation) {
-      const message = `Pas encore l'heure de réserver pour le créneau ${creneau.id} (${creneau.jour} ${creneau.horaireDebut})`;
+    // On peut réserver si on est le jour du créneau ou plus tard dans la semaine
+    // Mais seulement après 20h00 pour éviter de réserver trop tôt
+    const heureLimite = new Date(maintenant);
+    heureLimite.setHours(20, 0, 0, 0);
+    
+    // Si on n'est pas encore au jour du créneau dans la semaine, on attend
+    if (jourActuel < jourCreneauNum) {
+      const message = `Pas encore le moment de réserver pour le créneau ${creneau.id} (${creneau.jour} ${creneau.horaireDebut}) - Aujourd'hui: ${['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'][jourActuel]}`;
+      logs.push(message);
+      console.log(message);
+      return false;
+    }
+    
+    // Si on est le jour du créneau, on doit attendre après 20h
+    if (jourActuel === jourCreneauNum && maintenant < heureLimite) {
+      const message = `Trop tôt pour réserver le créneau ${creneau.id} (${creneau.jour} ${creneau.horaireDebut}) - Attendre 20h00`;
       logs.push(message);
       console.log(message);
       return false;

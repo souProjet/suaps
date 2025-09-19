@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getCurrentUser } from '@/utils/auth';
-import { Bot, Plus, Trash2, ToggleLeft, ToggleRight, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Bot, Plus, Trash2, ToggleLeft, ToggleRight, Clock, CheckCircle, XCircle, AlertCircle, Calendar } from 'lucide-react';
 
 interface CreneauAutoReservation {
   id: string;

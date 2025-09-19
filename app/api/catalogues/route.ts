@@ -12,8 +12,6 @@ export async function GET() {
       'User-Agent': 'Mozilla/5.0',
       'Accept': 'application/json'
     };
-
-    console.log('🔄 Récupération des catalogues SUAPS...');
     
     const response = await fetch(CATALOGUES_API_URL, {
       headers,
@@ -31,8 +29,6 @@ export async function GET() {
     if (!Array.isArray(data)) {
       throw new Error('Format de données inattendu : la réponse n\'est pas une liste');
     }
-
-    console.log(`✅ ${data.length} catalogues récupérés`);
 
     // Typer et transformer les données pour TypeScript
     const catalogues: CatalogueAPI[] = data.map((item: any) => ({

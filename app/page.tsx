@@ -248,15 +248,6 @@ export default function HomePage() {
     }
   };
 
-  const handleRefresh = () => {
-    chargerDonnees(undefined, true); // Force refresh
-  };
-
-  const handleClearPreferences = async () => {
-    clearAllPreferences();
-    await clearCache();
-  };
-
   // Logique de validation pour chaque étape
   const canProceedToStep2 = !!selectedCatalogueId && !loading;
   const canProceedToStep3 = true; // Les contraintes horaires sont optionnelles
@@ -298,26 +289,6 @@ export default function HomePage() {
             
             {/* Actions */}
             <div className="flex items-center space-x-2 sm:space-x-3">
-              {hasStoredPreferences && (
-                <button
-                  onClick={handleClearPreferences}
-                  className="p-1.5 sm:p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors touch-manipulation"
-                  title="Effacer les préférences"
-                >
-                  <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
-                </button>
-              )}
-              
-              {selectedCatalogueId && (
-                <button
-                  onClick={handleRefresh}
-                  disabled={loading}
-                  className="p-1.5 sm:p-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 rounded-lg transition-colors touch-manipulation"
-                  title="Actualiser les données"
-                >
-                  <RefreshCw className={`w-3 h-3 sm:w-4 sm:h-4 text-white ${loading ? 'animate-spin' : ''}`} />
-                </button>
-              )}
               
               {/* Boutons de navigation */}
               <div className="flex items-center space-x-1">

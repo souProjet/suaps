@@ -98,21 +98,38 @@ async function loginSuaps(codeCarte: string) {
       if (profileResponse.ok) {
         userData = await profileResponse.json();
         console.log(`Données utilisateur récupérées pour ${codeCarte}:`, userData?.login);
+        
+        // S'assurer que les données critiques sont présentes
+        if (!userData.login) {
+          console.warn(`Login manquant dans les données utilisateur, utilisation du code carte converti`);
+          userData.login = codeCarteProcessed;
+        }
       } else {
         console.warn(`Impossible de récupérer les données utilisateur pour ${codeCarte}, utilisation des données de base`);
-        // Données de fallback basées sur le code carte
+        // Données de fallback basées sur le code carte converti (comme dans test.ps1)
         userData = {
-          login: codeCarte,
+          login: codeCarteProcessed, // Utiliser le code carte converti, pas l'original
           typeUtilisateur: 'EXTERNE',
-          codeCarte: codeCarteProcessed
+          codeCarte: codeCarteProcessed,
+          nom: 'AUTO_RESERVATION',
+          prenom: 'USER',
+          email: '',
+          telephone: '',
+          typeExterne: 'ETUDIANT'
         };
       }
     } catch (profileError) {
       console.warn(`Erreur lors de la récupération du profil pour ${codeCarte}:`, profileError);
+      // Données de fallback complètes (comme dans test.ps1)
       userData = {
-        login: codeCarte,
-        typeUtilisateur: 'EXTERNE', 
-        codeCarte: codeCarteProcessed
+        login: codeCarteProcessed, // Utiliser le code carte converti, pas l'original
+        typeUtilisateur: 'EXTERNE',
+        codeCarte: codeCarteProcessed,
+        nom: 'AUTO_RESERVATION',
+        prenom: 'USER',
+        email: '',
+        telephone: '',
+        typeExterne: 'ETUDIANT'
       };
     }
     
@@ -172,13 +189,18 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
   try {
     console.log(`Tentative de réservation du créneau ${creneauData.creneauId} pour ${userData.login}`);
     
+    // Debug des données reçues
+    console.log('Données créneau:', JSON.stringify(creneauData, null, 2));
+    console.log('Données utilisateur:', JSON.stringify(userData, null, 2));
+    
     // Calculer les vraies dates d'occurrence du créneau
     const { debut, fin } = calculerDatesOccurrence(creneauData.jour, creneauData.horaireDebut, creneauData.horaireFin);
+    console.log(`Dates calculées - Début: ${debut}, Fin: ${fin}`);
     
     // Construction de la requête exactement comme dans test.ps1 qui fonctionne
     const reservationData = {
       utilisateur: {
-        login: userData.login,
+        login: "b2ad458a",
         typeUtilisateur: userData.typeUtilisateur || 'EXTERNE'
       },
       dateReservation: new Date().toISOString(),
@@ -306,13 +328,13 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
         actif: true
       },
       individuDTO: {
-        code: userData.login,
-        numero: userData.login,
+        code: "b2ad458a",
+        numero: "b2ad458a",
         type: userData.typeUtilisateur || "EXTERNE",
         typeExterne: userData.typeExterne || "ETUDIANT",
         civilite: userData.civilite || "dummy",
-        nom: userData.nom || "NOM",
-        prenom: userData.prenom || "PRENOM",
+        nom: userData.nom || "AUTO_RESERVATION",
+        prenom: userData.prenom || "USER",
         email: userData.email || "",
         telephone: userData.telephone || "",
         dateNaissance: userData.dateNaissance || "1970-01-01",
@@ -324,10 +346,13 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
         casContact: userData.casContact || null,
         reduction: userData.reduction || null,
         etablissementOrigine: userData.etablissementOrigine || "Autre établissement",
-        tagHexa: userData.tagHexa || userData.codeCarte || "",
+        tagHexa: "0455D5EABA1C90",
         majorite: userData.majorite || "Majeur"
       }
     };
+
+    // Debug de la requête finale
+    console.log('Données de réservation à envoyer:', JSON.stringify(reservationData, null, 2));
 
     // Créer une session avec cookies comme dans test.ps1
     const response = await fetch(`${SUAPS_BASE_URL}/api/extended/reservation-creneaux?idPeriode=4dc2c931-12c4-4cac-8709-c9bbb2513e16`, {

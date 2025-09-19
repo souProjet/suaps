@@ -175,7 +175,7 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
     // Calculer les vraies dates d'occurrence du créneau
     const { debut, fin } = calculerDatesOccurrence(creneauData.jour, creneauData.horaireDebut, creneauData.horaireFin);
     
-    // Construction de la requête de réservation basée sur l'exemple fourni qui fonctionne
+    // Construction de la requête exactement comme dans test.ps1 qui fonctionne
     const reservationData = {
       utilisateur: {
         login: userData.login,
@@ -191,7 +191,7 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
         horaireDebut: creneauData.horaireDebut,
         horaireFin: creneauData.horaireFin,
         quotaCursus: null,
-        quotaLoisir: creneauData.quotaLoisir || 24, // Utiliser la valeur du créneau ou une valeur par défaut
+        quotaLoisir: creneauData.quotaLoisir || 24,
         quotaMinimum: null,
         niveau: creneauData.niveau || null,
         fileAttente: false,
@@ -203,7 +203,7 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
           tarif: null,
           quota: null,
           fileAttente: false,
-          catalogue: creneauData.catalogue || {
+          catalogue: {
             id: "8a757ad7-fac6-4cad-b48b-a2a11ef7efa4",
             nom: "Catalogue Nantes",
             description: " ",
@@ -215,7 +215,7 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
             },
             affichageHome: true
           },
-          famille: creneauData.famille || {
+          famille: {
             id: "a0f6cc43-6592-4b21-b1fd-e8a0f99ff929",
             nom: "Sports Collectifs",
             couleurHexa: "#87cc84",
@@ -240,7 +240,7 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
           inscriptionAnnulable: null,
           creneaux: null
         },
-        localisation: creneauData.localisation || {
+        localisation: {
           id: "2a1e4835-3b73-4857-a213-6ac861d14458",
           nom: "Halle du SUAPS - Gymnase",
           reglementInterieur: null,
@@ -282,8 +282,8 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
         nbInscrits: 0,
         nbMoyenPresents: null,
         occurenceCreneauDTO: {
-          debut: debut, // Utiliser les vraies dates calculées
-          fin: fin,     // Utiliser les vraies dates calculées
+          debut: debut,
+          fin: fin,
           periode: {
             id: "4dc2c931-12c4-4cac-8709-c9bbb2513e16",
             nom: "Année 2025-2026",
@@ -316,7 +316,7 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
         email: userData.email || "",
         telephone: userData.telephone || "",
         dateNaissance: userData.dateNaissance || "1970-01-01",
-        estBoursier: userData.estBoursier || false,
+        estBoursier: userData.estBoursier !== undefined ? userData.estBoursier : false,
         composante: userData.composante || "Autre établissement",
         departement: userData.departement || null,
         estInscrit: userData.estInscrit !== undefined ? userData.estInscrit : true,
@@ -329,14 +329,24 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
       }
     };
 
+    // Créer une session avec cookies comme dans test.ps1
     const response = await fetch(`${SUAPS_BASE_URL}/api/extended/reservation-creneaux?idPeriode=4dc2c931-12c4-4cac-8709-c9bbb2513e16`, {
       method: 'POST',
       headers: {
-        ...DEFAULT_HEADERS,
-        'Cookie': `accessToken=${accessToken}`,
-        'Referer': `${SUAPS_BASE_URL}/activites`,
-        'Origin': SUAPS_BASE_URL,
-        'Accept-Encoding': 'gzip, deflate, br, zstd'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3',
+        'Accept-Encoding': 'gzip, deflate, br, zstd',
+        'Origin': 'https://u-sport.univ-nantes.fr',
+        'Referer': 'https://u-sport.univ-nantes.fr/activites',
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'same-origin',
+        'Priority': 'u=0',
+        'Pragma': 'no-cache',
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'application/json',
+        'Cookie': `accessToken=${accessToken}`
       },
       credentials: 'include',
       mode: 'cors',
@@ -345,6 +355,7 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.error(`Erreur de réservation - Status: ${response.status}, Response: ${errorText}`);
       throw new Error(`Erreur HTTP ${response.status}: ${errorText}`);
     }
 

@@ -10,7 +10,8 @@ datasource db {
 
 model CreneauAutoReservation {
   id                   String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId               String   // Code carte SUAPS
+  userId               String   // Code utilisateur issu de user.code lors de l'authentification (ex: "b2ad458a")
+  codeCarte            String   // Code carte SUAPS original (ex: "1220277161303184")
   activiteId           String
   activiteNom          String
   creneauId            String
@@ -31,7 +32,7 @@ model CreneauAutoReservation {
 
 model LogReservation {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId        String   // Code carte SUAPS
+  userId        String   // Code utilisateur issu de user.code lors de l'authentification (ex: "b2ad458a")
   creneauAutoId String   @db.ObjectId
   timestamp     DateTime @default(now())
   statut        StatutReservation

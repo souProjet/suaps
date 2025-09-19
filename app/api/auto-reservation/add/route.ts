@@ -31,8 +31,9 @@ export async function POST(request: NextRequest) {
       );
     }
     const codeCarte = convertHexToCodeCarte(user.tagHexa);
+    
     // Vérifier si le créneau n'est pas déjà programmé
-    const dejaPrograme = await creneauDejaPrograme(codeCarte, creneauId);
+    const dejaPrograme = await creneauDejaPrograme(user.code, creneauId); // Utiliser user.code pour l'ID utilisateur
     if (dejaPrograme) {
       return NextResponse.json(
         { error: 'Ce créneau est déjà programmé pour auto-réservation' },
@@ -42,7 +43,8 @@ export async function POST(request: NextRequest) {
 
     // Ajouter le créneau
     const id = await ajouterCreneauAutoReservation({
-      userId: codeCarte,
+      userId: user.code, // Code utilisateur authentifié (ex: "b2ad458a")
+      codeCarte: codeCarte, // Code carte original (ex: "1220277161303184")
       activiteId,
       activiteNom,
       creneauId,

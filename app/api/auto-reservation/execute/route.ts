@@ -197,36 +197,36 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
     const { debut, fin } = calculerDatesOccurrence(creneauData.jour, creneauData.horaireDebut, creneauData.horaireFin);
     console.log(`Dates calculées - Début: ${debut}, Fin: ${fin}`);
     
-    // Construction de la requête exactement comme dans test.ps1 qui fonctionne
+    // Construction de la requête avec les vraies données du créneau et de l'utilisateur
     const reservationData = {
       utilisateur: {
-        login: "b2ad458a",
+        login: userData.login, // Utiliser le login de l'utilisateur connecté
         typeUtilisateur: userData.typeUtilisateur || 'EXTERNE'
       },
       dateReservation: new Date().toISOString(),
       actif: false,
       forcage: false,
       creneau: {
-        id: "4f2c853e-74a1-49ca-b7a7-3712ba93d267",
-        codeCursus: null,
+        id: creneauData.creneauId, // Utiliser l'ID du créneau réel
+        codeCursus: creneauData.codeCursus || null,
         jour: creneauData.jour,
         horaireDebut: creneauData.horaireDebut,
         horaireFin: creneauData.horaireFin,
-        quotaCursus: null,
+        quotaCursus: creneauData.quotaCursus || null,
         quotaLoisir: creneauData.quotaLoisir || 24,
-        quotaMinimum: null,
+        quotaMinimum: creneauData.quotaMinimum || null,
         niveau: creneauData.niveau || null,
         fileAttente: false,
         activite: {
-          id: "aac0ba31-1519-4f82-bcc1-ccf3dc40a871",
+          id: creneauData.activiteId, // Utiliser l'ID de l'activité réelle
           typePrestation: "ACTIVITE",
           nom: creneauData.activiteNom,
           description: creneauData.activiteDescription || "",
-          tarif: null,
-          quota: null,
+          tarif: creneauData.activiteTarif || null,
+          quota: creneauData.activiteQuota || null,
           fileAttente: false,
-          catalogue: {
-            id: "8a757ad7-fac6-4cad-b48b-a2a11ef7efa4",
+          catalogue: creneauData.catalogue || {
+            id: "8a757ad7-fac6-4cad-b48b-a2a11ef7efa4", // Valeur par défaut si pas fournie
             nom: "Catalogue Nantes",
             description: " ",
             ordreAffichage: 0,
@@ -237,8 +237,8 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
             },
             affichageHome: true
           },
-          famille: {
-            id: "a0f6cc43-6592-4b21-b1fd-e8a0f99ff929",
+          famille: creneauData.famille || {
+            id: "a0f6cc43-6592-4b21-b1fd-e8a0f99ff929", // Valeur par défaut
             nom: "Sports Collectifs",
             couleurHexa: "#87cc84",
             dossier: "collectifs",
@@ -262,8 +262,8 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
           inscriptionAnnulable: null,
           creneaux: null
         },
-        localisation: {
-          id: "2a1e4835-3b73-4857-a213-6ac861d14458",
+        localisation: creneauData.localisation || {
+          id: "2a1e4835-3b73-4857-a213-6ac861d14458", // Valeur par défaut
           nom: "Halle du SUAPS - Gymnase",
           reglementInterieur: null,
           adresse: "3 Boulevard Guy Mollet",
@@ -328,8 +328,8 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
         actif: true
       },
       individuDTO: {
-        code: "b2ad458a",
-        numero: "b2ad458a",
+        code: userData.login, // Utiliser le code utilisateur connecté
+        numero: userData.login, // Même valeur
         type: userData.typeUtilisateur || "EXTERNE",
         typeExterne: userData.typeExterne || "ETUDIANT",
         civilite: userData.civilite || "dummy",
@@ -346,7 +346,7 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
         casContact: userData.casContact || null,
         reduction: userData.reduction || null,
         etablissementOrigine: userData.etablissementOrigine || "Autre établissement",
-        tagHexa: "0455D5EABA1C90",
+        tagHexa: userData.codeCarte || "0455D5EABA1C90", // Utiliser le code carte ou valeur par défaut
         majorite: userData.majorite || "Majeur"
       }
     };
@@ -467,17 +467,18 @@ async function traiterCreneau(creneau: any, logs: string[]) {
     }
 
     // Tentative de connexion
-    // Note: creneau.userId contient le code carte original de l'utilisateur (ex: "1220277161303184")
-    console.log(`Utilisation du code carte pour l'authentification: ${creneau.userId}`);
+    // Note: creneau.codeCarte contient le code carte original pour l'authentification (ex: "1220277161303184")
+    // et creneau.userId contient le code utilisateur authentifié (ex: "b2ad458a")
+    console.log(`Utilisation du code carte pour l'authentification: ${creneau.codeCarte}`);
     
     // Valider le format du code carte avant l'authentification
-    const validationCodeCarte = validerCodeCarteAutoReservation(creneau.userId);
+    const validationCodeCarte = validerCodeCarteAutoReservation(creneau.codeCarte);
     if (!validationCodeCarte.isValid) {
-      const errorMessage = `Code carte invalide pour ${creneau.userId}: ${validationCodeCarte.message}`;
+      const errorMessage = `Code carte invalide pour ${creneau.codeCarte}: ${validationCodeCarte.message}`;
       console.error(errorMessage);
       
       await enregistrerLogReservation({
-        userId: creneau.userId,
+        userId: creneau.userId, // Utiliser userId pour identifier l'utilisateur dans les logs
         creneauAutoId: creneau.id,
         timestamp: new Date().toISOString(),
         statut: 'AUTH_ERROR',
@@ -492,7 +493,7 @@ async function traiterCreneau(creneau: any, logs: string[]) {
     const authResult = await loginSuaps(validationCodeCarte.codeCarteNettoye);
     if (!authResult.success) {
       await enregistrerLogReservation({
-        userId: creneau.userId,
+        userId: creneau.userId, // Utiliser userId pour identifier l'utilisateur dans les logs
         creneauAutoId: creneau.id,
         timestamp: new Date().toISOString(),
         statut: 'AUTH_ERROR',
@@ -505,7 +506,7 @@ async function traiterCreneau(creneau: any, logs: string[]) {
         nbTentatives: creneau.nbTentatives + 1
       });
       
-      const message = `❌ Erreur d'authentification pour ${creneau.userId}: ${authResult.error}`;
+      const message = `❌ Erreur d'authentification pour le code carte ${creneau.codeCarte} (utilisateur ${creneau.userId}): ${authResult.error}`;
       logs.push(message);
       console.error(message);
       return false;
@@ -533,7 +534,7 @@ async function traiterCreneau(creneau: any, logs: string[]) {
       statut = 'SUCCESS';
       message = 'Réservation réussie';
       
-      const successMessage = `✅ Réservation réussie pour ${creneau.userId} - ${creneau.activiteNom} ${creneau.jour} ${creneau.horaireDebut}`;
+      const successMessage = `✅ Réservation réussie pour l'utilisateur ${creneau.userId} (code carte ${creneau.codeCarte}) - ${creneau.activiteNom} ${creneau.jour} ${creneau.horaireDebut}`;
       logs.push(successMessage);
       console.log(successMessage);
     } else {
@@ -546,7 +547,7 @@ async function traiterCreneau(creneau: any, logs: string[]) {
         statut = 'NETWORK_ERROR';
       }
       
-      const errorMessage = `❌ Échec de réservation pour ${creneau.userId} - ${creneau.activiteNom}: ${reservationResult.error}`;
+      const errorMessage = `❌ Échec de réservation pour l'utilisateur ${creneau.userId} (code carte ${creneau.codeCarte}) - ${creneau.activiteNom}: ${reservationResult.error}`;
       logs.push(errorMessage);
       console.error(errorMessage);
     }
@@ -554,7 +555,7 @@ async function traiterCreneau(creneau: any, logs: string[]) {
     await mettreAJourCreneauAutoReservation(creneau.id, updates);
     
     await enregistrerLogReservation({
-      userId: creneau.userId,
+      userId: creneau.userId, // Utiliser userId pour identifier l'utilisateur dans les logs
       creneauAutoId: creneau.id,
       timestamp: new Date().toISOString(),
       statut,
@@ -571,7 +572,7 @@ async function traiterCreneau(creneau: any, logs: string[]) {
     
     try {
       await enregistrerLogReservation({
-        userId: creneau.userId,
+        userId: creneau.userId, // Utiliser userId pour identifier l'utilisateur dans les logs
         creneauAutoId: creneau.id,
         timestamp: new Date().toISOString(),
         statut: 'FAILED',

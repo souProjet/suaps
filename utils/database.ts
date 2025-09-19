@@ -57,12 +57,13 @@ if (process.env.NODE_ENV !== 'production') {
  * Récupère tous les créneaux actifs d'auto-réservation
  */
 export async function getCreneauxAutoReservation(): Promise<CreneauAutoReservation[]> {
+  console.log("Récupération des créneaux actifs d'auto-réservation...");
   const creneaux = await prisma.creneauAutoReservation.findMany({
     where: {
       actif: true
     }
   });
-  
+  console.log(`Trouvé ${creneaux.length} créneaux actifs`);
   return creneaux.map(transformPrismaToInterface);
 }
 

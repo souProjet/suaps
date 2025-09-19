@@ -7,7 +7,7 @@ import { PrismaClient } from '@prisma/client';
 // Types pour maintenir la compatibilité avec l'ancienne interface Firebase
 export interface CreneauAutoReservation {
   id: string;
-  userId: string; // Code carte SUAPS
+  userId: string; // Code carte SUAPS original (ex: "1220277161303184", PAS le format hexadécimal)
   activiteId: string;
   activiteNom: string;
   creneauId: string;
@@ -129,13 +129,22 @@ export async function getCreneauxUtilisateur(userId: string): Promise<CreneauAut
 
 /**
  * Ajoute un nouveau créneau d'auto-réservation
+ * IMPORTANT: le userId doit être le code carte original (ex: "1220277161303184"), pas le format hexadécimal
  */
 export async function ajouterCreneauAutoReservation(
   creneau: Omit<CreneauAutoReservation, 'id' | 'dateCreation' | 'nbTentatives' | 'nbReussites'>
 ): Promise<string> {
+  // Validation du code carte
+  const codeCarteNettoye = creneau.userId.replace(/\D/g, '');
+  if (codeCarteNettoye.length < 10 || codeCarteNettoye.length > 20) {
+    throw new Error(`Code carte invalide: ${creneau.userId}. Doit contenir 10-20 chiffres.`);
+  }
+  
+  console.log(`Création d'un créneau d'auto-réservation pour le code carte: ${codeCarteNettoye}`);
+  
   const nouveauCreneau = await prisma.creneauAutoReservation.create({
     data: {
-      userId: creneau.userId,
+      userId: codeCarteNettoye, // Stocker le code carte nettoyé mais original
       activiteId: creneau.activiteId,
       activiteNom: creneau.activiteNom,
       creneauId: creneau.creneauId,

@@ -360,6 +360,29 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
 }
 
 /**
+ * Valide et nettoie le code carte pour l'auto-réservation
+ */
+function validerCodeCarteAutoReservation(codeCarte: string): { isValid: boolean, codeCarteNettoye: string, message?: string } {
+  if (!codeCarte) {
+    return { isValid: false, codeCarteNettoye: '', message: 'Code carte manquant' };
+  }
+
+  // Nettoyer le code carte (supprimer espaces et caractères non numériques)
+  const codeCarteNettoye = codeCarte.replace(/\D/g, '');
+  
+  // Vérifier la longueur (codes carte SUAPS sont généralement 13-16 chiffres)
+  if (codeCarteNettoye.length < 10 || codeCarteNettoye.length > 20) {
+    return { 
+      isValid: false, 
+      codeCarteNettoye, 
+      message: `Longueur invalide: ${codeCarteNettoye.length} chiffres (attendu: 10-20)` 
+    };
+  }
+
+  return { isValid: true, codeCarteNettoye };
+}
+
+/**
  * Traite un créneau d'auto-réservation
  */
 async function traiterCreneau(creneau: any, logs: string[]) {
@@ -408,8 +431,29 @@ async function traiterCreneau(creneau: any, logs: string[]) {
     }
 
     // Tentative de connexion
-    // Note: creneau.userId devrait contenir le code carte brut de l'utilisateur
-    const authResult = await loginSuaps(creneau.userId);
+    // Note: creneau.userId contient le code carte original de l'utilisateur (ex: "1220277161303184")
+    console.log(`Utilisation du code carte pour l'authentification: ${creneau.userId}`);
+    
+    // Valider le format du code carte avant l'authentification
+    const validationCodeCarte = validerCodeCarteAutoReservation(creneau.userId);
+    if (!validationCodeCarte.isValid) {
+      const errorMessage = `Code carte invalide pour ${creneau.userId}: ${validationCodeCarte.message}`;
+      console.error(errorMessage);
+      
+      await enregistrerLogReservation({
+        userId: creneau.userId,
+        creneauAutoId: creneau.id,
+        timestamp: new Date().toISOString(),
+        statut: 'AUTH_ERROR',
+        message: errorMessage,
+        details: { error: validationCodeCarte.message }
+      });
+      
+      logs.push(`❌ ${errorMessage}`);
+      return false;
+    }
+    
+    const authResult = await loginSuaps(validationCodeCarte.codeCarteNettoye);
     if (!authResult.success) {
       await enregistrerLogReservation({
         userId: creneau.userId,

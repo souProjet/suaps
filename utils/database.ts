@@ -47,24 +47,68 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
-export const prisma = globalThis.prisma || new PrismaClient();
+export const prisma = globalThis.prisma || new PrismaClient({
+  log: ['error', 'warn'],
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL
+    }
+  }
+});
 
 if (process.env.NODE_ENV !== 'production') {
   globalThis.prisma = prisma;
 }
 
+// Configuration spéciale pour l'environnement serverless
+if (process.env.VERCEL) {
+  prisma.$connect().catch(err => {
+    console.error('Erreur de connexion Prisma initial:', err);
+  });
+}
+
 /**
- * Récupère tous les créneaux actifs d'auto-réservation
+ * Récupère tous les créneaux actifs d'auto-réservation avec timeout
  */
 export async function getCreneauxAutoReservation(): Promise<CreneauAutoReservation[]> {
   console.log("Récupération des créneaux actifs d'auto-réservation...");
-  const creneaux = await prisma.creneauAutoReservation.findMany({
-    where: {
-      actif: true
+  
+  try {
+    // Test de connexion d'abord
+    console.log("Test de connexion à la base de données...");
+    await prisma.$connect();
+    console.log("Connexion réussie");
+    
+    // Requête avec timeout de 10 secondes
+    console.log("Exécution de la requête findMany...");
+    const creneaux = await Promise.race([
+      prisma.creneauAutoReservation.findMany({
+        where: {
+          actif: true
+        }
+      }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout de la requête après 10 secondes')), 10000)
+      )
+    ]) as any[];
+    
+    console.log(`Trouvé ${creneaux.length} créneaux actifs`);
+    return creneaux.map(transformPrismaToInterface);
+    
+  } catch (error) {
+    console.error("Erreur lors de la récupération des créneaux:", error);
+    
+    // Essayer une requête plus simple pour diagnostiquer
+    try {
+      console.log("Tentative de requête de diagnostic...");
+      const count = await prisma.creneauAutoReservation.count();
+      console.log(`Nombre total de créneaux dans la DB: ${count}`);
+    } catch (countError) {
+      console.error("Erreur lors du count:", countError);
     }
-  });
-  console.log(`Trouvé ${creneaux.length} créneaux actifs`);
-  return creneaux.map(transformPrismaToInterface);
+    
+    throw error;
+  }
 }
 
 /**

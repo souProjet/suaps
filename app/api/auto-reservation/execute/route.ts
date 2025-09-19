@@ -279,10 +279,25 @@ export async function POST(request: NextRequest) {
     logs.push(`🚀 Démarrage de l'auto-réservation SUAPS à ${startTime.toISOString()}`);
     console.log('🚀 Démarrage de l\'auto-réservation SUAPS');
     
-    // Récupération des créneaux à traiter
-    const creneaux = await getCreneauxAutoReservation();
-    logs.push(`${creneaux.length} créneaux d'auto-réservation trouvés`);
-    console.log(`${creneaux.length} créneaux d'auto-réservation trouvés`);
+    // Récupération des créneaux à traiter avec gestion d'erreur améliorée
+    let creneaux: any[] = [];
+    try {
+      logs.push('📊 Récupération des créneaux d\'auto-réservation...');
+      creneaux = await getCreneauxAutoReservation();
+      logs.push(`${creneaux.length} créneaux d'auto-réservation trouvés`);
+      console.log(`${creneaux.length} créneaux d'auto-réservation trouvés`);
+    } catch (dbError: any) {
+      const errorMessage = `❌ Erreur lors de la récupération des créneaux: ${dbError.message}`;
+      logs.push(errorMessage);
+      console.error(errorMessage, dbError);
+      
+      return NextResponse.json({
+        success: false,
+        error: 'Erreur de base de données',
+        details: dbError.message,
+        logs
+      }, { status: 500 });
+    }
     
     if (creneaux.length === 0) {
       logs.push('Aucun créneau à traiter');

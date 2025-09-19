@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ajouterCreneauAutoReservation, creneauDejaPrograme } from '@/utils/database';
 import { getCurrentUserFromRequest } from '@/utils/auth';
+import { convertHexToCodeCarte } from '@/utils/codeConverter';
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,9 +30,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
+    const codeCarte = convertHexToCodeCarte(user.tagHexa);
     // Vérifier si le créneau n'est pas déjà programmé
-    const dejaPrograme = await creneauDejaPrograme(user.code, creneauId);
+    const dejaPrograme = await creneauDejaPrograme(codeCarte, creneauId);
     if (dejaPrograme) {
       return NextResponse.json(
         { error: 'Ce créneau est déjà programmé pour auto-réservation' },
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     // Ajouter le créneau
     const id = await ajouterCreneauAutoReservation({
-      userId: user.code,
+      userId: codeCarte,
       activiteId,
       activiteNom,
       creneauId,

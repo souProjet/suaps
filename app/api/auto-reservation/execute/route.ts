@@ -13,14 +13,16 @@ const SUAPS_BASE_URL = process.env.SUAPS_BASE_URL || 'https://u-sport.univ-nante
 
 // Headers pour les requêtes SUAPS
 const DEFAULT_HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0',
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0',
   'Accept': 'application/json, text/plain, */*',
   'Accept-Language': 'fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3',
   'Content-Type': 'application/json',
   'Sec-Fetch-Dest': 'empty',
   'Sec-Fetch-Mode': 'cors',
   'Sec-Fetch-Site': 'same-origin',
-  'Priority': 'u=0'
+  'Priority': 'u=0',
+  'Pragma': 'no-cache',
+  'Cache-Control': 'no-cache'
 };
 
 /**
@@ -129,7 +131,7 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
   try {
     console.log(`Tentative de réservation du créneau ${creneauData.creneauId} pour ${userData.login}`);
     
-    // Construction de la requête de réservation basée sur l'exemple fourni
+    // Construction de la requête de réservation basée sur l'exemple fourni qui fonctionne
     const reservationData = {
       utilisateur: {
         login: userData.login,
@@ -145,24 +147,153 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
         horaireDebut: creneauData.horaireDebut,
         horaireFin: creneauData.horaireFin,
         quotaCursus: null,
-        quotaLoisir: 45, // Valeur par défaut, à ajuster
+        quotaLoisir: creneauData.quotaLoisir || 24, // Utiliser la valeur du créneau ou une valeur par défaut
         quotaMinimum: null,
-        niveau: 'Tous niveaux',
+        niveau: creneauData.niveau || null,
         fileAttente: false,
         activite: {
           id: creneauData.activiteId,
-          nom: creneauData.activiteNom
-        }
+          typePrestation: "ACTIVITE",
+          nom: creneauData.activiteNom,
+          description: creneauData.activiteDescription || "",
+          tarif: null,
+          quota: null,
+          fileAttente: false,
+          catalogue: creneauData.catalogue || {
+            id: "8a757ad7-fac6-4cad-b48b-a2a11ef7efa4",
+            nom: "Catalogue Nantes",
+            description: " ",
+            ordreAffichage: 0,
+            type: "ACTIVITE",
+            annee: {
+              id: "8e02137e-b876-4ff2-957e-7d244942ba25",
+              annee: 2025
+            },
+            affichageHome: true
+          },
+          famille: creneauData.famille || {
+            id: "a0f6cc43-6592-4b21-b1fd-e8a0f99ff929",
+            nom: "Sports Collectifs",
+            couleurHexa: "#87cc84",
+            dossier: "collectifs",
+            annee: {
+              id: "8e02137e-b876-4ff2-957e-7d244942ba25",
+              annee: 2025
+            }
+          },
+          annee: {
+            id: "8e02137e-b876-4ff2-957e-7d244942ba25",
+            annee: 2025
+          },
+          maxReservationParSemaine: null,
+          inscriptionAnnuelle: true,
+          affichageOnly: false,
+          nbInscrits: null,
+          position: null,
+          statutInscription: null,
+          nbCreneaux: null,
+          inscriptionEnCours: null,
+          inscriptionAnnulable: null,
+          creneaux: null
+        },
+        localisation: creneauData.localisation || {
+          id: "2a1e4835-3b73-4857-a213-6ac861d14458",
+          nom: "Halle du SUAPS - Gymnase",
+          reglementInterieur: null,
+          adresse: "3 Boulevard Guy Mollet",
+          complementAdresse: null,
+          ville: "Nantes",
+          codePostal: "44300",
+          site: {
+            id: "1b635970-488e-46d7-85d6-94b24c612247",
+            nom: "TERTRE PETIT PORT",
+            ville: {
+              id: "2b57460f-d76f-4def-9aa2-4966f653fa08",
+              nom: "Nantes",
+              paramUrl: "Nantes",
+              annee: {
+                id: "8e02137e-b876-4ff2-957e-7d244942ba25",
+                annee: 2025
+              }
+            },
+            annee: {
+              id: "8e02137e-b876-4ff2-957e-7d244942ba25",
+              annee: 2025
+            }
+          },
+          annee: {
+            id: "8e02137e-b876-4ff2-957e-7d244942ba25",
+            annee: 2025
+          }
+        },
+        annee: {
+          id: "8e02137e-b876-4ff2-957e-7d244942ba25",
+          annee: 2025
+        },
+        periodes: null,
+        encadrants: creneauData.encadrants || [],
+        fermetures: null,
+        quota: creneauData.quotaLoisir || 24,
+        nbMoyenInscrits: null,
+        nbInscrits: 0,
+        nbMoyenPresents: null,
+        occurenceCreneauDTO: {
+          debut: creneauData.occurenceDebut || new Date().toISOString(),
+          fin: creneauData.occurenceFin || new Date().toISOString(),
+          periode: {
+            id: process.env.SUAPS_PERIODE_ID || "4dc2c931-12c4-4cac-8709-c9bbb2513e16",
+            nom: "Année 2025-2026",
+            dateDebutInscriptions: "2025-09-01",
+            dateFinInscriptions: "2026-06-13",
+            dateDebutActivites: "2025-09-15",
+            dateFinActivites: "2026-06-13",
+            maxActivite: 3,
+            maxCreneauSemaine: 4,
+            maxCreneauSemaineParActivite: null,
+            paiementNecessaire: true,
+            periodeReduite: false,
+            annee: {
+              id: "8e02137e-b876-4ff2-957e-7d244942ba25",
+              annee: 2025
+            }
+          }
+        },
+        encadrantsLibelle: creneauData.encadrantsLibelle || "",
+        actif: true
       },
-      individuDTO: userData
+      individuDTO: {
+        code: userData.login,
+        numero: userData.login,
+        type: userData.typeUtilisateur || "EXTERNE",
+        typeExterne: userData.typeExterne || "ETUDIANT",
+        civilite: userData.civilite || "dummy",
+        nom: userData.nom || "NOM",
+        prenom: userData.prenom || "PRENOM",
+        email: userData.email || "",
+        telephone: userData.telephone || "",
+        dateNaissance: userData.dateNaissance || "1970-01-01",
+        estBoursier: userData.estBoursier || false,
+        composante: userData.composante || "Autre établissement",
+        departement: userData.departement || null,
+        estInscrit: userData.estInscrit !== undefined ? userData.estInscrit : true,
+        paiementEffectue: userData.paiementEffectue !== undefined ? userData.paiementEffectue : true,
+        casContact: userData.casContact || null,
+        reduction: userData.reduction || null,
+        etablissementOrigine: userData.etablissementOrigine || "Autre établissement",
+        tagHexa: userData.tagHexa || userData.codeCarte || "",
+        majorite: userData.majorite || "Majeur"
+      }
     };
 
-    const response = await fetch(`${SUAPS_BASE_URL}/api/extended/reservation-creneaux?idPeriode=${process.env.SUAPS_PERIODE_ID}`, {
+    const response = await fetch(`${SUAPS_BASE_URL}/api/extended/reservation-creneaux?idPeriode=${process.env.SUAPS_PERIODE_ID || "4dc2c931-12c4-4cac-8709-c9bbb2513e16"}`, {
       method: 'POST',
       headers: {
         ...DEFAULT_HEADERS,
-        'Cookie': `accessToken=${accessToken}`
+        'Cookie': `accessToken=${accessToken}`,
+        'Referer': `${SUAPS_BASE_URL}/activites`
       },
+      credentials: 'include',
+      mode: 'cors',
       body: JSON.stringify(reservationData)
     });
 

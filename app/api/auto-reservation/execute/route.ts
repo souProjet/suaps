@@ -207,7 +207,7 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
       actif: false,
       forcage: false,
       creneau: {
-        id: creneauData.creneauId,
+        id: "4f2c853e-74a1-49ca-b7a7-3712ba93d267",
         codeCursus: null,
         jour: creneauData.jour,
         horaireDebut: creneauData.horaireDebut,
@@ -218,7 +218,7 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
         niveau: creneauData.niveau || null,
         fileAttente: false,
         activite: {
-          id: creneauData.activiteId,
+          id: "aac0ba31-1519-4f82-bcc1-ccf3dc40a871",
           typePrestation: "ACTIVITE",
           nom: creneauData.activiteNom,
           description: creneauData.activiteDescription || "",
@@ -297,7 +297,7 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
           annee: 2025
         },
         periodes: null,
-        encadrants: creneauData.encadrants || [],
+        encadrants: [],
         fermetures: null,
         quota: creneauData.quotaLoisir || 24,
         nbMoyenInscrits: null,

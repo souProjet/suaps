@@ -125,11 +125,55 @@ async function loginSuaps(codeCarte: string) {
 }
 
 /**
+ * Calcule les dates de début/fin d'un créneau pour la semaine cible
+ */
+function calculerDatesOccurrence(jour: string, horaireDebut: string, horaireFin: string): { debut: string, fin: string } {
+  const joursMap: { [key: string]: number } = {
+    'DIMANCHE': 0, 'LUNDI': 1, 'MARDI': 2, 'MERCREDI': 3,
+    'JEUDI': 4, 'VENDREDI': 5, 'SAMEDI': 6
+  };
+  
+  const jourCible = joursMap[jour.toUpperCase()];
+  const maintenant = new Date();
+  const jourActuel = maintenant.getDay();
+  
+  // Calcule combien de jours jusqu'au prochain jour cible (7 jours glissants)
+  let joursJusquauCible = (jourCible - jourActuel + 7) % 7;
+  if (joursJusquauCible === 0) {
+    joursJusquauCible = 7; // Si c'est le même jour, prendre la semaine suivante
+  }
+  
+  // Date du créneau cible
+  const dateCreneaux = new Date(maintenant);
+  dateCreneaux.setDate(dateCreneaux.getDate() + joursJusquauCible);
+  
+  // Parser les horaires (format "HH:MM")
+  const [heureDebut, minuteDebut] = horaireDebut.split(':').map(Number);
+  const [heureFin, minuteFin] = horaireFin.split(':').map(Number);
+  
+  // Date de début
+  const dateDebut = new Date(dateCreneaux);
+  dateDebut.setHours(heureDebut, minuteDebut, 0, 0);
+  
+  // Date de fin  
+  const dateFin = new Date(dateCreneaux);
+  dateFin.setHours(heureFin, minuteFin, 0, 0);
+  
+  return {
+    debut: dateDebut.toISOString(),
+    fin: dateFin.toISOString()
+  };
+}
+
+/**
  * Effectue une réservation de créneau
  */
 async function reserverCreneau(accessToken: string, creneauData: any, userData: any) {
   try {
     console.log(`Tentative de réservation du créneau ${creneauData.creneauId} pour ${userData.login}`);
+    
+    // Calculer les vraies dates d'occurrence du créneau
+    const { debut, fin } = calculerDatesOccurrence(creneauData.jour, creneauData.horaireDebut, creneauData.horaireFin);
     
     // Construction de la requête de réservation basée sur l'exemple fourni qui fonctionne
     const reservationData = {
@@ -238,10 +282,10 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
         nbInscrits: 0,
         nbMoyenPresents: null,
         occurenceCreneauDTO: {
-          debut: creneauData.occurenceDebut || new Date().toISOString(),
-          fin: creneauData.occurenceFin || new Date().toISOString(),
+          debut: debut, // Utiliser les vraies dates calculées
+          fin: fin,     // Utiliser les vraies dates calculées
           periode: {
-            id: process.env.SUAPS_PERIODE_ID || "4dc2c931-12c4-4cac-8709-c9bbb2513e16",
+            id: "4dc2c931-12c4-4cac-8709-c9bbb2513e16",
             nom: "Année 2025-2026",
             dateDebutInscriptions: "2025-09-01",
             dateFinInscriptions: "2026-06-13",
@@ -285,12 +329,14 @@ async function reserverCreneau(accessToken: string, creneauData: any, userData: 
       }
     };
 
-    const response = await fetch(`${SUAPS_BASE_URL}/api/extended/reservation-creneaux?idPeriode=${process.env.SUAPS_PERIODE_ID || "4dc2c931-12c4-4cac-8709-c9bbb2513e16"}`, {
+    const response = await fetch(`${SUAPS_BASE_URL}/api/extended/reservation-creneaux?idPeriode=4dc2c931-12c4-4cac-8709-c9bbb2513e16`, {
       method: 'POST',
       headers: {
         ...DEFAULT_HEADERS,
         'Cookie': `accessToken=${accessToken}`,
-        'Referer': `${SUAPS_BASE_URL}/activites`
+        'Referer': `${SUAPS_BASE_URL}/activites`,
+        'Origin': SUAPS_BASE_URL,
+        'Accept-Encoding': 'gzip, deflate, br, zstd'
       },
       credentials: 'include',
       mode: 'cors',

@@ -112,9 +112,9 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Configuration spéciale pour l'environnement serverless
 if (process.env.VERCEL) {
-  prisma.$connect().catch(err => {
-    console.error('Erreur de connexion Prisma initial:', err);
-  });
+  // Ne pas forcer la connexion au démarrage en serverless
+  // Laisser Prisma gérer la connexion à la demande
+  console.log('Environment Vercel détecté - connexion à la demande');
 }
 
 /**
@@ -307,25 +307,63 @@ export async function enregistrerLogReservation(log: Omit<LogReservation, 'id'>)
  * Récupère les logs pour un utilisateur
  */
 export async function getLogsUtilisateur(userId: string, limit: number = 50): Promise<LogReservation[]> {
-  const logs = await prisma.logReservation.findMany({
-    where: {
-      userId: userId
-    },
-    orderBy: {
-      timestamp: 'desc'
-    },
-    take: limit
-  });
-  
-  return logs.map(log => ({
-    id: log.id,
-    userId: log.userId,
-    creneauAutoId: log.creneauAutoId,
-    timestamp: log.timestamp.toISOString(),
-    statut: log.statut as any,
-    message: log.message,
-    details: log.details
-  }));
+  try {
+    // Forcer la connexion explicitement en cas de problème
+    await prisma.$connect();
+    
+    const logs = await prisma.logReservation.findMany({
+      where: {
+        userId: userId
+      },
+      orderBy: {
+        timestamp: 'desc'
+      },
+      take: limit
+    });
+    
+    return logs.map(log => ({
+      id: log.id,
+      userId: log.userId,
+      creneauAutoId: log.creneauAutoId,
+      timestamp: log.timestamp.toISOString(),
+      statut: log.statut as any,
+      message: log.message,
+      details: log.details
+    }));
+  } catch (error) {
+    console.error('Erreur dans getLogsUtilisateur:', error);
+    
+    // Tentative de reconnexion si erreur d'authentification
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage.includes('authentication failed') || errorMessage.includes('SCRAM')) {
+      console.log('Tentative de reconnexion...');
+      await prisma.$disconnect();
+      await prisma.$connect();
+      
+      // Retry une fois
+      const logs = await prisma.logReservation.findMany({
+        where: {
+          userId: userId
+        },
+        orderBy: {
+          timestamp: 'desc'
+        },
+        take: limit
+      });
+      
+      return logs.map(log => ({
+        id: log.id,
+        userId: log.userId,
+        creneauAutoId: log.creneauAutoId,
+        timestamp: log.timestamp.toISOString(),
+        statut: log.statut as any,
+        message: log.message,
+        details: log.details
+      }));
+    }
+    
+    throw error;
+  }
 }
 
 /**

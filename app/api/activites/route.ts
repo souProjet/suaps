@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { ActiviteAPI } from '@/types/suaps';
 
-const SUAPS_API_URL = process.env.SUAPS_API_URL || 'https://u-sport.univ-nantes.fr/api/extended/activites';
+const SUAPS_API_URL = process.env.SUAPS_API_URL;
 
 // Cette route est dynamique car elle dépend des paramètres de query
 export const dynamic = 'force-dynamic';
@@ -33,7 +33,6 @@ export async function GET(request: Request) {
       'Accept': 'application/json'
     };
 
-    console.log('🔄 Récupération des données SUAPS...');
     
     const response = await fetch(`${SUAPS_API_URL}?${params}`, {
       headers,
@@ -53,15 +52,45 @@ export async function GET(request: Request) {
       throw new Error('Format de données inattendu : la réponse n\'est pas une liste');
     }
 
-    console.log(`✅ ${data.length} activités récupérées`);
 
-    // Typer les données pour TypeScript
+    // Conserver TOUTES les données complètes de l'API SUAPS
     const activites: ActiviteAPI[] = data.map((item: any) => ({
+      // IDs et données de base
+      id: item.id || '',
       nom: item.nom || '',
+      description: item.description || '',
+      typePrestation: item.typePrestation || 'ACTIVITE',
+      tarif: item.tarif,
+      quota: item.quota,
+      fileAttente: item.fileAttente || false,
+      
+      // Données structurelles
+      catalogue: item.catalogue,
+      famille: item.famille,
+      annee: item.annee,
+      
+      // Données d'activité
+      maxReservationParSemaine: item.maxReservationParSemaine,
+      inscriptionAnnuelle: item.inscriptionAnnuelle,
+      affichageOnly: item.affichageOnly || false,
+      nbInscrits: item.nbInscrits,
+      position: item.position,
+      statutInscription: item.statutInscription,
+      nbCreneaux: item.nbCreneaux,
+      inscriptionEnCours: item.inscriptionEnCours,
+      inscriptionAnnulable: item.inscriptionAnnulable,
+      
+      // Créneaux avec TOUTES les données
       creneaux: Array.isArray(item.creneaux) ? item.creneaux.map((c: any) => ({
+        // ID réel du créneau
+        id: c.id || '',
+        
+        // Horaires
         horaireDebut: c.horaireDebut || '',
         horaireFin: c.horaireFin || '',
         jour: c.jour || '',
+        
+        // Localisation complète
         localisation: c.localisation ? {
           id: c.localisation.id || '',
           nom: c.localisation.nom || '',
@@ -69,7 +98,25 @@ export async function GET(request: Request) {
           ville: c.localisation.ville || '',
           codePostal: c.localisation.codePostal || '',
           complementAdresse: c.localisation.complementAdresse
-        } : undefined
+        } : undefined,
+        
+        // Données de créneau
+        quotaCursus: c.quotaCursus,
+        quotaLoisir: c.quotaLoisir,
+        quotaMinimum: c.quotaMinimum,
+        niveau: c.niveau,
+        fileAttente: c.fileAttente || false,
+        quota: c.quota,
+        nbMoyenInscrits: c.nbMoyenInscrits,
+        nbInscrits: c.nbInscrits,
+        nbMoyenPresents: c.nbMoyenPresents,
+        
+        // Encadrants
+        encadrants: c.encadrants || [],
+        encadrantsLibelle: c.encadrantsLibelle || '',
+        
+        // Autres données
+        fermetures: c.fermetures || []
       })) : []
     }));
 
@@ -80,7 +127,7 @@ export async function GET(request: Request) {
     });
 
   } catch (error) {
-    console.error('❌ Erreur lors de la récupération des données SUAPS:', error);
+    // Erreur silencieuse pour la prod
     
     return NextResponse.json(
       {

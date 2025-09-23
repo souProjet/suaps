@@ -1,0 +1,175 @@
+{
+	"actif": false,
+	"creneau": {
+		"actif": true,
+		"activite": {
+			"affichageOnly": false,
+			"annee": {
+				"annee": 2025,
+				"id": "8e02137e-b876-4ff2-957e-7d244942ba25"
+			},
+			"catalogue": {
+				"affichageHome": true,
+				"annee": {
+					"annee": 2025,
+					"id": "8e02137e-b876-4ff2-957e-7d244942ba25"
+				},
+				"description": " ",
+				"id": "8a757ad7-fac6-4cad-b48b-a2a11ef7efa4",
+				"nom": "Catalogue Nantes",
+				"ordreAffichage": 0,
+				"type": "ACTIVITE"
+			},
+			"creneaux": null,
+			"description": "<p>L'ultimate est un sport collectif utilisant un disque opposant deux équipes de sept joueurs. L'objectif est de marquer des points en progressant sur le terrain par des passes successives vers la zone d'en-but adverse et d'y rattraper le disque.</p><p><strong>Tenue et chaussures de sport propres exigées.</strong></p><p>Les jous et horaires sont susceptibles de changer en fonction des périodes de l'année.</p>",
+			"famille": {
+				"annee": {
+					"annee": 2025,
+					"id": "8e02137e-b876-4ff2-957e-7d244942ba25"
+				},
+				"couleurHexa": "#87cc84",
+				"dossier": "collectifs",
+				"id": "a0f6cc43-6592-4b21-b1fd-e8a0f99ff929",
+				"nom": "Sports Collectifs"
+			},
+			"fileAttente": false,
+			"id": "aac0ba31-1519-4f82-bcc1-ccf3dc40a871",
+			"inscriptionAnnuelle": true,
+			"inscriptionAnnulable": null,
+			"inscriptionEnCours": null,
+			"maxReservationParSemaine": null,
+			"nbCreneaux": null,
+			"nbInscrits": null,
+			"nom": "Ultimate",
+			"position": null,
+			"quota": null,
+			"statutInscription": null,
+			"tarif": null,
+			"typePrestation": "ACTIVITE"
+		},
+		"annee": {
+			"annee": 2025,
+			"id": "8e02137e-b876-4ff2-957e-7d244942ba25"
+		},
+		"codeCursus": null,
+		"encadrants": [
+			{
+				"casContact": null,
+				"civilite": null,
+				"code": "11000028",
+				"composante": null,
+				"dateNaissance": null,
+				"departement": null,
+				"email": null,
+				"estBoursier": null,
+				"estInscrit": null,
+				"etablissementOrigine": null,
+				"majorite": null,
+				"nom": "DELALLE",
+				"numero": "11000028",
+				"paiementEffectue": null,
+				"prenom": "Marco",
+				"reduction": null,
+				"tagHexa": "04115D328A1190",
+				"telephone": null,
+				"type": "ENCADRANT",
+				"typeExterne": null
+			}
+		],
+		"encadrantsLibelle": "Marco DELALLE ",
+		"fermetures": null,
+		"fileAttente": false,
+		"horaireDebut": "20:30",
+		"horaireFin": "22:30",
+		"id": "4f2c853e-74a1-49ca-b7a7-3712ba93d267",
+		"jour": "JEUDI",
+		"localisation": {
+			"adresse": "3 Boulevard Guy Mollet",
+			"annee": {
+				"annee": 2025,
+				"id": "8e02137e-b876-4ff2-957e-7d244942ba25"
+			},
+			"codePostal": "44300",
+			"complementAdresse": null,
+			"id": "2a1e4835-3b73-4857-a213-6ac861d14458",
+			"nom": "Halle du SUAPS - Gymnase",
+			"reglementInterieur": null,
+			"site": {
+				"annee": {
+					"annee": 2025,
+					"id": "8e02137e-b876-4ff2-957e-7d244942ba25"
+				},
+				"id": "1b635970-488e-46d7-85d6-94b24c612247",
+				"nom": "TERTRE PETIT PORT",
+				"ville": {
+					"annee": {
+						"annee": 2025,
+						"id": "8e02137e-b876-4ff2-957e-7d244942ba25"
+					},
+					"id": "2b57460f-d76f-4def-9aa2-4966f653fa08",
+					"nom": "Nantes",
+					"paramUrl": "Nantes"
+				}
+			},
+			"ville": "Nantes"
+		},
+		"nbInscrits": 2,
+		"nbMoyenInscrits": null,
+		"nbMoyenPresents": null,
+		"niveau": null,
+		"occurenceCreneauDTO": {
+			"debut": "2025-09-25T18:30:00Z",
+			"fin": "2025-09-25T20:30:00Z",
+			"periode": {
+				"annee": {
+					"annee": 2025,
+					"id": "8e02137e-b876-4ff2-957e-7d244942ba25"
+				},
+				"dateDebutActivites": "2025-09-15",
+				"dateDebutInscriptions": "2025-09-01",
+				"dateFinActivites": "2026-06-13",
+				"dateFinInscriptions": "2026-06-13",
+				"id": "4dc2c931-12c4-4cac-8709-c9bbb2513e16",
+				"maxActivite": 3,
+				"maxCreneauSemaine": 4,
+				"maxCreneauSemaineParActivite": null,
+				"nom": "Année 2025-2026",
+				"paiementNecessaire": true,
+				"periodeReduite": false
+			}
+		},
+		"periodes": null,
+		"quota": 24,
+		"quotaCursus": null,
+		"quotaLoisir": 24,
+		"quotaMinimum": null
+	},
+	"dateReservation": "2025-09-22T14:23:18.669Z",
+	"forcage": false,
+	"individuDTO": {
+		"casContact": null,
+		"civilite": "dummy",
+		"code": "b2ad458a",
+		"composante": "Autre établissement",
+		"dateNaissance": "1970-01-01",
+		"departement": null,
+		"email": "soubougouin@gmail.com",
+		"estBoursier": false,
+		"estInscrit": true,
+		"etablissementOrigine": "Autre établissement",
+		"majorite": "Majeur",
+		"nom": "BOUGOUIN",
+		"numero": "b2ad458a",
+		"paiementEffectue": true,
+		"prenom": "SWANN",
+		"reduction": null,
+		"tagHexa": "0455D5EABA1C90",
+		"telephone": "",
+		"type": "EXTERNE",
+		"typeExterne": "ETUDIANT"
+	},
+	"utilisateur": {
+		"login": "b2ad458a",
+		"typeUtilisateur": "EXTERNE"
+	}
+}

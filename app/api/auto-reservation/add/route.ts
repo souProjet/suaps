@@ -12,6 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    
     const {
       activiteId,
       activiteNom,
@@ -20,13 +21,31 @@ export async function POST(request: NextRequest) {
       horaireDebut,
       horaireFin,
       localisation,
-      options
+      options,
+      // Nouveaux champs
+      ...autresChamps
     } = body;
 
-    // Validation des données
-    if (!activiteId || !activiteNom || !creneauId || !jour || !horaireDebut || !horaireFin) {
+    // Validation des données avec debug détaillé
+    const donneesManquantes = [];
+    if (!activiteId) donneesManquantes.push('activiteId');
+    if (!activiteNom) donneesManquantes.push('activiteNom');
+    if (!creneauId) donneesManquantes.push('creneauId');
+    if (!jour) donneesManquantes.push('jour');
+    if (!horaireDebut) donneesManquantes.push('horaireDebut');
+    if (!horaireFin) donneesManquantes.push('horaireFin');
+    
+    if (donneesManquantes.length > 0) {
+      console.error('❌ Données manquantes:', donneesManquantes);
+      console.error('❌ Données reçues:', { 
+        activiteId, activiteNom, creneauId, jour, horaireDebut, horaireFin 
+      });
+      
       return NextResponse.json(
-        { error: 'Données manquantes' },
+        { 
+          error: `Données manquantes: ${donneesManquantes.join(', ')}`,
+          details: { donneesManquantes, donneesRecues: body }
+        },
         { status: 400 }
       );
     }
@@ -41,17 +60,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Ajouter le créneau
+    // Ajouter le créneau avec toutes les données
     const id = await ajouterCreneauAutoReservation({
       userId: user.code, // Code utilisateur authentifié (ex: "b2ad458a")
       codeCarte: codeCarte, // Code carte original (ex: "1220277161303184")
+      
+      // IDs réels SUAPS
       activiteId,
-      activiteNom,
       creneauId,
+      
+      // Données de base
+      activiteNom,
       jour,
       horaireDebut,
       horaireFin,
       localisation,
+      
+      // Toutes les autres données reçues
+      ...autresChamps,
+      
+      // Configuration
       actif: true,
       options: {
         maxTentatives: 5,

@@ -8,14 +8,45 @@ export interface LocalisationAPI {
 }
 
 export interface CreneauAPI {
+  id: string;
   horaireDebut: string;
   horaireFin: string;
   jour: string;
   localisation?: LocalisationAPI;
+  quotaCursus?: number;
+  quotaLoisir?: number;
+  quotaMinimum?: number;
+  niveau?: string;
+  fileAttente?: boolean;
+  encadrants?: any[];
+  encadrantsLibelle?: string;
+  fermetures?: any[];
+  quota?: number;
+  nbMoyenInscrits?: number;
+  nbInscrits?: number;
+  nbMoyenPresents?: number;
 }
 
 export interface ActiviteAPI {
+  id: string;
   nom: string;
+  description?: string;
+  typePrestation?: string;
+  tarif?: any;
+  quota?: any;
+  fileAttente?: boolean;
+  catalogue?: any;
+  famille?: any;
+  annee?: any;
+  maxReservationParSemaine?: number;
+  inscriptionAnnuelle?: boolean;
+  affichageOnly?: boolean;
+  nbInscrits?: number;
+  position?: number;
+  statutInscription?: any;
+  nbCreneaux?: number;
+  inscriptionEnCours?: any;
+  inscriptionAnnulable?: any;
   creneaux: CreneauAPI[];
 }
 
@@ -27,11 +58,20 @@ export interface Localisation {
 }
 
 export interface Creneau {
+  // IDs réels SUAPS
+  activiteId: string;
+  creneauId: string;
+  
+  // Données d'affichage
   activité: string;
   jour: string;
   début: string;
   fin: string;
   localisation?: Localisation;
+  
+  // Données complètes pour l'auto-réservation
+  activiteData?: ActiviteAPI;
+  creneauData?: CreneauAPI;
 }
 
 export interface ActiviteOption {
@@ -63,6 +103,11 @@ export interface CreneauSelectionne {
   debut: string;
   fin: string;
   localisation?: Localisation;
+  // Données complètes pour l'auto-réservation
+  activiteId?: string;
+  creneauId?: string;
+  activiteData?: ActiviteAPI;
+  creneauData?: CreneauAPI;
 }
 
 // Mode de sélection : par sport ou par créneaux spécifiques

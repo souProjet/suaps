@@ -42,7 +42,6 @@ export async function POST(request: NextRequest) {
     // Convertir le code carte au format hexadécimal attendu par SUAPS
     const codeCarteProcessed = processCodeCarte(codeCarte);
     
-    console.log(`Conversion code carte: ${codeCarte} -> ${codeCarteProcessed}`);
 
     // Effectuer la requête de connexion vers l'API SUAPS
     const loginResponse = await fetch("https://u-sport.univ-nantes.fr/api/extended/cartes/auth/login", {

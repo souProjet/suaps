@@ -1,0 +1,864 @@
+{
+    "id": "0be0297c-aff9-40c5-b48a-e95565b444b8",
+    "typePrestation": "ACTIVITE",
+    "nom": "Futsal",
+    "description": "<p><strong>Prévoir tenue de sport et chaussures adaptées.</strong></p><p><br></p><p>Les jours et horaires sont susceptibles de changer en fonction des périodes de l'année.</p>",
+    "tarif": null,
+    "quota": null,
+    "fileAttente": false,
+    "catalogue": {
+      "id": "8a757ad7-fac6-4cad-b48b-a2a11ef7efa4",
+      "nom": "Catalogue Nantes",
+      "description": " ",
+      "ordreAffichage": 0,
+      "type": "ACTIVITE",
+      "annee": { "id": "8e02137e-b876-4ff2-957e-7d244942ba25", "annee": 2025 },
+      "affichageHome": true
+    },
+    "famille": {
+      "id": "a0f6cc43-6592-4b21-b1fd-e8a0f99ff929",
+      "nom": "Sports Collectifs",
+      "couleurHexa": "#87cc84",
+      "dossier": "collectifs",
+      "annee": { "id": "8e02137e-b876-4ff2-957e-7d244942ba25", "annee": 2025 }
+    },
+    "annee": { "id": "8e02137e-b876-4ff2-957e-7d244942ba25", "annee": 2025 },
+    "maxReservationParSemaine": null,
+    "inscriptionAnnuelle": true,
+    "affichageOnly": false,
+    "nbInscrits": 140,
+    "position": null,
+    "statutInscription": null,
+    "nbCreneaux": null,
+    "inscriptionEnCours": null,
+    "inscriptionAnnulable": null,
+    "creneaux": [
+      {
+        "id": "b8998ed2-a89d-483f-a766-2b2b0409a319",
+        "codeCursus": null,
+        "jour": "LUNDI",
+        "horaireDebut": "19:00",
+        "horaireFin": "20:30",
+        "quotaCursus": null,
+        "quotaLoisir": 45,
+        "quotaMinimum": null,
+        "niveau": "Tous niveaux",
+        "fileAttente": false,
+        "activite": {
+          "id": "0be0297c-aff9-40c5-b48a-e95565b444b8",
+          "typePrestation": "ACTIVITE",
+          "nom": "Futsal",
+          "description": "<p><strong>Prévoir tenue de sport et chaussures adaptées.</strong></p><p><br></p><p>Les jours et horaires sont susceptibles de changer en fonction des périodes de l'année.</p>",
+          "tarif": null,
+          "quota": null,
+          "fileAttente": false,
+          "catalogue": {
+            "id": "8a757ad7-fac6-4cad-b48b-a2a11ef7efa4",
+            "nom": "Catalogue Nantes",
+            "description": " ",
+            "ordreAffichage": 0,
+            "type": "ACTIVITE",
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            },
+            "affichageHome": true
+          },
+          "famille": {
+            "id": "a0f6cc43-6592-4b21-b1fd-e8a0f99ff929",
+            "nom": "Sports Collectifs",
+            "couleurHexa": "#87cc84",
+            "dossier": "collectifs",
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          "annee": {
+            "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+            "annee": 2025
+          },
+          "maxReservationParSemaine": null,
+          "inscriptionAnnuelle": true,
+          "affichageOnly": false,
+          "nbInscrits": null,
+          "position": null,
+          "statutInscription": null,
+          "nbCreneaux": null,
+          "inscriptionEnCours": null,
+          "inscriptionAnnulable": null,
+          "creneaux": null
+        },
+        "localisation": {
+          "id": "eae5ad9c-3957-4e05-bd46-f9e631d2d37a",
+          "nom": "Stadium Pierre Quinon - Salle Milliat",
+          "reglementInterieur": null,
+          "adresse": "19 Boulevard Guy Mollet",
+          "complementAdresse": null,
+          "ville": "Nantes",
+          "codePostal": "44300",
+          "site": {
+            "id": "1b635970-488e-46d7-85d6-94b24c612247",
+            "nom": "TERTRE PETIT PORT",
+            "ville": {
+              "id": "2b57460f-d76f-4def-9aa2-4966f653fa08",
+              "nom": "Nantes",
+              "paramUrl": "Nantes",
+              "annee": {
+                "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+                "annee": 2025
+              }
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          "annee": {
+            "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+            "annee": 2025
+          }
+        },
+        "annee": {
+          "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+          "annee": 2025
+        },
+        "periodes": [
+          {
+            "id": "014a158d-3f9c-415a-b29b-349ae18774c0",
+            "dateDebut": "2025-09-15",
+            "dateFin": "2026-06-13",
+            "codeCursus": null,
+            "creneau": {
+              "id": "b8998ed2-a89d-483f-a766-2b2b0409a319",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "periode": {
+              "id": "4dc2c931-12c4-4cac-8709-c9bbb2513e16",
+              "nom": "Année 2025-2026",
+              "dateDebutInscriptions": "2025-09-01",
+              "dateFinInscriptions": "2026-06-13",
+              "dateDebutActivites": "2025-09-15",
+              "dateFinActivites": "2026-06-13",
+              "maxActivite": 3,
+              "maxCreneauSemaine": 4,
+              "maxCreneauSemaineParActivite": null,
+              "paiementNecessaire": true,
+              "periodeReduite": false,
+              "annee": {
+                "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+                "annee": 2025
+              }
+            }
+          }
+        ],
+        "encadrants": [
+          {
+            "code": "11000007",
+            "numero": "11000007",
+            "type": "ENCADRANT",
+            "typeExterne": null,
+            "civilite": null,
+            "nom": "GUITTON",
+            "prenom": "Pierre-Gilles",
+            "email": null,
+            "telephone": null,
+            "dateNaissance": null,
+            "estBoursier": null,
+            "composante": null,
+            "departement": null,
+            "estInscrit": null,
+            "paiementEffectue": null,
+            "casContact": null,
+            "reduction": null,
+            "etablissementOrigine": null,
+            "tagHexa": "0436631A401490",
+            "majorite": null
+          }
+        ],
+        "fermetures": [
+          {
+            "id": "fc5937d5-735f-4181-8ee5-00f18529268b",
+            "dateDebut": "2025-11-11",
+            "dateFin": "2025-11-11",
+            "motif": "Armistice 1918",
+            "creneau": {
+              "id": "b8998ed2-a89d-483f-a766-2b2b0409a319",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          {
+            "id": "7131f3b6-c1a1-4c4c-abe7-1dc8a8fde03d",
+            "dateDebut": "2026-04-06",
+            "dateFin": "2026-04-06",
+            "motif": "Paques",
+            "creneau": {
+              "id": "b8998ed2-a89d-483f-a766-2b2b0409a319",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          {
+            "id": "e95904bb-dce7-49ba-a14d-f6f95e68125a",
+            "dateDebut": "2026-05-01",
+            "dateFin": "2026-05-02",
+            "motif": "Fete du travail",
+            "creneau": {
+              "id": "b8998ed2-a89d-483f-a766-2b2b0409a319",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          {
+            "id": "06d12e71-6057-4961-a570-3bf38c008b0f",
+            "dateDebut": "2026-05-08",
+            "dateFin": "2026-05-08",
+            "motif": "Armistice 1945",
+            "creneau": {
+              "id": "b8998ed2-a89d-483f-a766-2b2b0409a319",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          {
+            "id": "d03dffce-978d-4785-ad35-ff70cf24eb72",
+            "dateDebut": "2026-05-25",
+            "dateFin": "2026-05-25",
+            "motif": "Pentecote",
+            "creneau": {
+              "id": "b8998ed2-a89d-483f-a766-2b2b0409a319",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          {
+            "id": "a14aecfb-c2f9-443a-a728-b81534d33364",
+            "dateDebut": "2025-10-27",
+            "dateFin": "2025-11-02",
+            "motif": "Vacances Toussaint",
+            "creneau": {
+              "id": "b8998ed2-a89d-483f-a766-2b2b0409a319",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          {
+            "id": "fa8d0379-0856-4191-8fa1-f4df8a484543",
+            "dateDebut": "2025-12-21",
+            "dateFin": "2026-01-04",
+            "motif": "Vacances noel",
+            "creneau": {
+              "id": "b8998ed2-a89d-483f-a766-2b2b0409a319",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          {
+            "id": "13a798a3-a5e4-437e-b186-f460317a7a33",
+            "dateDebut": "2026-02-22",
+            "dateFin": "2026-03-01",
+            "motif": "Vacances fevrier",
+            "creneau": {
+              "id": "b8998ed2-a89d-483f-a766-2b2b0409a319",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          {
+            "id": "5e87f833-cd60-421c-a1be-d6aeef4b488f",
+            "dateDebut": "2026-04-19",
+            "dateFin": "2026-04-26",
+            "motif": "Vacances printemps",
+            "creneau": {
+              "id": "b8998ed2-a89d-483f-a766-2b2b0409a319",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          {
+            "id": "1780fd66-402d-40fe-97fd-c9e847402c3b",
+            "dateDebut": "2026-05-14",
+            "dateFin": "2026-05-16",
+            "motif": "Pont Ascension mai du 14 au 16 mai",
+            "creneau": {
+              "id": "b8998ed2-a89d-483f-a766-2b2b0409a319",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          }
+        ],
+        "quota": null,
+        "nbMoyenInscrits": null,
+        "nbInscrits": null,
+        "nbMoyenPresents": null,
+        "occurenceCreneauDTO": null,
+        "encadrantsLibelle": "Pierre-Gilles GUITTON "
+      },
+      {
+        "id": "06f7deb1-cf3a-418a-8678-30c1d18918df",
+        "codeCursus": null,
+        "jour": "LUNDI",
+        "horaireDebut": "17:30",
+        "horaireFin": "19:00",
+        "quotaCursus": null,
+        "quotaLoisir": 45,
+        "quotaMinimum": null,
+        "niveau": "Tous niveaux",
+        "fileAttente": false,
+        "activite": {
+          "id": "0be0297c-aff9-40c5-b48a-e95565b444b8",
+          "typePrestation": "ACTIVITE",
+          "nom": "Futsal",
+          "description": "<p><strong>Prévoir tenue de sport et chaussures adaptées.</strong></p><p><br></p><p>Les jours et horaires sont susceptibles de changer en fonction des périodes de l'année.</p>",
+          "tarif": null,
+          "quota": null,
+          "fileAttente": false,
+          "catalogue": {
+            "id": "8a757ad7-fac6-4cad-b48b-a2a11ef7efa4",
+            "nom": "Catalogue Nantes",
+            "description": " ",
+            "ordreAffichage": 0,
+            "type": "ACTIVITE",
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            },
+            "affichageHome": true
+          },
+          "famille": {
+            "id": "a0f6cc43-6592-4b21-b1fd-e8a0f99ff929",
+            "nom": "Sports Collectifs",
+            "couleurHexa": "#87cc84",
+            "dossier": "collectifs",
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          "annee": {
+            "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+            "annee": 2025
+          },
+          "maxReservationParSemaine": null,
+          "inscriptionAnnuelle": true,
+          "affichageOnly": false,
+          "nbInscrits": null,
+          "position": null,
+          "statutInscription": null,
+          "nbCreneaux": null,
+          "inscriptionEnCours": null,
+          "inscriptionAnnulable": null,
+          "creneaux": null
+        },
+        "localisation": {
+          "id": "eae5ad9c-3957-4e05-bd46-f9e631d2d37a",
+          "nom": "Stadium Pierre Quinon - Salle Milliat",
+          "reglementInterieur": null,
+          "adresse": "19 Boulevard Guy Mollet",
+          "complementAdresse": null,
+          "ville": "Nantes",
+          "codePostal": "44300",
+          "site": {
+            "id": "1b635970-488e-46d7-85d6-94b24c612247",
+            "nom": "TERTRE PETIT PORT",
+            "ville": {
+              "id": "2b57460f-d76f-4def-9aa2-4966f653fa08",
+              "nom": "Nantes",
+              "paramUrl": "Nantes",
+              "annee": {
+                "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+                "annee": 2025
+              }
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          "annee": {
+            "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+            "annee": 2025
+          }
+        },
+        "annee": {
+          "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+          "annee": 2025
+        },
+        "periodes": [
+          {
+            "id": "1a8ccfea-eef8-49d8-a80a-5b850a6152e1",
+            "dateDebut": "2025-09-15",
+            "dateFin": "2026-06-13",
+            "codeCursus": null,
+            "creneau": {
+              "id": "06f7deb1-cf3a-418a-8678-30c1d18918df",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "periode": {
+              "id": "4dc2c931-12c4-4cac-8709-c9bbb2513e16",
+              "nom": "Année 2025-2026",
+              "dateDebutInscriptions": "2025-09-01",
+              "dateFinInscriptions": "2026-06-13",
+              "dateDebutActivites": "2025-09-15",
+              "dateFinActivites": "2026-06-13",
+              "maxActivite": 3,
+              "maxCreneauSemaine": 4,
+              "maxCreneauSemaineParActivite": null,
+              "paiementNecessaire": true,
+              "periodeReduite": false,
+              "annee": {
+                "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+                "annee": 2025
+              }
+            }
+          }
+        ],
+        "encadrants": [
+          {
+            "code": "11000007",
+            "numero": "11000007",
+            "type": "ENCADRANT",
+            "typeExterne": null,
+            "civilite": null,
+            "nom": "GUITTON",
+            "prenom": "Pierre-Gilles",
+            "email": null,
+            "telephone": null,
+            "dateNaissance": null,
+            "estBoursier": null,
+            "composante": null,
+            "departement": null,
+            "estInscrit": null,
+            "paiementEffectue": null,
+            "casContact": null,
+            "reduction": null,
+            "etablissementOrigine": null,
+            "tagHexa": "0436631A401490",
+            "majorite": null
+          }
+        ],
+        "fermetures": [
+          {
+            "id": "c96a59dd-fce2-4ba5-828c-07b34dd658ff",
+            "dateDebut": "2025-11-11",
+            "dateFin": "2025-11-11",
+            "motif": "Armistice 1918",
+            "creneau": {
+              "id": "06f7deb1-cf3a-418a-8678-30c1d18918df",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          {
+            "id": "427d27e1-ac38-4d31-be83-6a09bb689512",
+            "dateDebut": "2026-04-06",
+            "dateFin": "2026-04-06",
+            "motif": "Paques",
+            "creneau": {
+              "id": "06f7deb1-cf3a-418a-8678-30c1d18918df",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          {
+            "id": "8f7ca90a-aaec-440a-9884-2cde49f13811",
+            "dateDebut": "2026-05-01",
+            "dateFin": "2026-05-02",
+            "motif": "Fete du travail",
+            "creneau": {
+              "id": "06f7deb1-cf3a-418a-8678-30c1d18918df",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          {
+            "id": "b3fddcd5-8d0e-4f6d-a7fa-0a8058893bca",
+            "dateDebut": "2026-05-08",
+            "dateFin": "2026-05-08",
+            "motif": "Armistice 1945",
+            "creneau": {
+              "id": "06f7deb1-cf3a-418a-8678-30c1d18918df",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          {
+            "id": "77cfe8a4-db14-4a96-9da7-c876ff2646a7",
+            "dateDebut": "2026-05-25",
+            "dateFin": "2026-05-25",
+            "motif": "Pentecote",
+            "creneau": {
+              "id": "06f7deb1-cf3a-418a-8678-30c1d18918df",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          {
+            "id": "7ff63f39-d9d7-469a-b8a8-8c6b7b4981b7",
+            "dateDebut": "2025-10-27",
+            "dateFin": "2025-11-02",
+            "motif": "Vacances Toussaint",
+            "creneau": {
+              "id": "06f7deb1-cf3a-418a-8678-30c1d18918df",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          {
+            "id": "ee719953-1052-4694-98be-09b5e21eef71",
+            "dateDebut": "2025-12-21",
+            "dateFin": "2026-01-04",
+            "motif": "Vacances noel",
+            "creneau": {
+              "id": "06f7deb1-cf3a-418a-8678-30c1d18918df",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          {
+            "id": "0ee18440-04a5-470a-8e4b-d19ddc708775",
+            "dateDebut": "2026-02-22",
+            "dateFin": "2026-03-01",
+            "motif": "Vacances fevrier",
+            "creneau": {
+              "id": "06f7deb1-cf3a-418a-8678-30c1d18918df",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          {
+            "id": "9f4a7ec9-6c0c-44d9-a608-d0d6b298e1ec",
+            "dateDebut": "2026-04-19",
+            "dateFin": "2026-04-26",
+            "motif": "Vacances printemps",
+            "creneau": {
+              "id": "06f7deb1-cf3a-418a-8678-30c1d18918df",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          },
+          {
+            "id": "f4dc50c7-19b6-486a-95d8-7b2e251c117a",
+            "dateDebut": "2026-05-14",
+            "dateFin": "2026-05-16",
+            "motif": "Pont Ascension mai du 14 au 16 mai",
+            "creneau": {
+              "id": "06f7deb1-cf3a-418a-8678-30c1d18918df",
+              "codeCursus": null,
+              "jour": null,
+              "horaireDebut": null,
+              "horaireFin": null,
+              "quotaCursus": null,
+              "quotaLoisir": null,
+              "quotaMinimum": null,
+              "niveau": null,
+              "fileAttente": null,
+              "activite": null,
+              "localisation": null,
+              "annee": null
+            },
+            "annee": {
+              "id": "8e02137e-b876-4ff2-957e-7d244942ba25",
+              "annee": 2025
+            }
+          }
+        ],
+        "quota": null,
+        "nbMoyenInscrits": null,
+        "nbInscrits": null,
+        "nbMoyenPresents": null,
+        "occurenceCreneauDTO": null,
+        "encadrantsLibelle": "Pierre-Gilles GUITTON "
+      }
+    ]
+  }
+ 

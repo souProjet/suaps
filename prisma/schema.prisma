@@ -12,13 +12,58 @@ model CreneauAutoReservation {
   id                   String   @id @default(auto()) @map("_id") @db.ObjectId
   userId               String   // Code utilisateur issu de user.code lors de l'authentification (ex: "b2ad458a")
   codeCarte            String   // Code carte SUAPS original (ex: "1220277161303184")
+  
+  // Données de l'activité
   activiteId           String
   activiteNom          String
+  activiteDescription  String?
+  activiteTarif        String?
+  activiteQuota        Int?
+  activiteFileAttente  Boolean? @default(false)
+  activiteMaxReservationParSemaine Int?
+  activiteInscriptionAnnuelle Boolean? @default(true)
+  activiteAffichageOnly Boolean? @default(false)
+  activiteNbInscrits   Int?
+  activitePosition     Int?
+  activiteStatutInscription String?
+  activiteNbCreneaux   Int?
+  activiteInscriptionEnCours Boolean?
+  activiteInscriptionAnnulable Boolean?
+  
+  // Données du créneau
   creneauId            String
   jour                 String   // LUNDI, MARDI, etc.
   horaireDebut         String
   horaireFin           String
-  localisation         Localisation?
+  quotaLoisir          Int?
+  quotaCursus          Int?
+  quotaMinimum         Int?
+  niveau               String?
+  fileAttente          Boolean? @default(false)
+  quota                Int?
+  nbMoyenInscrits      Int?
+  nbInscrits           Int? @default(0)
+  nbMoyenPresents      Int?
+  
+  // Encadrants
+  encadrants           Json?
+  encadrantsLibelle    String?
+  
+  // Localisation complète
+  localisation         LocalisationComplete?
+  
+  // Catalogue et famille
+  catalogue            Json?
+  famille              Json?
+  
+  // Annee
+  annee                Json?
+  
+  // Périodes et fermetures
+  periodes             Json?
+  fermetures           Json?
+  
+  // Statut et gestion
   actif                Boolean  @default(true)
   dateCreation         DateTime @default(now())
   derniereTentative    DateTime?
@@ -44,9 +89,46 @@ model LogReservation {
 
 // Types embarqués
 type Localisation {
-  nom     String
-  adresse String
-  ville   String
+  id                   String?
+  nom                  String
+  adresse              String
+  ville                String
+  codePostal           String?
+  complementAdresse    String?
+  reglementInterieur   String?
+  site                 Json?
+  annee                Json?
+}
+
+type LocalisationComplete {
+  id                   String?
+  nom                  String
+  adresse              String
+  ville                String
+  codePostal           String?
+  complementAdresse    String?
+  reglementInterieur   String?
+  site                 SiteInfo?
+  annee                AnneeInfo?
+}
+
+type SiteInfo {
+  id                   String
+  nom                  String
+  ville                VilleInfo?
+  annee                AnneeInfo?
+}
+
+type VilleInfo {
+  id                   String
+  nom                  String
+  paramUrl             String?
+  annee                AnneeInfo?
+}
+
+type AnneeInfo {
+  id                   String
+  annee                Int
 }
 
 type OptionsReservation {

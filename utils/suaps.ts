@@ -1,13 +1,18 @@
 import { ActiviteAPI, Creneau, ActiviteOption, ContraintesHoraires } from '@/types/suaps';
 
 /**
- * Transforme les données de l'API en créneaux formatés
+ * Transforme les données de l'API en créneaux formatés avec les IDs réels
  */
 export function extractCreneaux(data: ActiviteAPI[]): Creneau[] {
   const creneaux: Creneau[] = [];
   
   for (const act of data) {
-    if (!act || !act.nom) continue;
+    if (!act || !act.nom) {
+      continue;
+    }
+
+    // Générer un ID temporaire si l'API ne fournit pas d'ID réel
+    const activiteId = act.id || `temp_activite_${act.nom.toLowerCase().replace(/\s+/g, '_')}`;
     
     const nom = act.nom.toLowerCase();
     const creneauxList = act.creneaux;
@@ -15,7 +20,12 @@ export function extractCreneaux(data: ActiviteAPI[]): Creneau[] {
     if (!creneauxList) continue;
     
     for (const c of creneauxList) {
-      if (!c.horaireDebut || !c.horaireFin || !c.jour) continue;
+      if (!c.horaireDebut || !c.horaireFin || !c.jour) {
+        continue;
+      }
+
+      // Générer un ID temporaire si l'API ne fournit pas d'ID réel
+      const creneauId = c.id || `temp_creneau_${act.nom.toLowerCase().replace(/\s+/g, '_')}_${c.jour}_${c.horaireDebut}_${c.horaireFin}`;
       
       // Extraction des informations de localisation
       let localisation = undefined;
@@ -28,13 +38,25 @@ export function extractCreneaux(data: ActiviteAPI[]): Creneau[] {
         };
       }
 
-      creneaux.push({
+      const nouveauCreneau = {
+        // IDs réels SUAPS ou temporaires
+        activiteId: activiteId,
+        creneauId: creneauId,
+        
+        // Données d'affichage (pour compatibilité)
         activité: nom,
         jour: c.jour.charAt(0).toUpperCase() + c.jour.slice(1).toLowerCase(),
         début: c.horaireDebut,
         fin: c.horaireFin,
-        localisation
-      });
+        localisation,
+        
+        // Données complètes pour l'auto-réservation
+        activiteData: act,
+        creneauData: c
+      };
+      
+      
+      creneaux.push(nouveauCreneau);
     }
   }
   

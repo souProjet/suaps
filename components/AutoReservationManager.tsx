@@ -69,7 +69,7 @@ export default function AutoReservationManager({ onAddCreneau }: AutoReservation
         setLogs(logsData);
       }
     } catch (error) {
-      console.error('Erreur lors du chargement:', error);
+      // Erreur silencieuse
     } finally {
       setLoading(false);
     }
@@ -90,7 +90,7 @@ export default function AutoReservationManager({ onAddCreneau }: AutoReservation
         ));
       }
     } catch (error) {
-      console.error('Erreur lors de la mise à jour:', error);
+      // Erreur silencieuse
     }
   };
 
@@ -109,7 +109,7 @@ export default function AutoReservationManager({ onAddCreneau }: AutoReservation
         setCreneaux(prev => prev.filter(c => c.id !== id));
       }
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
+      // Erreur silencieuse
     }
   };
 
@@ -162,7 +162,7 @@ export default function AutoReservationManager({ onAddCreneau }: AutoReservation
           </h2>
         </div>
         <p className="text-gray-600 text-sm">
-          Vos créneaux sont automatiquement réservés chaque jour à 20h
+          Réservation automatique tous les jours à 20h
         </p>
       </div>
 
@@ -207,11 +207,10 @@ export default function AutoReservationManager({ onAddCreneau }: AutoReservation
                 <Clock className="w-5 h-5 text-blue-600 mt-0.5" />
                 <div>
                   <h4 className="font-medium text-blue-900 mb-1">
-                    Comment ça marche ?
+                    Fonctionnement
                   </h4>
                   <p className="text-blue-700 text-sm">
-                    Ajoutez vos créneaux favoris ci-dessous. Chaque jour à 20h (heure française), 
-                    le système tentera automatiquement de réserver ces créneaux pour la semaine suivante.
+                    Tous les jours à 20h, tentative automatique de réservation de vos créneaux pour la semaine suivante.
                   </p>
                 </div>
               </div>
@@ -225,7 +224,7 @@ export default function AutoReservationManager({ onAddCreneau }: AutoReservation
                   Aucun créneau configuré
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Sélectionnez des créneaux dans la recherche ci-dessus, puis cliquez sur "Ajouter à l'auto-réservation"
+                  Allez dans l'onglet Recherche, trouvez vos créneaux et cliquez sur "Auto"
                 </p>
               </div>
             )}
@@ -268,14 +267,14 @@ export default function AutoReservationManager({ onAddCreneau }: AutoReservation
                           </span>
                         </div>
 
-                        {/* Statistiques */}
+                        {/* Statistiques simplifiées */}
                         <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
                           <span>
-                            Réussites: {creneau.nbReussites}/{creneau.nbTentatives}
+                            ✅ {creneau.nbReussites} | ❌ {creneau.nbTentatives - creneau.nbReussites}
                           </span>
                           {creneau.derniereReservation && (
                             <span>
-                              Dernière réservation: {formatDate(creneau.derniereReservation)}
+                              Dernière: {formatDate(creneau.derniereReservation)}
                             </span>
                           )}
                         </div>

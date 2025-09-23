@@ -48,7 +48,7 @@ export default function AutoReservationHistory() {
       }
       
     } catch (error) {
-      console.error('Erreur lors du chargement des données:', error);
+      // Erreur silencieuse
     } finally {
       setLoading(false);
     }
@@ -69,7 +69,7 @@ export default function AutoReservationHistory() {
         await chargerDonnees();
       }
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
+      // Erreur silencieuse
     }
   };
 
@@ -88,7 +88,7 @@ export default function AutoReservationHistory() {
         await chargerDonnees();
       }
     } catch (error) {
-      console.error('Erreur lors du changement d\'état:', error);
+      // Erreur silencieuse
     }
   };
 
@@ -157,7 +157,7 @@ export default function AutoReservationHistory() {
           <div>
             <h3 className="font-semibold text-blue-900 text-sm">Auto-Réservation Active</h3>
             <p className="text-blue-800 text-xs mt-1">
-              Créneaux réservés automatiquement tous les jours à 20h00 • Système 7 jours glissants
+              Tentative de réservation automatique tous les jours à 20h
             </p>
           </div>
         </div>
@@ -175,7 +175,7 @@ export default function AutoReservationHistory() {
           <div className="p-6 text-center text-gray-500">
             <p className="text-sm">Aucun créneau programmé</p>
             <p className="text-xs text-gray-400 mt-1">
-              Utilisez les boutons "Auto" sur vos combinaisons préférées !
+              Allez dans Recherche et cliquez sur "Auto"
             </p>
           </div>
         ) : (
@@ -201,11 +201,8 @@ export default function AutoReservationHistory() {
                     {creneau.localisation && (
                       <p className="truncate">{creneau.localisation.nom}</p>
                     )}
-                    <p className="text-blue-600">
-                      Prochaine: {calculerProchaineReservation(creneau.jour)}
-                    </p>
                     <p className="text-gray-500">
-                      {creneau.nbReussites}/{creneau.nbTentatives} réussites
+                      ✅ {creneau.nbReussites} | ❌ {creneau.nbTentatives - creneau.nbReussites}
                     </p>
                   </div>
                 </div>
@@ -245,19 +242,19 @@ export default function AutoReservationHistory() {
         
         {logs.length === 0 ? (
           <div className="p-4 text-center text-gray-500 text-sm">
-            Aucun historique disponible
+            Aucun historique
           </div>
         ) : (
           <div className="divide-y max-h-48 overflow-y-auto">
-            {logs.slice(0, 10).map((log, index) => (
+            {logs.slice(0, 5).map((log, index) => (
               <div key={index} className="p-3 flex items-center gap-3">
                 {getStatutIcon(log.statut)}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {log.message}
+                  <p className="text-sm text-gray-900 truncate">
+                    {log.activiteNom || 'Activité'}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {new Date(log.timestamp).toLocaleString('fr-FR')}
+                    {new Date(log.timestamp).toLocaleDateString('fr-FR')}
                   </p>
                 </div>
               </div>

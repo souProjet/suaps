@@ -110,7 +110,12 @@ export default function CreneauxSelector({
         jour: creneau.jour,
         debut: creneau.début,
         fin: creneau.fin,
-        localisation: creneau.localisation
+        localisation: creneau.localisation,
+        // Préserver les données complètes pour l'auto-réservation
+        activiteId: creneau.activiteId,
+        creneauId: creneau.creneauId,
+        activiteData: creneau.activiteData,
+        creneauData: creneau.creneauData
       };
       
       onSelectionChange([...creneauxSelectionnes, nouveauCreneau]);

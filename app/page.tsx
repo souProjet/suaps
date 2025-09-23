@@ -29,13 +29,18 @@ function verifierCompatibiliteCreneaux(creneauxSelectionnes: CreneauSelectionne[
   compatibles: Creneau[][];
   totalCombinaisons: number;
 } {
-  // Convertir les créneaux sélectionnés en format Creneau
+  // Convertir les créneaux sélectionnés en format Creneau en préservant les données complètes
   const creneaux: Creneau[] = creneauxSelectionnes.map(creneau => ({
     activité: creneau.activite,
     jour: creneau.jour,
     début: creneau.debut,
     fin: creneau.fin,
-    localisation: creneau.localisation
+    localisation: creneau.localisation,
+    // Préserver les données complètes pour l'auto-réservation
+    activiteId: creneau.activiteId || '',
+    creneauId: creneau.creneauId || '',
+    activiteData: creneau.activiteData,
+    creneauData: creneau.creneauData
   }));
 
   // Vérifier s'il y a des conflits horaires
@@ -279,11 +284,6 @@ export default function HomePage() {
                 <h1 className="text-white font-bold text-base sm:text-lg">
                   Planificateur SUAPS
                 </h1>
-                {hasStoredPreferences && (
-                  <p className="text-blue-100 text-xs">
-                    💾 Préférences sauvegardées
-                  </p>
-                )}
               </div>
             </div>
             
@@ -471,7 +471,7 @@ export default function HomePage() {
                     <div>
                       <h4 className="font-semibold text-blue-900 text-sm">Auto-Réservation</h4>
                       <p className="text-blue-800 text-xs mt-1">
-                        Cliquez sur le bouton <strong>"Auto"</strong> d'une combinaison pour qu'elle soit réservée automatiquement tous les jours à 20h00 !
+                        Cliquez sur <strong>"Auto"</strong> pour réserver automatiquement à 20h chaque jour
                       </p>
                     </div>
                   </div>
@@ -482,7 +482,7 @@ export default function HomePage() {
               {resultats.compatibles.length > 0 && (
                 <div className="bg-green-50 border border-green-200 rounded-lg sm:rounded-xl p-3 sm:p-4 text-center">
                   <p className="text-green-700 text-sm mb-3">
-                    🎉 {resultats.compatibles.length} combinaison{resultats.compatibles.length > 1 ? 's' : ''} trouvée{resultats.compatibles.length > 1 ? 's' : ''}
+                    🎉 {resultats.compatibles.length} combinaison{resultats.compatibles.length > 1 ? 's' : ''} compatible{resultats.compatibles.length > 1 ? 's' : ''}
                   </p>
                   <button
                     onClick={() => setCurrentStep(3)}

@@ -9,17 +9,66 @@ export interface CreneauAutoReservation {
   id: string;
   userId: string; // Code utilisateur issu de user.code lors de l'authentification (ex: "b2ad458a")
   codeCarte: string; // Code carte SUAPS original (ex: "1220277161303184", PAS le format hexadécimal)
+  
+  // IDs réels SUAPS
   activiteId: string;
-  activiteNom: string;
   creneauId: string;
+  
+  // Données de base
+  activiteNom: string;
+  activiteDescription?: string;
   jour: string; // LUNDI, MARDI, etc.
   horaireDebut: string;
   horaireFin: string;
+  
+  // Données complètes de l'activité
+  activiteTarif?: any;
+  activiteQuota?: number;
+  activiteFileAttente?: boolean;
+  activiteMaxReservationParSemaine?: number;
+  activiteInscriptionAnnuelle?: boolean;
+  activiteAffichageOnly?: boolean;
+  activiteNbInscrits?: number;
+  activitePosition?: number;
+  activiteStatutInscription?: any;
+  activiteNbCreneaux?: number;
+  activiteInscriptionEnCours?: any;
+  activiteInscriptionAnnulable?: any;
+  
+  // Données complètes du créneau
+  quotaLoisir?: number;
+  quotaCursus?: number;
+  quotaMinimum?: number;
+  niveau?: string;
+  fileAttente?: boolean;
+  quota?: number;
+  nbMoyenInscrits?: number;
+  nbInscrits?: number;
+  nbMoyenPresents?: number;
+  encadrants?: any[];
+  encadrantsLibelle?: string;
+  fermetures?: any[];
+  
+  // Données structurelles
+  catalogue?: any;
+  famille?: any;
+  annee?: any;
+  periodes?: any[];
+  
+  // Localisation
   localisation?: {
+    id?: string;
     nom: string;
     adresse: string;
     ville: string;
+    codePostal?: string;
+    complementAdresse?: string;
+    reglementInterieur?: string;
+    site?: any;
+    annee?: any;
   };
+  
+  // Statut et gestion
   actif: boolean;
   dateCreation: string;
   derniereTentative?: string;
@@ -142,20 +191,61 @@ export async function ajouterCreneauAutoReservation(
   if (codeCarteNettoye.length < 10 || codeCarteNettoye.length > 20) {
     throw new Error(`Code carte invalide: ${creneau.codeCarte}. Doit contenir 10-20 chiffres.`);
   }
-  
-  console.log(`Création d'un créneau d'auto-réservation pour l'utilisateur ${creneau.userId} avec le code carte: ${codeCarteNettoye}`);
-  
+    
   const nouveauCreneau = await prisma.creneauAutoReservation.create({
     data: {
       userId: creneau.userId, // Code utilisateur issu de l'authentification (ex: "b2ad458a")
       codeCarte: codeCarteNettoye, // Code carte original nettoyé (ex: "1220277161303184")
+      
+      // IDs réels SUAPS
       activiteId: creneau.activiteId,
-      activiteNom: creneau.activiteNom,
       creneauId: creneau.creneauId,
+      
+      // Données de base
+      activiteNom: creneau.activiteNom,
+      activiteDescription: creneau.activiteDescription,
       jour: creneau.jour,
       horaireDebut: creneau.horaireDebut,
       horaireFin: creneau.horaireFin,
+      
+      // Données complètes de l'activité
+      activiteTarif: creneau.activiteTarif,
+      activiteQuota: creneau.activiteQuota,
+      activiteFileAttente: creneau.activiteFileAttente,
+      activiteMaxReservationParSemaine: creneau.activiteMaxReservationParSemaine,
+      activiteInscriptionAnnuelle: creneau.activiteInscriptionAnnuelle,
+      activiteAffichageOnly: creneau.activiteAffichageOnly,
+      activiteNbInscrits: creneau.activiteNbInscrits,
+      activitePosition: creneau.activitePosition,
+      activiteStatutInscription: creneau.activiteStatutInscription,
+      activiteNbCreneaux: creneau.activiteNbCreneaux,
+      activiteInscriptionEnCours: creneau.activiteInscriptionEnCours,
+      activiteInscriptionAnnulable: creneau.activiteInscriptionAnnulable,
+      
+      // Données complètes du créneau
+      quotaLoisir: creneau.quotaLoisir,
+      quotaCursus: creneau.quotaCursus,
+      quotaMinimum: creneau.quotaMinimum,
+      niveau: creneau.niveau,
+      fileAttente: creneau.fileAttente,
+      quota: creneau.quota,
+      nbMoyenInscrits: creneau.nbMoyenInscrits,
+      nbInscrits: creneau.nbInscrits,
+      nbMoyenPresents: creneau.nbMoyenPresents,
+      encadrants: creneau.encadrants,
+      encadrantsLibelle: creneau.encadrantsLibelle,
+      fermetures: creneau.fermetures,
+      
+      // Données structurelles
+      catalogue: creneau.catalogue,
+      famille: creneau.famille,
+      annee: creneau.annee,
+      periodes: creneau.periodes,
+      
+      // Localisation
       localisation: creneau.localisation,
+      
+      // Statut et gestion
       actif: creneau.actif,
       nbTentatives: 0,
       nbReussites: 0,
@@ -298,13 +388,56 @@ function transformPrismaToInterface(creneau: any): CreneauAutoReservation {
     id: creneau.id,
     userId: creneau.userId,
     codeCarte: creneau.codeCarte,
+    
+    // IDs réels SUAPS
     activiteId: creneau.activiteId,
-    activiteNom: creneau.activiteNom,
     creneauId: creneau.creneauId,
+    
+    // Données de base
+    activiteNom: creneau.activiteNom,
+    activiteDescription: creneau.activiteDescription,
     jour: creneau.jour,
     horaireDebut: creneau.horaireDebut,
     horaireFin: creneau.horaireFin,
+    
+    // Données complètes de l'activité
+    activiteTarif: creneau.activiteTarif,
+    activiteQuota: creneau.activiteQuota,
+    activiteFileAttente: creneau.activiteFileAttente,
+    activiteMaxReservationParSemaine: creneau.activiteMaxReservationParSemaine,
+    activiteInscriptionAnnuelle: creneau.activiteInscriptionAnnuelle,
+    activiteAffichageOnly: creneau.activiteAffichageOnly,
+    activiteNbInscrits: creneau.activiteNbInscrits,
+    activitePosition: creneau.activitePosition,
+    activiteStatutInscription: creneau.activiteStatutInscription,
+    activiteNbCreneaux: creneau.activiteNbCreneaux,
+    activiteInscriptionEnCours: creneau.activiteInscriptionEnCours,
+    activiteInscriptionAnnulable: creneau.activiteInscriptionAnnulable,
+    
+    // Données complètes du créneau
+    quotaLoisir: creneau.quotaLoisir,
+    quotaCursus: creneau.quotaCursus,
+    quotaMinimum: creneau.quotaMinimum,
+    niveau: creneau.niveau,
+    fileAttente: creneau.fileAttente,
+    quota: creneau.quota,
+    nbMoyenInscrits: creneau.nbMoyenInscrits,
+    nbInscrits: creneau.nbInscrits,
+    nbMoyenPresents: creneau.nbMoyenPresents,
+    encadrants: creneau.encadrants,
+    encadrantsLibelle: creneau.encadrantsLibelle,
+    fermetures: creneau.fermetures,
+    
+    // Données structurelles
+    catalogue: creneau.catalogue,
+    famille: creneau.famille,
+    annee: creneau.annee,
+    periodes: creneau.periodes,
+    
+    // Localisation
     localisation: creneau.localisation,
+    
+    // Statut et gestion
     actif: creneau.actif,
     dateCreation: creneau.dateCreation.toISOString(),
     derniereTentative: creneau.derniereTentative?.toISOString(),

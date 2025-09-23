@@ -90,6 +90,10 @@ export interface LogReservation {
   statut: 'SUCCESS' | 'FAILED' | 'QUOTA_FULL' | 'AUTH_ERROR' | 'NETWORK_ERROR';
   message: string;
   details?: any;
+  // Détails du créneau enrichis
+  activiteNom?: string;
+  jour?: string;
+  horaireDebut?: string;
 }
 
 // Instance Prisma globale pour éviter les connexions multiples
@@ -368,15 +372,33 @@ export async function getLogsUtilisateur(userId: string, limit: number = 50): Pr
       take: limit
     });
     
-    return logs.map(log => ({
-      id: log.id,
-      userId: log.userId,
-      creneauAutoId: log.creneauAutoId,
-      timestamp: log.timestamp.toISOString(),
-      statut: log.statut as any,
-      message: log.message,
-      details: log.details
-    }));
+    // Récupérer les créneaux pour enrichir les logs avec les détails
+    const creneauIds = logs.map(log => log.creneauAutoId);
+    const creneaux = await prisma.creneauAutoReservation.findMany({
+      where: {
+        id: { in: creneauIds }
+      }
+    });
+    
+    // Créer un map pour un accès rapide aux créneaux
+    const creneauxMap = new Map(creneaux.map(c => [c.id, c]));
+    
+    return logs.map(log => {
+      const creneau = creneauxMap.get(log.creneauAutoId);
+      return {
+        id: log.id,
+        userId: log.userId,
+        creneauAutoId: log.creneauAutoId,
+        timestamp: log.timestamp.toISOString(),
+        statut: log.statut as any,
+        message: log.message,
+        details: log.details,
+        // Ajouter les détails du créneau s'ils sont disponibles
+        activiteNom: creneau?.activiteNom || 'Activité inconnue',
+        jour: creneau?.jour || '',
+        horaireDebut: creneau?.horaireDebut || ''
+      };
+    });
   } catch (error) {
     console.error('Erreur dans getLogsUtilisateur:', error);
     

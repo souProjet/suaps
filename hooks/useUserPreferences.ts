@@ -58,41 +58,53 @@ export function useUserPreferences(): UseUserPreferencesReturn {
   useEffect(() => {
     if (typeof window === 'undefined' || isLoaded) return;
 
+    console.log('🚀 Initialisation useUserPreferences - Chargement des préférences...');
+
     // Nettoyer le cache expiré
     clearExpiredCache();
 
     const storedPrefs = getUserPreferences();
     
     if (storedPrefs) {
+      console.log('📦 Préférences trouvées dans le localStorage:', storedPrefs);
       setHasStoredPreferences(true);
       
       // Restaurer les préférences
       if (storedPrefs.selectedCatalogueId) {
+        console.log('🏛️ Restauration du catalogue:', storedPrefs.selectedCatalogueId);
         setSelectedCatalogueIdState(storedPrefs.selectedCatalogueId);
       }
       
       if (storedPrefs.contraintesHoraires) {
+        console.log('⏰ Restauration des contraintes horaires:', storedPrefs.contraintesHoraires);
         setContraintesHorairesState(storedPrefs.contraintesHoraires);
       }
       
       if (storedPrefs.activitesSelectionnees) {
+        console.log('🏃 Restauration des activités sélectionnées:', storedPrefs.activitesSelectionnees);
         setActivitesSelectionneesState(storedPrefs.activitesSelectionnees);
       }
       
       if (storedPrefs.creneauxSelectionnes) {
+        console.log('📅 Restauration des créneaux sélectionnés:', storedPrefs.creneauxSelectionnes);
         setCreneauxSelectionnesState(storedPrefs.creneauxSelectionnes);
       }
       
       if (storedPrefs.selectionMode) {
+        console.log('🎯 Restauration du mode de sélection:', storedPrefs.selectionMode);
         setSelectionModeState(storedPrefs.selectionMode as SelectionMode);
       }
       
       if (storedPrefs.currentStep) {
+        console.log('👣 Restauration de l\'étape courante:', storedPrefs.currentStep);
         setCurrentStepState(storedPrefs.currentStep);
       }
+    } else {
+      console.log('📭 Aucune préférence trouvée dans le localStorage');
     }
     
     setIsLoaded(true);
+    console.log('✅ useUserPreferences initialisé');
   }, [isLoaded]);
 
   // Wrappers qui sauvegardent automatiquement

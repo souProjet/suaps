@@ -123,12 +123,12 @@ export default function LoginForm({ onLoginSuccess, onCancel }: LoginFormProps) 
                     {codeType === 'numeric' ? (
                       <>
                         <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1.5"></span>
-                        NUM
+                        OK
                       </>
                     ) : codeType === 'hex' ? (
                       <>
                         <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5"></span>
-                        HEX
+                        OK
                       </>
                     ) : (
                       <>
@@ -139,14 +139,6 @@ export default function LoginForm({ onLoginSuccess, onCancel }: LoginFormProps) 
                   </span>
                 </div>
               )}
-            </div>
-            <div className="mt-2 flex items-start space-x-2">
-              <svg className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                Le code se trouve sur votre carte étudiante SUAPS. Peut être au format numérique ou hexadécimal.
-              </p>
             </div>
           </div>
 
@@ -165,9 +157,6 @@ export default function LoginForm({ onLoginSuccess, onCancel }: LoginFormProps) 
               <label htmlFor="rememberMe" className="block text-sm text-gray-700 font-medium">
                 Se souvenir de mon code carte
               </label>
-              <p className="text-xs text-gray-500 mt-1">
-                Stockage sécurisé local pour éviter de retaper le code
-              </p>
             </div>
           </div>
 
@@ -187,16 +176,6 @@ export default function LoginForm({ onLoginSuccess, onCancel }: LoginFormProps) 
           )}
 
           <div className="flex gap-3 pt-6">
-            {onCancel && (
-              <button
-                type="button"
-                onClick={onCancel}
-                className="flex-1 px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
-                disabled={isLoading}
-              >
-                Annuler
-              </button>
-            )}
             <button
               type="submit"
               className="flex-1 px-4 py-3 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center"
@@ -213,12 +192,6 @@ export default function LoginForm({ onLoginSuccess, onCancel }: LoginFormProps) 
             </button>
           </div>
         </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-xs text-gray-500">
-            Votre code carte est stocké de manière sécurisée localement
-          </p>
-        </div>
       </div>
     </div>
   );

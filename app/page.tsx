@@ -19,9 +19,8 @@ import CitySelector from '@/components/CitySelector';
 import StepIndicator from '@/components/StepIndicator';
 import StepContainer from '@/components/StepContainer';
 import AuthButton from '@/components/AuthButton';
-import AutoReservationHistory from '@/components/AutoReservationHistory';
-import AutoReservationManager from '@/components/AutoReservationManager';
-import { RefreshCw, Calendar, MapPin, Clock, Search, Target, RotateCcw, History, Bot } from 'lucide-react';
+import AutoReservation from '@/components/AutoReservation';
+import { RefreshCw, Calendar, MapPin, Clock, Search, Target, RotateCcw, Bot } from 'lucide-react';
 import { getCurrentUser } from '@/utils/auth';
 
 // Fonction pour vérifier la compatibilité entre créneaux sélectionnés
@@ -76,8 +75,11 @@ function verifierCompatibiliteCreneaux(creneauxSelectionnes: CreneauSelectionne[
 }
 
 export default function HomePage() {
-  // État pour l'onglet actuel (recherche, auto-réservation, historique)
-  const [activeTab, setActiveTab] = useState<'search' | 'auto-reservation' | 'history'>('search');
+  // État pour l'onglet actuel (recherche, auto-réservation)
+  const [activeTab, setActiveTab] = useState<'search' | 'auto-reservation'>('search');
+  
+  // Flag pour éviter de filtrer lors de la restauration initiale
+  const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   
   // Utilisateur connecté pour les fonctionnalités auto-réservation
   const user = getCurrentUser();
@@ -195,13 +197,55 @@ export default function HomePage() {
   // Chargement automatique quand le catalogue change
   useEffect(() => {
     if (selectedCatalogueId) {
+      console.log('🔄 Chargement des données pour le catalogue:', selectedCatalogueId);
       chargerDonnees();
     }
   }, [selectedCatalogueId]);
 
-  // Gestion de la restauration des activités sélectionnées quand les données changent
+  // Marquer les données comme chargées quand les activités sont disponibles
   useEffect(() => {
+    if (activitesAPI.length > 0 && !initialDataLoaded) {
+      console.log('✅ Données initiales chargées, activation du flag');
+      setInitialDataLoaded(true);
+    }
+  }, [activitesAPI.length, initialDataLoaded]);
+
+  // Gestion de la validation des activités sélectionnées selon les contraintes
+  // Seulement APRÈS le chargement initial pour éviter d'effacer les préférences restaurées
+  useEffect(() => {
+    console.log('🔍 Effet de validation des activités déclenché:', {
+      activitesAPI: activitesAPI.length,
+      activitesSelectionnees: activitesSelectionnees.length,
+      hasStoredPreferences,
+      loading,
+      initialDataLoaded
+    });
+
+    // Ne pas filtrer si on est en cours de chargement OU si les données initiales ne sont pas encore chargées
+    if (loading || !initialDataLoaded) {
+      console.log('⏳ Chargement en cours ou données initiales non chargées, pas de filtrage');
+      return;
+    }
+    
+    // Seulement si on a des activités API ET des activités sélectionnées
     if (activitesAPI.length > 0 && activitesSelectionnees.length > 0) {
+      // Vérifier si toutes les contraintes horaires sont inactives (état par défaut)
+      const toutesInactives = Object.values(contraintesHoraires).every(c => !c.actif);
+      
+      console.log('📊 État des contraintes:', {
+        toutesInactives,
+        nombreContraintes: Object.keys(contraintesHoraires).length,
+        contraintesActives: Object.values(contraintesHoraires).filter(c => c.actif).length
+      });
+      
+      // Si toutes les contraintes sont inactives, ne pas filtrer (garde toutes les activités)
+      if (toutesInactives) {
+        console.log('✅ Toutes les contraintes inactives, conservation des activités sélectionnées');
+        return;
+      }
+      
+      console.log('🔄 Filtrage des activités selon les contraintes...');
+      
       // Garder seulement les activités sélectionnées qui sont encore disponibles
       const nouvellesActivitesDisponibles = getActivitesDisponibles(extractCreneaux(activitesAPI));
       const filtreesParContraintes = filtrerActivitesParContraintes(nouvellesActivitesDisponibles, contraintesHoraires);
@@ -211,12 +255,21 @@ export default function HomePage() {
         nomsActivitesDisponibles.includes(nom)
       );
       
-      // Ne garder les activités que si au moins une reste valide
-      if (activitesValides.length !== activitesSelectionnees.length) {
+      console.log('📋 Résultat du filtrage:', {
+        avant: activitesSelectionnees,
+        disponibles: nomsActivitesDisponibles,
+        après: activitesValides
+      });
+      
+      // Ne garder les activités que si au moins une reste valide ET qu'il y a eu un changement réel
+      if (activitesValides.length !== activitesSelectionnees.length && activitesValides.length > 0) {
+        console.log('🔄 Mise à jour des activités sélectionnées après changement de contraintes');
         setActivitesSelectionnees(activitesValides);
+      } else if (activitesValides.length === 0) {
+        console.log('⚠️ Toutes les activités filtrées, conservation de la sélection originale');
       }
     }
-  }, [activitesAPI, contraintesHoraires]);
+  }, [activitesAPI, contraintesHoraires, loading, hasStoredPreferences, initialDataLoaded]);
 
   // Handlers
   const handleCatalogueChange = (catalogueId: string) => {
@@ -224,6 +277,8 @@ export default function HomePage() {
     // Réinitialiser les sélections quand on change de catalogue
     setActivitesSelectionnees([]);
     setCreneauxSelectionnes([]);
+    // Réinitialiser le flag de chargement initial
+    setInitialDataLoaded(false);
   };
 
   const handleSelectionChange = (nouvellesActivites: string[]) => {
@@ -305,31 +360,17 @@ export default function HomePage() {
                 </button>
                 
                 {user && (
-                  <>
-                    <button
-                      onClick={() => setActiveTab('auto-reservation')}
-                      className={`p-1.5 sm:p-2 rounded-lg transition-colors touch-manipulation ${
-                        activeTab === 'auto-reservation'
-                          ? 'bg-white/20 text-white' 
-                          : 'bg-white/10 hover:bg-white/20 text-white'
-                      }`}
-                      title="Auto-réservation"
-                    >
-                      <Bot className="w-3 h-3 sm:w-4 sm:h-4" />
-                    </button>
-                    
-                    <button
-                      onClick={() => setActiveTab('history')}
-                      className={`p-1.5 sm:p-2 rounded-lg transition-colors touch-manipulation ${
-                        activeTab === 'history'
-                          ? 'bg-white/20 text-white' 
-                          : 'bg-white/10 hover:bg-white/20 text-white'
-                      }`}
-                      title="Historique"
-                    >
-                      <History className="w-3 h-3 sm:w-4 sm:h-4" />
-                    </button>
-                  </>
+                  <button
+                    onClick={() => setActiveTab('auto-reservation')}
+                    className={`p-1.5 sm:p-2 rounded-lg transition-colors touch-manipulation ${
+                      activeTab === 'auto-reservation'
+                        ? 'bg-white/20 text-white' 
+                        : 'bg-white/10 hover:bg-white/20 text-white'
+                    }`}
+                    title="Auto-réservation & Historique"
+                  >
+                    <Bot className="w-3 h-3 sm:w-4 sm:h-4" />
+                  </button>
                 )}
               </div>
               
@@ -500,14 +541,7 @@ export default function HomePage() {
         {/* Onglet Auto-réservation */}
         {activeTab === 'auto-reservation' && (
           <div className="p-4">
-            <AutoReservationManager />
-          </div>
-        )}
-
-        {/* Onglet Historique */}
-        {activeTab === 'history' && (
-          <div className="p-4">
-            <AutoReservationHistory />
+            <AutoReservation />
           </div>
         )}
       </div>

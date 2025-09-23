@@ -165,16 +165,63 @@ export async function getCreneauxAutoReservation(): Promise<CreneauAutoReservati
  * Récupère les créneaux d'auto-réservation pour un utilisateur
  */
 export async function getCreneauxUtilisateur(userId: string): Promise<CreneauAutoReservation[]> {
-  const creneaux = await prisma.creneauAutoReservation.findMany({
-    where: {
-      userId: userId
-    },
-    orderBy: {
-      dateCreation: 'desc'
+  try {
+    console.log(`Récupération des créneaux pour l'utilisateur: ${userId}`);
+    
+    // Forcer la connexion explicitement en cas de problème
+    await prisma.$connect();
+    
+    // Requête avec timeout de 5 secondes
+    const creneaux = await Promise.race([
+      prisma.creneauAutoReservation.findMany({
+        where: {
+          userId: userId
+        },
+        orderBy: {
+          dateCreation: 'desc'
+        }
+      }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout de la requête getCreneauxUtilisateur après 5 secondes')), 5000)
+      )
+    ]) as any[];
+    
+    console.log(`Trouvé ${creneaux.length} créneaux pour l'utilisateur`);
+    return creneaux.map(transformPrismaToInterface);
+    
+  } catch (error) {
+    console.error('Erreur dans getCreneauxUtilisateur:', error);
+    
+    // Tentative de reconnexion si erreur d'authentification
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage.includes('authentication failed') || errorMessage.includes('SCRAM')) {
+      console.log('Tentative de reconnexion...');
+      await prisma.$disconnect();
+      await prisma.$connect();
+      
+      // Retry une fois avec timeout plus court
+      const creneaux = await Promise.race([
+        prisma.creneauAutoReservation.findMany({
+          where: {
+            userId: userId
+          },
+          orderBy: {
+            dateCreation: 'desc'
+          }
+        }),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout retry après 3 secondes')), 3000)
+        )
+      ]) as any[];
+      
+      console.log(`Retry réussi: ${creneaux.length} créneaux trouvés`);
+      return creneaux.map(transformPrismaToInterface);
     }
-  });
-  
-  return creneaux.map(transformPrismaToInterface);
+    
+    // En cas d'erreur, retourner un tableau vide plutôt que de planter
+    console.warn('Retour d\'un tableau vide à cause de l\'erreur');
+    return [];
+  }
 }
 
 /**

@@ -251,7 +251,7 @@ export default function AutoReservationHistory() {
                 {getStatutIcon(log.statut)}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-gray-900 truncate">
-                    {log.activiteNom || 'Activité'}
+                    {log.message}
                   </p>
                   <p className="text-xs text-gray-500">
                     {new Date(log.timestamp).toLocaleDateString('fr-FR')}

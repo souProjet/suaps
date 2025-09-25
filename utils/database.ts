@@ -534,7 +534,8 @@ export async function peutReserverANouveau(creneau: CreneauAutoReservation): Pro
 /**
  * Calcule le prochain jour de réservation sans tenir compte de l'historique
  * Règles: 
- * - Si on est le jour du créneau et avant la fin du créneau, attendre la semaine suivante
+ * - Si on est le jour du créneau et avant la fin du créneau, réserver pour AUJOURD'HUI
+ * - Si on est le jour du créneau et après la fin du créneau, réserver pour la semaine suivante
  * - Sinon, prendre le prochain jour correspondant
  */
 function calculerProchaineReservationSansHistorique(jour: string, horaireFin: string): Date {
@@ -557,19 +558,16 @@ function calculerProchaineReservationSansHistorique(jour: string, horaireFin: st
     const heureFinCreneau = new Date(maintenant);
     heureFinCreneau.setHours(heureFin, minuteFin, 0, 0);
     
-    // Si on est avant la fin du créneau, attendre la semaine suivante
+    // Si on est avant la fin du créneau, on peut réserver pour aujourd'hui
     if (maintenant < heureFinCreneau) {
-      joursJusquauCible = 7;
+      joursJusquauCible = 0; // ✅ CORRIGÉ: Réserver pour aujourd'hui
     } else {
-      // Si on est après la fin du créneau, on peut réserver pour la semaine suivante
+      // Si on est après la fin du créneau, réserver pour la semaine suivante
       joursJusquauCible = 7;
     }
   }
   
-  // Si c'est 0 après le calcul, on prend la semaine suivante
-  if (joursJusquauCible === 0) {
-    joursJusquauCible = 7;
-  }
+  // On ne force plus la semaine suivante si c'est 0 (même jour)
   
   const prochaineDate = new Date(maintenant);
   prochaineDate.setDate(prochaineDate.getDate() + joursJusquauCible);

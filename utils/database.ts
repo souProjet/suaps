@@ -451,6 +451,134 @@ export async function creneauDejaPrograme(userId: string, creneauId: string): Pr
 }
 
 /**
+ * Vérifie si la dernière tentative d'un créneau a réussi en consultant les logs
+ */
+export async function derniereTentativeAReussi(creneauAutoId: string, derniereTentative: Date): Promise<boolean> {
+  try {
+    // Rechercher le log correspondant à la dernière tentative
+    const log = await prisma.logReservation.findFirst({
+      where: {
+        creneauAutoId: creneauAutoId,
+        timestamp: derniereTentative
+      },
+      orderBy: {
+        timestamp: 'desc'
+      }
+    });
+
+    return log?.statut === 'SUCCESS';
+  } catch (error) {
+    console.error('Erreur lors de la vérification du succès de la dernière tentative:', error);
+    return false;
+  }
+}
+
+/**
+ * Vérifie s'il est possible de réserver à nouveau selon les règles des 7 jours glissants
+ */
+export async function peutReserverANouveau(creneau: CreneauAutoReservation): Promise<{
+  peutReserver: boolean;
+  prochaineDateReservation?: Date;
+  message: string;
+}> {
+  const maintenant = new Date();
+  
+  // Si pas de dernière tentative, calculer le prochain créneau disponible
+  if (!creneau.derniereTentative) {
+    const prochaineDate = calculerProchaineReservationSansHistorique(creneau.jour, creneau.horaireFin);
+    return {
+      peutReserver: true,
+      prochaineDateReservation: prochaineDate,
+      message: 'Aucune tentative précédente - calcul du prochain créneau'
+    };
+  }
+
+  // Vérifier si la dernière tentative a réussi
+  const derniereTentativeDate = new Date(creneau.derniereTentative);
+  const tentativeAReussi = await derniereTentativeAReussi(creneau.id, derniereTentativeDate);
+
+  if (!tentativeAReussi) {
+    // Si la dernière tentative a échoué, on peut retenter selon les règles actuelles
+    const prochaineDate = calculerProchaineReservationSansHistorique(creneau.jour, creneau.horaireFin);
+    return {
+      peutReserver: true,
+      prochaineDateReservation: prochaineDate,
+      message: 'Dernière tentative échouée - nouveau calcul'
+    };
+  }
+
+  // Si la dernière tentative a réussi, vérifier les 7 jours glissants
+  const diffEnMs = maintenant.getTime() - derniereTentativeDate.getTime();
+  const diffEnJours = diffEnMs / (1000 * 60 * 60 * 24);
+
+  if (diffEnJours >= 7) {
+    const prochaineDate = calculerProchaineReservationSansHistorique(creneau.jour, creneau.horaireFin);
+    return {
+      peutReserver: true,
+      prochaineDateReservation: prochaineDate,
+      message: 'Plus de 7 jours depuis la dernière réservation réussie'
+    };
+  }
+
+  // Calculer quand la prochaine réservation sera possible
+  const prochainePossibilite = new Date(derniereTentativeDate);
+  prochainePossibilite.setDate(prochainePossibilite.getDate() + 7);
+
+  return {
+    peutReserver: false,
+    prochaineDateReservation: prochainePossibilite,
+    message: `Réservation réussie il y a moins de 7 jours - prochaine possibilité: ${prochainePossibilite.toLocaleString('fr-FR')}`
+  };
+}
+
+/**
+ * Calcule le prochain jour de réservation sans tenir compte de l'historique
+ * Règles: 
+ * - Si on est le jour du créneau et avant la fin du créneau, attendre la semaine suivante
+ * - Sinon, prendre le prochain jour correspondant
+ */
+function calculerProchaineReservationSansHistorique(jour: string, horaireFin: string): Date {
+  const joursMap: { [key: string]: number } = {
+    'DIMANCHE': 0, 'LUNDI': 1, 'MARDI': 2, 'MERCREDI': 3,
+    'JEUDI': 4, 'VENDREDI': 5, 'SAMEDI': 6
+  };
+  
+  const jourCible = joursMap[jour.toUpperCase()];
+  const maintenant = new Date();
+  const jourActuel = maintenant.getDay();
+  
+  // Parser l'heure de fin du créneau
+  const [heureFin, minuteFin] = horaireFin.split(':').map(Number);
+  
+  let joursJusquauCible = (jourCible - jourActuel + 7) % 7;
+  
+  // Si c'est le même jour, vérifier l'heure
+  if (joursJusquauCible === 0) {
+    const heureFinCreneau = new Date(maintenant);
+    heureFinCreneau.setHours(heureFin, minuteFin, 0, 0);
+    
+    // Si on est avant la fin du créneau, attendre la semaine suivante
+    if (maintenant < heureFinCreneau) {
+      joursJusquauCible = 7;
+    } else {
+      // Si on est après la fin du créneau, on peut réserver pour la semaine suivante
+      joursJusquauCible = 7;
+    }
+  }
+  
+  // Si c'est 0 après le calcul, on prend la semaine suivante
+  if (joursJusquauCible === 0) {
+    joursJusquauCible = 7;
+  }
+  
+  const prochaineDate = new Date(maintenant);
+  prochaineDate.setDate(prochaineDate.getDate() + joursJusquauCible);
+  prochaineDate.setHours(0, 0, 0, 0);
+  
+  return prochaineDate;
+}
+
+/**
  * Calcule le prochain jour de réservation (7 jours glissants)
  * Règle : on peut réserver pour un jour donné à partir de ce même jour jusqu'au même jour de la semaine suivante
  */

@@ -4,6 +4,7 @@ import {
   mettreAJourCreneauAutoReservation,
   enregistrerLogReservation,
   calculerProchaineReservation,
+  peutReserverANouveau,
   disconnectDatabase
 } from '@/utils/database';
 import { processCodeCarte, validateCodeCarte } from '@/utils/codeConverter';
@@ -133,26 +134,24 @@ async function loginSuaps(codeCarte: string) {
 
 /**
  * Calcule les dates de début/fin d'un créneau pour la semaine cible
+ * Utilise la nouvelle logique des 7 jours glissants
  */
-function calculerDatesOccurrence(jour: string, horaireDebut: string, horaireFin: string): { debut: string, fin: string } {
-  const joursMap: { [key: string]: number } = {
-    'DIMANCHE': 0, 'LUNDI': 1, 'MARDI': 2, 'MERCREDI': 3,
-    'JEUDI': 4, 'VENDREDI': 5, 'SAMEDI': 6
-  };
+async function calculerDatesOccurrence(jour: string, horaireDebut: string, horaireFin: string, creneau?: any): Promise<{ debut: string, fin: string }> {
+  let dateCreneaux: Date;
   
-  const jourCible = joursMap[jour.toUpperCase()];
-  const maintenant = new Date();
-  const jourActuel = maintenant.getDay();
-  
-  // Calcule combien de jours jusqu'au prochain jour cible (7 jours glissants)
-  let joursJusquauCible = (jourCible - jourActuel + 7) % 7;
-  if (joursJusquauCible === 0) {
-    joursJusquauCible = 7; // Si c'est le même jour, prendre la semaine suivante
+  if (creneau) {
+    // Utiliser la nouvelle logique si on a accès aux données du créneau
+    const verificationReservation = await peutReserverANouveau(creneau);
+    if (verificationReservation.prochaineDateReservation) {
+      dateCreneaux = verificationReservation.prochaineDateReservation;
+    } else {
+      // Fallback sur l'ancienne logique
+      dateCreneaux = calculerProchaineReservation(jour);
+    }
+  } else {
+    // Fallback sur l'ancienne logique si pas de données de créneau
+    dateCreneaux = calculerProchaineReservation(jour);
   }
-  
-  // Date du créneau cible
-  const dateCreneaux = new Date(maintenant);
-  dateCreneaux.setDate(dateCreneaux.getDate() + joursJusquauCible);
   
   // Parser les horaires (format "HH:MM")
   const [heureDebut, minuteDebut] = horaireDebut.split(':').map(Number);
@@ -178,7 +177,7 @@ function calculerDatesOccurrence(jour: string, horaireDebut: string, horaireFin:
 async function reserverCreneau(accessToken: string, creneauData: any, userData: any) {
   try {
     // Calculer les vraies dates d'occurrence du créneau
-    const { debut, fin } = calculerDatesOccurrence(creneauData.jour, creneauData.horaireDebut, creneauData.horaireFin);
+    const { debut, fin } = await calculerDatesOccurrence(creneauData.jour, creneauData.horaireDebut, creneauData.horaireFin, creneauData);
     
     // Construction de la requête avec les données dynamiques de la BDD
     const reservationData = {
@@ -385,35 +384,15 @@ function validerCodeCarteAutoReservation(codeCarte: string): { isValid: boolean,
  */
 async function traiterCreneau(creneau: any, logs: string[]) {
   try {
-    // Vérifier si c'est le bon moment pour réserver (7 jours glissants)
-    const maintenant = new Date();
+    // Vérifier si c'est le bon moment pour réserver selon les nouvelles règles
+    const verificationReservation = await peutReserverANouveau(creneau);
     
-    // Calculer le jour de la semaine du créneau et le jour actuel
-    const joursMap: { [key: string]: number } = {
-      'DIMANCHE': 0, 'LUNDI': 1, 'MARDI': 2, 'MERCREDI': 3,
-      'JEUDI': 4, 'VENDREDI': 5, 'SAMEDI': 6
-    };
-    
-    const jourCreneauNum = joursMap[creneau.jour.toUpperCase()];
-    const jourActuel = maintenant.getDay();
-    
-    const heureLimite = new Date(maintenant);
-    heureLimite.setHours(20, 0, 0, 0);
-    
-    // Si on est le jour du créneau, on doit attendre après 20h
-    if (jourActuel === jourCreneauNum && maintenant < heureLimite) {
-      const message = `Trop tôt pour réserver - Attendre 20h00`;
-      logs.push(message);
+    if (!verificationReservation.peutReserver) {
+      logs.push(`❌ ${creneau.activiteNom} - ${verificationReservation.message}`);
       return false;
     }
     
-    // Vérifier si on a déjà essayé aujourd'hui
-    const aujourdhui = maintenant.toISOString().split('T')[0];
-    if (creneau.derniereTentative?.split('T')[0] === aujourdhui) {
-      const message = `Tentative déjà effectuée aujourd'hui`;
-      logs.push(message);
-      return false;
-    }
+    logs.push(`✅ ${creneau.activiteNom} - ${verificationReservation.message}`);
 
     // Valider le format du code carte avant l'authentification
     const validationCodeCarte = validerCodeCarteAutoReservation(creneau.codeCarte);

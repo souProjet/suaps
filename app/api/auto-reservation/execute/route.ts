@@ -9,6 +9,9 @@ import {
 } from '@/utils/database';
 import { processCodeCarte, validateCodeCarte } from '@/utils/codeConverter';
 
+// Configuration du timeout Vercel (maximum 5 minutes en plan Hobby, 13+ minutes en Pro)
+export const maxDuration = 300; // 5 minutes - ajustez selon votre plan Vercel
+
 // Configuration
 const SUAPS_BASE_URL = process.env.SUAPS_BASE_URL || 'https://u-sport.univ-nantes.fr';
 

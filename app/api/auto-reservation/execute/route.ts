@@ -506,6 +506,32 @@ async function traiterCreneau(creneau: any, logs: string[]) {
 }
 
 /**
+ * Calcule le délai en millisecondes jusqu'à la prochaine heure pile (20H00)
+ */
+function calculerDelaiJusquaHeureExacte(): number {
+  const maintenant = new Date();
+  const heureActuelle = maintenant.getHours();
+  const minuteActuelle = maintenant.getMinutes();
+  const secondeActuelle = maintenant.getSeconds();
+  const millisecondActuelle = maintenant.getMilliseconds();
+  
+  // Si on est entre 19H59 et 20H00, attendre jusqu'à 20H00 pile
+  if (heureActuelle === 19 && minuteActuelle === 59) {
+    const secondesRestantes = 60 - secondeActuelle;
+    const millisecondesRestantes = 1000 - millisecondActuelle;
+    return (secondesRestantes * 1000) + millisecondesRestantes;
+  }
+  
+  // Si on est exactement à 20H00 (dans la première minute), pas d'attente
+  if (heureActuelle === 20 && minuteActuelle === 0) {
+    return 0;
+  }
+  
+  // Dans les autres cas, exécuter immédiatement (pour les tests ou autres cas)
+  return 0;
+}
+
+/**
  * Endpoint pour exécuter l'auto-réservation
  * Accessible uniquement avec une clé d'autorisation
  */
@@ -522,7 +548,21 @@ export async function POST(request: NextRequest) {
     const logs: string[] = [];
     const startTime = new Date();
     
-    logs.push(`🚀 Démarrage de l'auto-réservation`);
+    // Calculer le délai jusqu'à 20H00 pile
+    const delaiJusquaHeureExacte = calculerDelaiJusquaHeureExacte();
+    
+    if (delaiJusquaHeureExacte > 0) {
+      const secondesAttente = Math.ceil(delaiJusquaHeureExacte / 1000);
+      logs.push(`⏰ Attente de ${secondesAttente}s jusqu'à 20H00 pile...`);
+      
+      // Attendre jusqu'à l'heure exacte
+      await new Promise(resolve => setTimeout(resolve, delaiJusquaHeureExacte));
+      
+      const heureExacte = new Date();
+      logs.push(`🎯 Exécution à ${heureExacte.toLocaleTimeString('fr-FR')} (${heureExacte.getSeconds()}s)`);
+    } else {
+      logs.push(`🚀 Exécution immédiate à ${startTime.toLocaleTimeString('fr-FR')}`);
+    }
     
     // Récupération des créneaux à traiter avec gestion d'erreur améliorée
     let creneaux: any[] = [];

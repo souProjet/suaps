@@ -565,7 +565,7 @@ export async function POST(request: NextRequest) {
     const startTime = new Date();
     
     // Calculer le délai jusqu'à l'heure exacte (heure française, conversion automatique vers UTC)
-    const delaiJusquaHeureExacte = calculerDelaiJusquaHeureExacte(10, 32);
+    const delaiJusquaHeureExacte = calculerDelaiJusquaHeureExacte(10, 35);
     
     if (delaiJusquaHeureExacte > 0) {
       const secondesAttente = Math.ceil(delaiJusquaHeureExacte / 1000);

@@ -14,6 +14,7 @@ export const maxDuration = 300; // 5 minutes - ajustez selon votre plan Vercel
 
 // Configuration
 const SUAPS_BASE_URL = process.env.SUAPS_BASE_URL || 'https://u-sport.univ-nantes.fr';
+const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
 // Headers pour les requêtes SUAPS
 const DEFAULT_HEADERS = {
@@ -28,6 +29,46 @@ const DEFAULT_HEADERS = {
   'Pragma': 'no-cache',
   'Cache-Control': 'no-cache'
 };
+
+/**
+ * Envoie un message via webhook Discord
+ */
+async function envoyerNotificationDiscord(titre: string, description: string, couleur: number = 0x3498db, champs?: Array<{name: string, value: string, inline?: boolean}>) {
+  if (!DISCORD_WEBHOOK_URL) {
+    console.log('⚠️ Webhook Discord non configuré, notification ignorée');
+    return;
+  }
+
+  try {
+    const embed = {
+      title: titre,
+      description: description,
+      color: couleur,
+      timestamp: new Date().toISOString(),
+      fields: champs || []
+    };
+
+    const payload = {
+      embeds: [embed]
+    };
+
+    const response = await fetch(DISCORD_WEBHOOK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      console.error('❌ Erreur envoi Discord:', response.status, response.statusText);
+    } else {
+      console.log('✅ Notification Discord envoyée');
+    }
+  } catch (error: any) {
+    console.error('❌ Erreur notification Discord:', error.message);
+  }
+}
 
 /**
  * Effectue la connexion SUAPS avec un code carte
@@ -519,7 +560,7 @@ function calculerDelaiJusquaHeureExacte(targetHourFrench: number, targetMinuteFr
   const targetMinuteUTC = targetMinuteFrench;
   
   // Log de debug pour vérifier la conversion
-  console.log(`🕐 Heure cible: ${targetHourFrench}h${targetMinuteFrench.toString().padStart(2, '0')} (FR) → ${targetHourUTC}h${targetMinuteUTC.toString().padStart(2, '0')} (UTC)`);
+  console.log(`🕐 Heure cible: ${targetHourFrench}h${targetMinuteFrench.toString().padStart(2, '0')} (FR)`);
   
   const maintenant = new Date();
   const heureActuelle = maintenant.getUTCHours();
@@ -564,11 +605,19 @@ export async function POST(request: NextRequest) {
     const logs: string[] = [];
     const startTime = new Date();
     
+    // Notification Discord de début
+    await envoyerNotificationDiscord(
+      "🚀 Auto-réservation SUAPS - Démarrage",
+      `Lancement de l'auto-réservation à ${startTime.toLocaleTimeString('fr-FR', { timeZone: 'Europe/Paris' })}`,
+      0x3498db // Bleu
+    );
+    
     // Calculer le délai jusqu'à l'heure exacte (heure française, conversion automatique vers UTC)
-    const delaiJusquaHeureExacte = calculerDelaiJusquaHeureExacte(10, 35);
+    const delaiJusquaHeureExacte = calculerDelaiJusquaHeureExacte(11, 22);
     
     if (delaiJusquaHeureExacte > 0) {
       const secondesAttente = Math.ceil(delaiJusquaHeureExacte / 1000);
+      console.log(`⏰ Attente de ${secondesAttente}s jusqu'à l'heure exacte...`);
       logs.push(`⏰ Attente de ${secondesAttente}s jusqu'à l'heure exacte...`);
       
       // Attendre jusqu'à l'heure exacte
@@ -588,6 +637,17 @@ export async function POST(request: NextRequest) {
     } catch (dbError: any) {
       const errorMessage = `❌ Erreur base de données: ${dbError.message}`;
       logs.push(errorMessage);
+      
+      // Notification Discord d'erreur de base de données
+      await envoyerNotificationDiscord(
+        "🗄️ Auto-réservation SUAPS - Erreur Base de Données",
+        `Impossible d'accéder à la base de données`,
+        0xe74c3c, // Rouge
+        [
+          { name: "❌ Erreur", value: dbError.message, inline: false },
+          { name: "⏰ Timestamp", value: new Date().toLocaleTimeString('fr-FR', { timeZone: 'Europe/Paris' }), inline: true }
+        ]
+      );
       
       return NextResponse.json({
         success: false,
@@ -641,6 +701,38 @@ export async function POST(request: NextRequest) {
     const finalMessage = `✅ Terminé: ${nbReussites} réussites, ${nbEchecs} échecs (${Math.round(duration / 1000)}s)`;
     logs.push(finalMessage);
     
+    // Notification Discord de fin avec résumé
+    const couleurFin = nbReussites > 0 ? 0x27ae60 : (nbEchecs > 0 ? 0xe74c3c : 0x95a5a6); // Vert si réussites, rouge si échecs, gris si aucun
+    const champsResume = [
+      { name: "✅ Réussites", value: nbReussites.toString(), inline: true },
+      { name: "❌ Échecs", value: nbEchecs.toString(), inline: true },
+      { name: "⏱️ Durée", value: `${Math.round(duration / 1000)}s`, inline: true },
+      { name: "📊 Créneaux traités", value: creneaux.length.toString(), inline: true }
+    ];
+    
+    // Ajouter les détails des erreurs si il y en a
+    if (nbEchecs > 0) {
+      const erreursDetails = logs
+        .filter(log => log.startsWith('❌'))
+        .slice(0, 5) // Limiter à 5 erreurs pour éviter un message trop long
+        .join('\n');
+      
+      if (erreursDetails) {
+        champsResume.push({ 
+          name: "🔍 Détails des erreurs", 
+          value: erreursDetails.length > 1000 ? erreursDetails.substring(0, 1000) + '...' : erreursDetails, 
+          inline: false 
+        });
+      }
+    }
+    
+    await envoyerNotificationDiscord(
+      "🏁 Auto-réservation SUAPS - Terminée",
+      `Exécution terminée à ${endTime.toLocaleTimeString('fr-FR', { timeZone: 'Europe/Paris' })}`,
+      couleurFin,
+      champsResume
+    );
+    
     return NextResponse.json({
       success: true,
       message: 'Auto-réservation exécutée avec succès',
@@ -654,6 +746,16 @@ export async function POST(request: NextRequest) {
     });
     
   } catch (error: any) {
+    // Notification Discord d'erreur critique
+    await envoyerNotificationDiscord(
+      "💥 Auto-réservation SUAPS - Erreur Critique",
+      `Une erreur critique s'est produite lors de l'exécution de l'auto-réservation`,
+      0xe74c3c, // Rouge
+      [
+        { name: "❌ Erreur", value: error.message || "Erreur inconnue", inline: false },
+        { name: "⏰ Timestamp", value: new Date().toLocaleTimeString('fr-FR', { timeZone: 'Europe/Paris' }), inline: true }
+      ]
+    );
     
     return NextResponse.json({
       success: false,

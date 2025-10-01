@@ -509,24 +509,37 @@ async function traiterCreneau(creneau: any, logs: string[]) {
 }
 
 /**
- * Calcule le délai en millisecondes jusqu'à la prochaine heure pile (20H00)
+ * Calcule le délai en millisecondes jusqu'à la prochaine minute pile
+ * Accepte l'heure française et convertit automatiquement vers UTC pour Vercel
  */
-function calculerDelaiJusquaHeureExacte(startHour: number, startMinute: number): number {
-  const maintenant = new Date();
-  const heureActuelle = maintenant.getHours();
-  const minuteActuelle = maintenant.getMinutes();
-  const secondeActuelle = maintenant.getSeconds();
-  const millisecondActuelle = maintenant.getMilliseconds();
+function calculerDelaiJusquaHeureExacte(targetHourFrench: number, targetMinuteFrench: number): number {
+  // Conversion heure française vers UTC (France = UTC+2 en été, UTC+1 en hiver)
+  // Pour simplifier, on utilise UTC+2 (heure d'été française)
+  const targetHourUTC = (targetHourFrench - 2 + 24) % 24;
+  const targetMinuteUTC = targetMinuteFrench;
   
-  // Si on est entre startHour et startHour+1H00, attendre jusqu'à startHour+1H00 pile
-  if (heureActuelle === startHour && minuteActuelle === startMinute) {
+  // Log de debug pour vérifier la conversion
+  console.log(`🕐 Heure cible: ${targetHourFrench}h${targetMinuteFrench.toString().padStart(2, '0')} (FR) → ${targetHourUTC}h${targetMinuteUTC.toString().padStart(2, '0')} (UTC)`);
+  
+  const maintenant = new Date();
+  const heureActuelle = maintenant.getUTCHours();
+  const minuteActuelle = maintenant.getUTCMinutes();
+  const secondeActuelle = maintenant.getUTCSeconds();
+  const millisecondActuelle = maintenant.getUTCMilliseconds();
+  
+  // Si on est exactement à l'heure et minute cible (en UTC), attendre jusqu'à la fin de cette minute
+  if (heureActuelle === targetHourUTC && minuteActuelle === targetMinuteUTC) {
     const secondesRestantes = 60 - secondeActuelle;
     const millisecondesRestantes = 1000 - millisecondActuelle;
     return (secondesRestantes * 1000) + millisecondesRestantes;
   }
   
-  // Si on est exactement à startHour+1H00 (dans la première minute), pas d'attente
-  if (heureActuelle === startHour+1 && minuteActuelle === 0) {
+  // Si on est dans la minute qui suit, pas d'attente
+  const minuteSuivante = targetMinuteUTC + 1;
+  const heureSuivante = minuteSuivante >= 60 ? (targetHourUTC + 1) % 24 : targetHourUTC;
+  const minuteNormalisee = minuteSuivante >= 60 ? 0 : minuteSuivante;
+  
+  if (heureActuelle === heureSuivante && minuteActuelle === minuteNormalisee) {
     return 0;
   }
   
@@ -551,18 +564,18 @@ export async function POST(request: NextRequest) {
     const logs: string[] = [];
     const startTime = new Date();
     
-    // Calculer le délai jusqu'à 20H00 pile
-    const delaiJusquaHeureExacte = calculerDelaiJusquaHeureExacte(10, 25);
+    // Calculer le délai jusqu'à l'heure exacte (heure française, conversion automatique vers UTC)
+    const delaiJusquaHeureExacte = calculerDelaiJusquaHeureExacte(10, 32);
     
     if (delaiJusquaHeureExacte > 0) {
       const secondesAttente = Math.ceil(delaiJusquaHeureExacte / 1000);
-      logs.push(`⏰ Attente de ${secondesAttente}s jusqu'à 20H00 pile...`);
+      logs.push(`⏰ Attente de ${secondesAttente}s jusqu'à l'heure exacte...`);
       
       // Attendre jusqu'à l'heure exacte
       await new Promise(resolve => setTimeout(resolve, delaiJusquaHeureExacte-1));
       
       const heureExacte = new Date();
-      logs.push(`🎯 Exécution à ${heureExacte.toLocaleTimeString('fr-FR')} (${heureExacte.getSeconds()}s)`);
+      logs.push(`🎯 Exécution à ${heureExacte.toLocaleTimeString('fr-FR')} UTC (${heureExacte.getUTCSeconds()}s)`);
     } else {
       logs.push(`🚀 Exécution immédiate à ${startTime.toLocaleTimeString('fr-FR')}`);
     }

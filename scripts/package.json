@@ -1,0 +1,17 @@
+{
+  "name": "scripts",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "auto-res.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node auto-res.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "node-fetch": "^3.3.2"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

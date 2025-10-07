@@ -698,7 +698,7 @@ export async function POST(request: NextRequest) {
 
       // Attendre jusqu'à l'heure exacte
       await new Promise((resolve) =>
-        setTimeout(resolve, delaiJusquaHeureExacte - 2)
+        setTimeout(resolve, delaiJusquaHeureExacte - 30)
       );
 
       const heureExacte = new Date();
@@ -793,10 +793,6 @@ export async function POST(request: NextRequest) {
         nbEchecs++;
       }
 
-      // Pause entre les tentatives pour éviter d'être détecté comme un bot
-      await new Promise((resolve) =>
-        setTimeout(resolve, 2000 + Math.random() * 3000)
-      );
     }
 
     const endTime = new Date();

@@ -1,4 +1,11 @@
 #!/usr/bin/env node
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+dotenv.config({ path: join(__dirname, '../.env') });
 
 import fetch from "node-fetch";
 import {
@@ -12,6 +19,13 @@ const SUAPS_BASE_URL = process.env.SUAPS_BASE_URL || "https://u-sport.univ-nante
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 const HEURE_CIBLE_FR = 20; // Heure à laquelle le script doit avoir TERMINÉ (heure française)
 const MINUTE_CIBLE_FR = 0;  // Minute à laquelle le script doit avoir TERMINÉ
+
+// Diagnostic des variables d'environnement
+console.log('=== DIAGNOSTIC VARIABLES D\'ENVIRONNEMENT ===');
+console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'DÉFINIE' : 'NON DÉFINIE');
+console.log('SUAPS_PERIODE_ID:', process.env.SUAPS_PERIODE_ID ? 'DÉFINIE' : 'NON DÉFINIE');
+console.log('DISCORD_WEBHOOK_URL:', process.env.DISCORD_WEBHOOK_URL ? 'DÉFINIE' : 'NON DÉFINIE');
+console.log('===============================================');
 
 // --- LOGS DÉTAILLÉS ---
 const performanceLogs = [];
@@ -48,41 +62,50 @@ async function envoyerNotificationDiscord(titre, description, couleur = 0x3498db
 }
 
 /**
- * Calcule le délai nécessaire pour que le script se termine à l'heure cible
- * Estimation: le script prend environ 2-5 secondes pour s'exécuter
- * On démarre donc quelques secondes AVANT l'heure cible
+ * Calcule le délai pour démarrer EXACTEMENT à l'heure cible française
+ * Pas de soustraction de temps d'exécution - on démarre pile à l'heure
  */
-function calculerDelaiJusquaDemarrage(tempsEstimeExecution = 3000) {
-  const now = new Date();
-  const target = new Date();
+function calculerDelaiJusquaDemarrage() {
+  const maintenant = new Date();
   
-  // Convertir l'heure française (UTC+2 en été, UTC+1 en hiver) en UTC
-  const offsetMinutes = now.getTimezoneOffset();
+  // Créer la date cible en heure française (Europe/Paris)
+  const targetFrench = new Date().toLocaleString("en-CA", {timeZone: "Europe/Paris"});
+  const [datePart, timePart] = targetFrench.split(', ');
+  
+  // Construire la date cible pour aujourd'hui
+  const target = new Date();
   target.setHours(HEURE_CIBLE_FR, MINUTE_CIBLE_FR, 0, 0);
   
-  // Soustraire le temps estimé d'exécution pour finir pile à l'heure cible
-  const targetDemarrage = new Date(target.getTime() - tempsEstimeExecution);
+  // Convertir en temps français réel
+  const targetUTC = new Date(target.getTime() - (target.getTimezoneOffset() * 60000));
+  const parisOffset = targetUTC.getTimezoneOffset() + 60; // Paris = UTC+1 (hiver) ou UTC+2 (été)
+  const targetParis = new Date(targetUTC.getTime() - (parisOffset * 60000));
   
-  let delta = targetDemarrage - now;
+  // Si l'heure est déjà passée aujourd'hui, programmer pour demain
+  if (targetParis <= maintenant) {
+    targetParis.setDate(targetParis.getDate() + 1);
+  }
   
-  // Si on est déjà passé l'heure, démarrer immédiatement
-  if (delta < 0) delta = 0;
+  const delta = targetParis - maintenant;
   
-  const heureLocale = target.toLocaleString('fr-FR', { 
+  // Logging détaillé
+  console.log(`📍 Heure actuelle: ${maintenant.toLocaleString('fr-FR', { 
+    timeZone: 'Europe/Paris',
     hour: '2-digit', 
     minute: '2-digit', 
     second: '2-digit',
     fractionalSecondDigits: 3
-  });
+  })} (Paris)`);
   
-  console.log(`📍 Heure cible de FIN: ${heureLocale}`);
-  console.log(`📍 Temps estimé d'exécution: ${tempsEstimeExecution}ms`);
-  console.log(`📍 Heure de démarrage prévue: ${targetDemarrage.toLocaleString('fr-FR', { 
-    hour: '2-digit', 
-    minute: '2-digit', 
-    second: '2-digit',
-    fractionalSecondDigits: 3
-  })}`);
+  console.log(`📍 Heure cible: ${HEURE_CIBLE_FR}h${MINUTE_CIBLE_FR.toString().padStart(2, '0')} (Paris)`);
+  
+  console.log(`📍 Démarrage dans: ${Math.round(delta/1000)}s (${Math.round(delta/60000)}min)`);
+  
+  // Vérification de sécurité : si le délai est négatif ou trop court, forcer un délai minimum
+  if (delta < 1000) { // Moins d'1 seconde
+    console.log(`⚠️  Délai trop court (${delta}ms), forçage à 1000ms`);
+    return 1000;
+  }
   
   return delta;
 }
@@ -138,19 +161,67 @@ async function reserverCreneau(creneau, userData) {
   
   const { debut, fin } = await calculerDatesOccurrence(creneau.jour, creneau.horaireDebut, creneau.horaireFin, creneau);
 
+  // Structure simplifiée basée sur les données de la base
   const reservationData = {
     actif: false,
-    creneau: { ...creneau, occurenceCreneauDTO: { debut, fin, periode: { id: process.env.SUAPS_PERIODE_ID } } },
+    creneau: {
+      actif: true,
+      activite: {
+        id: creneau.activiteId,
+        nom: creneau.activiteNom,
+        typePrestation: "ACTIVITE",
+        inscriptionAnnuelle: true
+      },
+      id: creneau.creneauId,
+      jour: creneau.jour,
+      horaireDebut: creneau.horaireDebut,
+      horaireFin: creneau.horaireFin,
+      quota: creneau.quota || creneau.quotaLoisir || 24,
+      occurenceCreneauDTO: {
+        debut: debut.replace(".000Z", "Z"),
+        fin: fin.replace(".000Z", "Z"),
+        periode: {
+          id: process.env.SUAPS_PERIODE_ID || "4dc2c931-12c4-4cac-8709-c9bbb2513e16"
+        }
+      }
+    },
     dateReservation: new Date().toISOString(),
-    individuDTO: { ...userData, tagHexa: processCodeCarte(creneau.codeCarte) },
+    forcage: false,
+    individuDTO: {
+      nom: userData.nom || "AUTO_RESERVATION",
+      prenom: userData.prenom || "USER",
+      code: creneau.userId,
+      numero: creneau.userId,
+      tagHexa: processCodeCarte(creneau.codeCarte),
+      type: userData.type || "EXTERNE",
+      typeExterne: userData.typeExterne || "ETUDIANT",
+      email: userData.email || "",
+      telephone: userData.telephone || "",
+      paiementEffectue: true,
+      estInscrit: true
+    },
+    utilisateur: {
+      login: creneau.userId,
+      typeUtilisateur: userData.typeUtilisateur || "EXTERNE"
+    }
   };
 
   const res = await fetch(`${SUAPS_BASE_URL}/api/extended/reservation-creneaux?idPeriode=${process.env.SUAPS_PERIODE_ID}`, {
     method: "POST",
     headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0",
+      "Accept": "application/json, text/plain, */*",
+      "Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
       "Content-Type": "application/json",
       "Cookie": sessionCookies,
+      "Origin": "https://u-sport.univ-nantes.fr",
+      "Referer": "https://u-sport.univ-nantes.fr/activites",
+      "Sec-Fetch-Dest": "empty",
+      "Sec-Fetch-Mode": "cors",
+      "Sec-Fetch-Site": "same-origin"
     },
+    credentials: "include",
+    mode: "cors",
     body: JSON.stringify(reservationData),
   });
 
@@ -214,15 +285,30 @@ async function traiterTousLesCreneaux() {
     await envoyerNotificationDiscord("🚀 Auto-reservation démarrage", "Préparation...");
     logPerf("Notification envoyée", debutNotif);
 
-    const delai = calculerDelaiJusquaDemarrage();
-    
-    if (delai > 0) {
-      console.log(`⏰ Attente de ${delai}ms (${(delai/1000).toFixed(2)}s) jusqu'au démarrage optimal...`);
-      await new Promise(r => setTimeout(r, delai));
-      logPerf("FIN D'ATTENTE - DÉMARRAGE DES RÉSERVATIONS");
-    } else {
-      logPerf("⚡ Démarrage immédiat (heure cible dépassée)");
-    }
+    // Attendre l'heure exacte avec vérification précise
+    console.log("⏰ Attente de l'heure exacte...");
+    await new Promise((resolve) => {
+      const checkTime = () => {
+        const now = new Date();
+        const nowParis = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Paris"}));
+        const heureActuelle = nowParis.getHours();
+        const minuteActuelle = nowParis.getMinutes();
+        const secondeActuelle = nowParis.getSeconds();
+        
+        console.log(`🕐 ${heureActuelle}h${minuteActuelle.toString().padStart(2, '0')}:${secondeActuelle.toString().padStart(2, '0')} (Paris)`);
+        
+        // Déclencher exactement à l'heure et minute cible
+        if (heureActuelle === HEURE_CIBLE_FR && minuteActuelle === MINUTE_CIBLE_FR) {
+          console.log("🎯 HEURE EXACTE ATTEINTE - DÉMARRAGE !");
+          logPerf("HEURE EXACTE ATTEINTE - DÉMARRAGE DES RÉSERVATIONS");
+          resolve();
+        } else {
+          // Vérifier toutes les secondes
+          setTimeout(checkTime, 1000);
+        }
+      };
+      checkTime();
+    });
 
     const logs = await traiterTousLesCreneaux();
 

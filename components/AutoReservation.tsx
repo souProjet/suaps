@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { getCurrentUser } from '@/utils/auth';
 import { Bot, Plus, Trash2, ToggleLeft, ToggleRight, Clock, CheckCircle, XCircle, AlertCircle, Calendar, Settings, RefreshCw } from 'lucide-react';
+import CreneauAvailabilityChecker from './CreneauAvailabilityChecker';
 
 interface CreneauAutoReservation {
   id: string;
@@ -332,6 +333,12 @@ export default function AutoReservation() {
             </div>
           </div>
         </div>
+
+        {/* Vérification de disponibilité */}
+        <CreneauAvailabilityChecker 
+          className="mb-6"
+          showDetails={true}
+        />
 
         {/* Section créneaux programmés */}
         <div>

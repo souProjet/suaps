@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   getCreneauxAutoReservation,
   disconnectDatabase,
+  enregistrerLogReservation,
+  mettreAJourCreneauAutoReservation,
 } from "@/utils/database";
 import { processCodeCarte, validateCodeCarte } from "@/utils/codeConverter";
 import { getCurrentUserFromRequest } from "@/utils/auth";
@@ -53,6 +55,11 @@ interface ResultatVerification {
   fileAttente?: boolean;
   error?: string;
   message?: string;
+  reservationAutomatique?: {
+    tentee: boolean;
+    reussie: boolean;
+    erreur?: string;
+  };
 }
 
 /**
@@ -210,37 +217,247 @@ function calculerDateCreneauCible(jour: string, horaireDebut: string, horaireFin
  * Vérifie si un créneau correspond à une réservation existante
  */
 function estDejaInscrit(creneau: any, reservations: any[]): boolean {
+  if (!reservations || reservations.length === 0) {
+    return false;
+  }
+  
   // Calculer la date cible du créneau selon la logique métier
   const dateCreneauCible = calculerDateCreneauCible(creneau.jour, creneau.horaireDebut, creneau.horaireFin);
   
-  return reservations.some(reservation => {
+  const resultat = reservations.some(reservation => {
     const creneauReserve = reservation.creneau;
     
-    // Vérifications de base (activité, jour, horaires)
-    if (!creneauReserve ||
-        !creneauReserve.activite ||
-        creneauReserve.activite.id !== creneau.activiteId ||
-        creneauReserve.jour !== creneau.jour.toUpperCase() ||
-        creneauReserve.horaireDebut !== creneau.horaireDebut ||
-        creneauReserve.horaireFin !== creneau.horaireFin) {
+    // Vérifications de base
+    if (!creneauReserve) {
       return false;
     }
     
-    // Vérifier la date réelle si disponible dans occurenceCreneauDTO
-    if (reservation.occurenceCreneauDTO && reservation.occurenceCreneauDTO.debut) {
-      const dateReservation = new Date(reservation.occurenceCreneauDTO.debut);
+    // Vérifier l'ID du créneau directement (plus fiable)
+    if (creneauReserve.id === creneau.creneauId) {
+      // Vérifier si la réservation est active
+      if (reservation.actif === false || reservation.statut === 'ANNULEE') {
+        return false;
+      }
       
-      // Comparer les dates (même jour)
-      const sameDate = dateCreneauCible.getFullYear() === dateReservation.getFullYear() &&
-                      dateCreneauCible.getMonth() === dateReservation.getMonth() &&
-                      dateCreneauCible.getDate() === dateReservation.getDate();
-      
-      return sameDate;
+      // Vérifier la date si disponible
+      if (reservation.occurenceCreneauDTO && reservation.occurenceCreneauDTO.debut) {
+        const dateReservation = new Date(reservation.occurenceCreneauDTO.debut);
+        
+        // Comparer les dates (même jour) avec une tolérance de 7 jours
+        const diffJours = Math.abs(dateCreneauCible.getTime() - dateReservation.getTime()) / (1000 * 60 * 60 * 24);
+        if (diffJours < 7) {
+          console.log(`   ✓ Réservation existante trouvée pour ${creneau.activiteNom} (date: ${dateReservation.toLocaleDateString('fr-FR')})`);
+          return true;
+        }
+      } else {
+        // Pas de date, mais même créneau ID = inscrit
+        console.log(`   ✓ Réservation existante trouvée pour ${creneau.activiteNom} (même créneau ID)`);
+        return true;
+      }
     }
     
-    // Si pas de date précise dans la réservation, on considère que c'est une correspondance
-    return true;
+    // Vérification alternative par activité + horaires (au cas où)
+    if (creneauReserve.activite &&
+        creneauReserve.activite.id === creneau.activiteId &&
+        creneauReserve.jour === creneau.jour.toUpperCase() &&
+        creneauReserve.horaireDebut === creneau.horaireDebut &&
+        creneauReserve.horaireFin === creneau.horaireFin) {
+      
+      if (reservation.actif === false || reservation.statut === 'ANNULEE') {
+        return false;
+      }
+      
+      // Vérifier la date réelle si disponible
+      if (reservation.occurenceCreneauDTO && reservation.occurenceCreneauDTO.debut) {
+        const dateReservation = new Date(reservation.occurenceCreneauDTO.debut);
+        
+        const diffJours = Math.abs(dateCreneauCible.getTime() - dateReservation.getTime()) / (1000 * 60 * 60 * 24);
+        if (diffJours < 7) {
+          console.log(`   ✓ Réservation existante trouvée pour ${creneau.activiteNom} (date: ${dateReservation.toLocaleDateString('fr-FR')})`);
+          return true;
+        }
+      } else {
+        // Pas de date mais tous les critères correspondent
+        console.log(`   ✓ Réservation existante trouvée pour ${creneau.activiteNom} (critères correspondants)`);
+        return true;
+      }
+    }
+    
+    return false;
   });
+  
+  return resultat;
+}
+
+/**
+ * Calcule les dates d'occurrence d'un créneau
+ */
+function calculerDatesOccurrence(jour: string, horaireDebut: string, horaireFin: string): { debut: string; fin: string } {
+  const dateCreneaux = calculerDateCreneauCible(jour, horaireDebut, horaireFin);
+  
+  // Parser les horaires (format "HH:MM")
+  const [heureDebut, minuteDebut] = horaireDebut.split(':').map(Number);
+  const [heureFin, minuteFin] = horaireFin.split(':').map(Number);
+  
+  // Date de début
+  const dateDebut = new Date(dateCreneaux);
+  dateDebut.setHours(heureDebut, minuteDebut, 0, 0);
+  
+  // Date de fin
+  const dateFin = new Date(dateCreneaux);
+  dateFin.setHours(heureFin, minuteFin, 0, 0);
+  
+  return {
+    debut: dateDebut.toISOString(),
+    fin: dateFin.toISOString()
+  };
+}
+
+/**
+ * Réserve automatiquement un créneau disponible
+ */
+async function reserverCreneauAutomatiquement(creneau: any, sessionCookies: string): Promise<{ success: boolean; result?: any; error?: string }> {
+  try {
+    console.log(`🎯 Tentative de réservation automatique: ${creneau.activiteNom}`);
+    
+    const { debut, fin } = calculerDatesOccurrence(creneau.jour, creneau.horaireDebut, creneau.horaireFin);
+    
+    // Récupérer les données utilisateur via l'API profil
+    let userData: any = {};
+    try {
+      const profileResponse = await fetch(`${SUAPS_BASE_URL}/api/individus/me`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          ...DEFAULT_HEADERS,
+          "Cookie": sessionCookies,
+        },
+      });
+      
+      if (profileResponse.ok) {
+        userData = await profileResponse.json();
+      }
+    } catch (err) {
+      console.log(`⚠️ Impossible de récupérer le profil utilisateur, utilisation des données de fallback`);
+    }
+    
+    // Structure de réservation
+    const reservationData = {
+      actif: false,
+      creneau: {
+        actif: true,
+        activite: {
+          id: creneau.activiteId,
+          nom: creneau.activiteNom,
+          typePrestation: "ACTIVITE",
+          inscriptionAnnuelle: true
+        },
+        id: creneau.creneauId,
+        jour: creneau.jour,
+        horaireDebut: creneau.horaireDebut,
+        horaireFin: creneau.horaireFin,
+        quota: creneau.quota || creneau.quotaLoisir || 24,
+        occurenceCreneauDTO: {
+          debut: debut.replace(".000Z", "Z"),
+          fin: fin.replace(".000Z", "Z"),
+          periode: {
+            id: process.env.SUAPS_PERIODE_ID || "4dc2c931-12c4-4cac-8709-c9bbb2513e16"
+          }
+        }
+      },
+      dateReservation: new Date().toISOString(),
+      forcage: false,
+      individuDTO: {
+        nom: userData.nom || "AUTO_RESERVATION",
+        prenom: userData.prenom || "USER",
+        code: creneau.userId,
+        numero: creneau.userId,
+        tagHexa: processCodeCarte(creneau.codeCarte),
+        type: userData.type || "EXTERNE",
+        typeExterne: userData.typeExterne || "ETUDIANT",
+        email: userData.email || "",
+        telephone: userData.telephone || "",
+        paiementEffectue: true,
+        estInscrit: true
+      },
+      utilisateur: {
+        login: creneau.userId,
+        typeUtilisateur: userData.typeUtilisateur || "EXTERNE"
+      }
+    };
+    
+    const response = await fetch(
+      `${SUAPS_BASE_URL}/api/extended/reservation-creneaux?idPeriode=${process.env.SUAPS_PERIODE_ID}`,
+      {
+        method: "POST",
+        headers: {
+          ...DEFAULT_HEADERS,
+          "Cookie": sessionCookies,
+          "Origin": SUAPS_BASE_URL,
+          "Referer": `${SUAPS_BASE_URL}/activites`,
+        },
+        credentials: "include",
+        body: JSON.stringify(reservationData),
+      }
+    );
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    }
+    
+    const result = await response.json();
+    
+    // Mettre à jour les statistiques en base de données
+    await mettreAJourCreneauAutoReservation(creneau.id, {
+      derniereTentative: new Date().toISOString(),
+      derniereReservation: new Date().toISOString(),
+      nbTentatives: (creneau.nbTentatives || 0) + 1,
+      nbReussites: (creneau.nbReussites || 0) + 1,
+    });
+    
+    // Enregistrer le log de succès
+    await enregistrerLogReservation({
+      userId: creneau.userId,
+      creneauAutoId: creneau.id,
+      timestamp: new Date().toISOString(),
+      statut: "SUCCESS",
+      message: "Réservation automatique réussie (check-availability API)",
+      details: result,
+    });
+    
+    console.log(`✅ Réservation réussie pour ${creneau.activiteNom}`);
+    return { success: true, result };
+    
+  } catch (error) {
+    console.error(`❌ Erreur lors de la réservation: ${(error as Error).message}`);
+    
+    // Déterminer le type d'erreur
+    let statut: "FAILED" | "QUOTA_FULL" | "NETWORK_ERROR" = "FAILED";
+    if ((error as Error).message.includes("quota") || (error as Error).message.includes("complet")) {
+      statut = "QUOTA_FULL";
+    } else if ((error as Error).message.includes("réseau") || (error as Error).message.includes("network")) {
+      statut = "NETWORK_ERROR";
+    }
+    
+    // Mettre à jour les statistiques
+    await mettreAJourCreneauAutoReservation(creneau.id, {
+      derniereTentative: new Date().toISOString(),
+      nbTentatives: (creneau.nbTentatives || 0) + 1,
+    });
+    
+    // Enregistrer le log d'erreur
+    await enregistrerLogReservation({
+      userId: creneau.userId,
+      creneauAutoId: creneau.id,
+      timestamp: new Date().toISOString(),
+      statut,
+      message: `Réservation automatique échouée: ${(error as Error).message}`,
+      details: { error: (error as Error).message },
+    });
+    
+    return { success: false, error: (error as Error).message };
+  }
 }
 
 /**
@@ -309,40 +526,94 @@ async function verifierDisponibiliteCreneau(
           console.log(`📊 ${creneau.activiteNom} - ${creneau.jour} ${creneau.horaireDebut}-${creneau.horaireFin}:`);
           console.log(`   Places: ${placesOccupees}/${placesTotales} (${placesDisponibles} disponibles)`);
           
-          // Si une place est disponible, envoyer immédiatement une notification Discord
+          // Si une place est disponible, tenter la réservation automatique
+          let reservationInfo = undefined;
           if (isAvailable) {
-            await envoyerNotificationDiscord(
-              "🎯 Place disponible trouvée !",
-              `Une place s'est libérée dans le créneau suivant :`,
-              0x00ff00, // Vert vif
-              [
-                {
-                  name: "🏃 Activité",
-                  value: creneau.activiteNom,
-                  inline: true
-                },
-                {
-                  name: "📅 Jour",
-                  value: `${creneau.jour} ${creneau.horaireDebut}-${creneau.horaireFin}`,
-                  inline: true
-                },
-                {
-                  name: "📍 Date cible",
-                  value: dateFormatee,
-                  inline: false
-                },
-                {
-                  name: "📊 Places",
-                  value: `${placesDisponibles} disponible(s) sur ${placesTotales}`,
-                  inline: true
-                },
-                {
-                  name: "👤 Utilisateur",
-                  value: creneau.userId || "Non défini",
-                  inline: true
-                }
-              ]
-            );
+            console.log(`🎯 Place disponible ! Tentative de réservation automatique...`);
+            
+            // Tenter la réservation automatique
+            const reservationResult = await reserverCreneauAutomatiquement(creneau, sessionCookies);
+            
+            reservationInfo = {
+              tentee: true,
+              reussie: reservationResult.success,
+              erreur: reservationResult.error
+            };
+            
+            if (reservationResult.success) {
+              // Notification de succès
+              await envoyerNotificationDiscord(
+                "🎉 Réservation automatique réussie !",
+                `Le créneau a été réservé automatiquement avec succès :`,
+                0x00ff00, // Vert vif
+                [
+                  {
+                    name: "🏃 Activité",
+                    value: creneau.activiteNom,
+                    inline: true
+                  },
+                  {
+                    name: "📅 Jour",
+                    value: `${creneau.jour} ${creneau.horaireDebut}-${creneau.horaireFin}`,
+                    inline: true
+                  },
+                  {
+                    name: "📍 Date cible",
+                    value: dateFormatee,
+                    inline: false
+                  },
+                  {
+                    name: "✅ Statut",
+                    value: "Réservation confirmée",
+                    inline: true
+                  },
+                  {
+                    name: "👤 Utilisateur",
+                    value: creneau.userId || "Non défini",
+                    inline: true
+                  }
+                ]
+              );
+            } else {
+              // Notification d'échec (place disponible mais réservation échouée)
+              await envoyerNotificationDiscord(
+                "⚠️ Place disponible mais réservation échouée",
+                `Une place est disponible mais la réservation automatique a échoué :`,
+                0xff9900, // Orange
+                [
+                  {
+                    name: "🏃 Activité",
+                    value: creneau.activiteNom,
+                    inline: true
+                  },
+                  {
+                    name: "📅 Jour",
+                    value: `${creneau.jour} ${creneau.horaireDebut}-${creneau.horaireFin}`,
+                    inline: true
+                  },
+                  {
+                    name: "📍 Date cible",
+                    value: dateFormatee,
+                    inline: false
+                  },
+                  {
+                    name: "📊 Places",
+                    value: `${placesDisponibles} disponible(s) sur ${placesTotales}`,
+                    inline: true
+                  },
+                  {
+                    name: "❌ Erreur",
+                    value: reservationResult.error || "Erreur inconnue",
+                    inline: false
+                  },
+                  {
+                    name: "👤 Utilisateur",
+                    value: creneau.userId || "Non défini",
+                    inline: true
+                  }
+                ]
+              );
+            }
           }
           
           return {
@@ -350,7 +621,8 @@ async function verifierDisponibiliteCreneau(
             placesTotales,
             placesOccupees,
             placesDisponibles,
-            fileAttente: creneauAPI.fileAttente || false
+            fileAttente: creneauAPI.fileAttente || false,
+            reservationAutomatique: reservationInfo
           };
         }
       }

@@ -11,6 +11,8 @@ import fetch from "node-fetch";
 import {
   getCreneauxAutoReservation,
   disconnectDatabase,
+  enregistrerLogReservation,
+  mettreAJourCreneauAutoReservation,
 } from "./utils/database.js";
 import { processCodeCarte, validateCodeCarte } from "./utils/codeConverter.js";
 
@@ -159,81 +161,146 @@ async function calculerDatesOccurrence(jour, horaireDebut, horaireFin, creneau) 
 async function reserverCreneau(creneau, userData) {
   const debutResa = logPerf(`Réservation ${creneau.activiteNom}`);
   
-  const { debut, fin } = await calculerDatesOccurrence(creneau.jour, creneau.horaireDebut, creneau.horaireFin, creneau);
+  try {
+    const { debut, fin } = await calculerDatesOccurrence(creneau.jour, creneau.horaireDebut, creneau.horaireFin, creneau);
 
-  // Structure simplifiée basée sur les données de la base
-  const reservationData = {
-    actif: false,
-    creneau: {
-      actif: true,
-      activite: {
-        id: creneau.activiteId,
-        nom: creneau.activiteNom,
-        typePrestation: "ACTIVITE",
-        inscriptionAnnuelle: true
-      },
-      id: creneau.creneauId,
-      jour: creneau.jour,
-      horaireDebut: creneau.horaireDebut,
-      horaireFin: creneau.horaireFin,
-      quota: creneau.quota || creneau.quotaLoisir || 24,
-      occurenceCreneauDTO: {
-        debut: debut.replace(".000Z", "Z"),
-        fin: fin.replace(".000Z", "Z"),
-        periode: {
-          id: process.env.SUAPS_PERIODE_ID || "4dc2c931-12c4-4cac-8709-c9bbb2513e16"
+    // Structure simplifiée basée sur les données de la base
+    const reservationData = {
+      actif: false,
+      creneau: {
+        actif: true,
+        activite: {
+          id: creneau.activiteId,
+          nom: creneau.activiteNom,
+          typePrestation: "ACTIVITE",
+          inscriptionAnnuelle: true
+        },
+        id: creneau.creneauId,
+        jour: creneau.jour,
+        horaireDebut: creneau.horaireDebut,
+        horaireFin: creneau.horaireFin,
+        quota: creneau.quota || creneau.quotaLoisir || 24,
+        occurenceCreneauDTO: {
+          debut: debut.replace(".000Z", "Z"),
+          fin: fin.replace(".000Z", "Z"),
+          periode: {
+            id: process.env.SUAPS_PERIODE_ID || "4dc2c931-12c4-4cac-8709-c9bbb2513e16"
+          }
         }
+      },
+      dateReservation: new Date().toISOString(),
+      forcage: false,
+      individuDTO: {
+        nom: userData.nom || "AUTO_RESERVATION",
+        prenom: userData.prenom || "USER",
+        code: creneau.userId,
+        numero: creneau.userId,
+        tagHexa: processCodeCarte(creneau.codeCarte),
+        type: userData.type || "EXTERNE",
+        typeExterne: userData.typeExterne || "ETUDIANT",
+        email: userData.email || "",
+        telephone: userData.telephone || "",
+        paiementEffectue: true,
+        estInscrit: true
+      },
+      utilisateur: {
+        login: creneau.userId,
+        typeUtilisateur: userData.typeUtilisateur || "EXTERNE"
       }
-    },
-    dateReservation: new Date().toISOString(),
-    forcage: false,
-    individuDTO: {
-      nom: userData.nom || "AUTO_RESERVATION",
-      prenom: userData.prenom || "USER",
-      code: creneau.userId,
-      numero: creneau.userId,
-      tagHexa: processCodeCarte(creneau.codeCarte),
-      type: userData.type || "EXTERNE",
-      typeExterne: userData.typeExterne || "ETUDIANT",
-      email: userData.email || "",
-      telephone: userData.telephone || "",
-      paiementEffectue: true,
-      estInscrit: true
-    },
-    utilisateur: {
-      login: creneau.userId,
-      typeUtilisateur: userData.typeUtilisateur || "EXTERNE"
+    };
+
+    const res = await fetch(`${SUAPS_BASE_URL}/api/extended/reservation-creneaux?idPeriode=${process.env.SUAPS_PERIODE_ID}`, {
+      method: "POST",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
+        "Content-Type": "application/json",
+        "Cookie": sessionCookies,
+        "Origin": "https://u-sport.univ-nantes.fr",
+        "Referer": "https://u-sport.univ-nantes.fr/activites",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "same-origin"
+      },
+      credentials: "include",
+      mode: "cors",
+      body: JSON.stringify(reservationData),
+    });
+
+    if (!res.ok) {
+      const txt = await res.text();
+      logPerf(`❌ Réservation ${creneau.activiteNom} échouée`, debutResa);
+      
+      // Déterminer le type d'erreur
+      let statut = "FAILED";
+      if (txt.includes("quota") || txt.includes("complet")) {
+        statut = "QUOTA_FULL";
+      } else if (txt.includes("réseau") || txt.includes("network")) {
+        statut = "NETWORK_ERROR";
+      }
+      
+      // Mettre à jour les statistiques du créneau
+      await mettreAJourCreneauAutoReservation(creneau.id, {
+        derniereTentative: new Date().toISOString(),
+        nbTentatives: creneau.nbTentatives + 1,
+      });
+      
+      // Enregistrer le log d'erreur
+      await enregistrerLogReservation({
+        userId: creneau.userId,
+        creneauAutoId: creneau.id,
+        timestamp: new Date().toISOString(),
+        statut,
+        message: `Réservation échouée: ${txt}`,
+        details: { error: txt, statusCode: res.status },
+      });
+      
+      throw new Error(`Réservation échouée: ${txt}`);
     }
-  };
 
-  const res = await fetch(`${SUAPS_BASE_URL}/api/extended/reservation-creneaux?idPeriode=${process.env.SUAPS_PERIODE_ID}`, {
-    method: "POST",
-    headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0",
-      "Accept": "application/json, text/plain, */*",
-      "Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
-      "Content-Type": "application/json",
-      "Cookie": sessionCookies,
-      "Origin": "https://u-sport.univ-nantes.fr",
-      "Referer": "https://u-sport.univ-nantes.fr/activites",
-      "Sec-Fetch-Dest": "empty",
-      "Sec-Fetch-Mode": "cors",
-      "Sec-Fetch-Site": "same-origin"
-    },
-    credentials: "include",
-    mode: "cors",
-    body: JSON.stringify(reservationData),
-  });
-
-  if (!res.ok) {
-    const txt = await res.text();
-    logPerf(`❌ Réservation ${creneau.activiteNom} échouée`, debutResa);
-    throw new Error(`Réservation échouée: ${txt}`);
+    const result = await res.json();
+    logPerf(`Réservation ${creneau.activiteNom} terminée`, debutResa);
+    
+    // Mettre à jour les statistiques du créneau en cas de succès
+    await mettreAJourCreneauAutoReservation(creneau.id, {
+      derniereTentative: new Date().toISOString(),
+      derniereReservation: new Date().toISOString(),
+      nbTentatives: creneau.nbTentatives + 1,
+      nbReussites: creneau.nbReussites + 1,
+    });
+    
+    // Enregistrer le log de succès
+    await enregistrerLogReservation({
+      userId: creneau.userId,
+      creneauAutoId: creneau.id,
+      timestamp: new Date().toISOString(),
+      statut: "SUCCESS",
+      message: "Réservation réussie",
+      details: result,
+    });
+    
+    return result;
+  } catch (error) {
+    // Si l'erreur n'a pas déjà été loggée (erreurs système/réseau)
+    if (!error.message.includes("Réservation échouée:")) {
+      await mettreAJourCreneauAutoReservation(creneau.id, {
+        derniereTentative: new Date().toISOString(),
+        nbTentatives: creneau.nbTentatives + 1,
+      });
+      
+      await enregistrerLogReservation({
+        userId: creneau.userId,
+        creneauAutoId: creneau.id,
+        timestamp: new Date().toISOString(),
+        statut: "NETWORK_ERROR",
+        message: `Erreur système: ${error.message}`,
+        details: { error: error.message, stack: error.stack },
+      });
+    }
+    
+    throw error;
   }
-
-  const result = await res.json();
-  logPerf(`Réservation ${creneau.activiteNom} terminée`, debutResa);
-  return result;
 }
 
 // --- TRAITEMENT DES CRÉNEAUX ---
@@ -253,14 +320,36 @@ async function traiterTousLesCreneaux() {
   // Pré-login pour tous les users pour gagner du temps
   const debutLogins = logPerf("Phase de pré-login pour tous les utilisateurs");
   for (const c of creneaux) {
-    c.userData = await loginSuaps(c.codeCarte);
+    try {
+      c.userData = await loginSuaps(c.codeCarte);
+    } catch (error) {
+      // Enregistrer l'erreur d'authentification dans la BDD
+      await enregistrerLogReservation({
+        userId: c.userId,
+        creneauAutoId: c.id,
+        timestamp: new Date().toISOString(),
+        statut: "AUTH_ERROR",
+        message: `Erreur d'authentification: ${error.message}`,
+        details: { error: error.message },
+      });
+      
+      await mettreAJourCreneauAutoReservation(c.id, {
+        derniereTentative: new Date().toISOString(),
+        nbTentatives: c.nbTentatives + 1,
+      });
+      
+      logs.push(`${c.activiteNom} failed: Erreur auth - ${error.message}`);
+      c.authError = true; // Marquer pour ignorer lors de la réservation
+    }
   }
   logPerf("Tous les logins terminés", debutLogins);
 
-  // Réservations en parallèle
+  // Réservations en parallèle (uniquement pour les créneaux sans erreur d'auth)
   const debutReservations = logPerf("Phase de réservations en parallèle");
+  const creneauxValides = creneaux.filter(c => !c.authError);
+  
   const results = await Promise.allSettled(
-    creneaux.map(c => reserverCreneau(c, c.userData).then(() => `${c.activiteNom} réussi`).catch(e => `${c.activiteNom} failed: ${e.message}`))
+    creneauxValides.map(c => reserverCreneau(c, c.userData).then(() => `${c.activiteNom} réussi`).catch(e => `${c.activiteNom} failed: ${e.message}`))
   );
   logPerf("Toutes les réservations terminées", debutReservations);
 

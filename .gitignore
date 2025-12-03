@@ -6,4 +6,4 @@ node_modules
 /generated/prisma
 
 
-scripts/log.txt
+/scripts/log.txt

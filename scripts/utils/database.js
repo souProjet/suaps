@@ -116,6 +116,49 @@ export async function getCreneauxAutoReservation() {
 }
 
 /**
+ * Met à jour un créneau d'auto-réservation
+ */
+export async function mettreAJourCreneauAutoReservation(id, data) {
+  try {
+    const updated = await prisma.creneauAutoReservation.update({
+      where: { id },
+      data: {
+        derniereTentative: data.derniereTentative ? new Date(data.derniereTentative) : undefined,
+        derniereReservation: data.derniereReservation ? new Date(data.derniereReservation) : undefined,
+        nbTentatives: data.nbTentatives,
+        nbReussites: data.nbReussites,
+      }
+    });
+    return updated;
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du créneau:', error);
+    throw error;
+  }
+}
+
+/**
+ * Enregistre un log de réservation
+ */
+export async function enregistrerLogReservation(logData) {
+  try {
+    const log = await prisma.logReservation.create({
+      data: {
+        userId: logData.userId,
+        creneauAutoId: logData.creneauAutoId,
+        timestamp: new Date(logData.timestamp),
+        statut: logData.statut,
+        message: logData.message,
+        details: logData.details || {},
+      }
+    });
+    return log;
+  } catch (error) {
+    console.error('Erreur lors de l\'enregistrement du log:', error);
+    // Ne pas faire échouer le script pour un log
+  }
+}
+
+/**
  * Ferme la connexion Prisma (utile pour les scripts)
  */
 export async function disconnectDatabase() {

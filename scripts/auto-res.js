@@ -373,7 +373,6 @@ async function traiterTousLesCreneaux() {
     const debutNotif = logPerf("Envoi notification Discord démarrage");
     await envoyerNotificationDiscord("🚀 Auto-reservation démarrage", "Préparation...");
     logPerf("Notification envoyée", debutNotif);
-
     // Attendre l'heure exacte avec vérification précise
     console.log("⏰ Attente de l'heure exacte...");
     await new Promise((resolve) => {

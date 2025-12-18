@@ -238,6 +238,10 @@ export async function ajouterCreneauAutoReservation(
   creneau: Omit<CreneauAutoReservation, 'id' | 'dateCreation' | 'nbTentatives' | 'nbReussites'>
 ): Promise<string> {
   // Validation du code carte
+  if (!creneau.codeCarte) {
+    throw new Error('Le code carte est requis pour créer une auto-réservation');
+  }
+  
   const codeCarteNettoye = creneau.codeCarte.replace(/\D/g, '');
   if (codeCarteNettoye.length < 10 || codeCarteNettoye.length > 20) {
     throw new Error(`Code carte invalide: ${creneau.codeCarte}. Doit contenir 10-20 chiffres.`);

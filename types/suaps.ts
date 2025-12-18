@@ -167,7 +167,7 @@ export interface UserProfile {
   casContact: string | null;
   reduction: string | null;
   etablissementOrigine: string;
-  tagHexa: string;
+  tagHexa?: string; // Optionnel - n'est plus utilisé
   majorite: string;
 }
 

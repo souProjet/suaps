@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { Creneau } from '@/types/suaps';
-import { getCurrentUser } from '@/utils/auth';
+import { getCurrentUser, getAuthData } from '@/utils/auth';
 import { useToastContext } from '@/contexts/ToastContext';
 import AutoReservationButton from '@/components/AutoReservationButton';
 import { 
@@ -90,8 +90,15 @@ export default function CreneauxResults({
       throw new Error('Non connecté');
     }
 
+    // Récupérer le codeCarte depuis localStorage
+    const authData = getAuthData();
+    if (!authData?.codeCarte) {
+      toast.error('Erreur', 'Code carte non trouvé. Veuillez vous reconnecter.');
+      throw new Error('Code carte manquant');
+    }
+
     // Ajouter chaque créneau de la combinaison individuellement
-    const promises = combinaison.map(creneau => 
+    const promises = combinaison.map(creneau =>
       fetch('/api/auto-reservation/add', {
         method: 'POST',
         headers: {
@@ -99,10 +106,13 @@ export default function CreneauxResults({
         },
         credentials: 'include',
         body: JSON.stringify({
+          // Code carte de l'utilisateur
+          codeCarte: authData.codeCarte,
+
           // IDs réels SUAPS (avec fallback si manquants)
           activiteId: creneau.activiteId || `temp_activite_${creneau.activité.toLowerCase().replace(/\s+/g, '_')}`,
           creneauId: creneau.creneauId || `temp_creneau_${creneau.activité.toLowerCase().replace(/\s+/g, '_')}_${creneau.jour}_${creneau.début}_${creneau.fin}`,
-          
+
           // Données de base
           activiteNom: creneau.activité,
           jour: creneau.jour.toUpperCase(),
@@ -181,6 +191,13 @@ export default function CreneauxResults({
       throw new Error('Non connecté');
     }
 
+    // Récupérer le codeCarte depuis localStorage
+    const authData = getAuthData();
+    if (!authData?.codeCarte) {
+      toast.error('Erreur', 'Code carte non trouvé. Veuillez vous reconnecter.');
+      throw new Error('Code carte manquant');
+    }
+
     const response = await fetch('/api/auto-reservation/add', {
       method: 'POST',
       headers: {
@@ -188,10 +205,13 @@ export default function CreneauxResults({
       },
       credentials: 'include',
       body: JSON.stringify({
+        // Code carte de l'utilisateur
+        codeCarte: authData.codeCarte,
+
         // IDs réels SUAPS (avec fallback si manquants)
         activiteId: creneau.activiteId || `temp_activite_${creneau.activité.toLowerCase().replace(/\s+/g, '_')}`,
         creneauId: creneau.creneauId || `temp_creneau_${creneau.activité.toLowerCase().replace(/\s+/g, '_')}_${creneau.jour}_${creneau.début}_${creneau.fin}`,
-        
+
         // Données de base
         activiteNom: creneau.activité,
         jour: creneau.jour.toUpperCase(),

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ajouterCreneauAutoReservation, creneauDejaPrograme } from '@/utils/database';
 import { getCurrentUserFromRequest } from '@/utils/auth';
-import { convertHexToCodeCarte } from '@/utils/codeConverter';
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,6 +13,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     
     const {
+      codeCarte,
       activiteId,
       activiteNom,
       creneauId,
@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
 
     // Validation des données avec debug détaillé
     const donneesManquantes = [];
+    if (!codeCarte) donneesManquantes.push('codeCarte');
     if (!activiteId) donneesManquantes.push('activiteId');
     if (!activiteNom) donneesManquantes.push('activiteNom');
     if (!creneauId) donneesManquantes.push('creneauId');
@@ -38,18 +39,18 @@ export async function POST(request: NextRequest) {
     if (donneesManquantes.length > 0) {
       console.error('❌ Données manquantes:', donneesManquantes);
       console.error('❌ Données reçues:', { 
+        codeCarte: codeCarte ? '***' : undefined,
         activiteId, activiteNom, creneauId, jour, horaireDebut, horaireFin 
       });
       
       return NextResponse.json(
         { 
           error: `Données manquantes: ${donneesManquantes.join(', ')}`,
-          details: { donneesManquantes, donneesRecues: body }
+          details: { donneesManquantes }
         },
         { status: 400 }
       );
     }
-    const codeCarte = convertHexToCodeCarte(user.tagHexa);
     
     // Vérifier si le créneau n'est pas déjà programmé
     const dejaPrograme = await creneauDejaPrograme(user.code, creneauId); // Utiliser user.code pour l'ID utilisateur

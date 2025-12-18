@@ -8,3 +8,755 @@ SyntaxError: The requested module './utils/database.js' does not provide an expo
     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
 
 Node.js v20.17.0
+=== DIAGNOSTIC VARIABLES D'ENVIRONNEMENT ===
+DATABASE_URL: DÉFINIE
+SUAPS_PERIODE_ID: DÉFINIE
+DISCORD_WEBHOOK_URL: DÉFINIE
+===============================================
+════════════════════════════════════════════════════════════════════════════════
+🚀 DÉMARRAGE DU SCRIPT AUTO-RESERVATION
+════════════════════════════════════════════════════════════════════════════════
+[2025-12-03T18:59:01.841] 🔵 INITIALISATION DU SCRIPT
+[2025-12-03T18:59:01.841] 🔵 Envoi notification Discord démarrage
+[2025-12-03T18:59:03.118] ✅ Notification envoyée (1277.56ms)
+⏰ Attente de l'heure exacte...
+🕐 19h59:03 (Paris)
+🕐 19h59:04 (Paris)
+🕐 19h59:05 (Paris)
+🕐 19h59:06 (Paris)
+🕐 19h59:07 (Paris)
+🕐 19h59:08 (Paris)
+🕐 19h59:09 (Paris)
+🕐 19h59:10 (Paris)
+🕐 19h59:11 (Paris)
+🕐 19h59:12 (Paris)
+🕐 19h59:13 (Paris)
+🕐 19h59:14 (Paris)
+🕐 19h59:15 (Paris)
+🕐 19h59:16 (Paris)
+🕐 19h59:17 (Paris)
+🕐 19h59:18 (Paris)
+🕐 19h59:19 (Paris)
+🕐 19h59:20 (Paris)
+🕐 19h59:21 (Paris)
+🕐 19h59:22 (Paris)
+🕐 19h59:23 (Paris)
+🕐 19h59:24 (Paris)
+🕐 19h59:25 (Paris)
+🕐 19h59:26 (Paris)
+🕐 19h59:27 (Paris)
+🕐 19h59:28 (Paris)
+🕐 19h59:29 (Paris)
+🕐 19h59:30 (Paris)
+🕐 19h59:31 (Paris)
+🕐 19h59:32 (Paris)
+🕐 19h59:33 (Paris)
+🕐 19h59:34 (Paris)
+🕐 19h59:35 (Paris)
+🕐 19h59:36 (Paris)
+🕐 19h59:37 (Paris)
+🕐 19h59:38 (Paris)
+🕐 19h59:39 (Paris)
+🕐 19h59:40 (Paris)
+🕐 19h59:41 (Paris)
+🕐 19h59:42 (Paris)
+🕐 19h59:43 (Paris)
+🕐 19h59:44 (Paris)
+🕐 19h59:45 (Paris)
+🕐 19h59:46 (Paris)
+🕐 19h59:47 (Paris)
+🕐 19h59:48 (Paris)
+🕐 19h59:49 (Paris)
+🕐 19h59:50 (Paris)
+🕐 19h59:51 (Paris)
+🕐 19h59:52 (Paris)
+🕐 19h59:53 (Paris)
+🕐 19h59:54 (Paris)
+🕐 19h59:55 (Paris)
+🕐 19h59:56 (Paris)
+🕐 19h59:57 (Paris)
+🕐 19h59:58 (Paris)
+🕐 19h59:59 (Paris)
+🕐 20h00:00 (Paris)
+🎯 HEURE EXACTE ATTEINTE - DÉMARRAGE !
+[2025-12-03T19:00:00.302] 🔵 HEURE EXACTE ATTEINTE - DÉMARRAGE DES RÉSERVATIONS
+[2025-12-03T19:00:00.304] 🔵 DÉBUT TRAITEMENT DE TOUS LES CRÉNEAUX
+[2025-12-03T19:00:00.304] 🔵 Récupération des créneaux depuis la DB
+Récupération des créneaux actifs d'auto-réservation...
+Test de connexion à la base de données...
+Connexion réussie
+Exécution de la requête findMany...
+Trouvé 4 créneaux actifs
+[2025-12-03T19:00:01.588] ✅ 4 créneau(x) récupéré(s) (1284.02ms)
+[2025-12-03T19:00:01.588] 🔵 Phase de pré-login pour tous les utilisateurs
+[2025-12-03T19:00:01.588] 🔵 Début login pour carte 122027...
+[2025-12-03T19:00:03.528] ✅ Login réussi pour carte 122027... (1940.34ms)
+[2025-12-03T19:00:03.529] 🔵 Début login pour carte 122027...
+[2025-12-03T19:00:06.598] ✅ Login réussi pour carte 122027... (3069.09ms)
+[2025-12-03T19:00:06.598] 🔵 Début login pour carte 122027...
+[2025-12-03T19:00:08.541] ✅ Login réussi pour carte 122027... (1942.97ms)
+[2025-12-03T19:00:08.541] 🔵 Début login pour carte 134729...
+[2025-12-03T19:00:10.077] ✅ Login réussi pour carte 134729... (1536.34ms)
+[2025-12-03T19:00:10.078] ✅ Tous les logins terminés (8489.65ms)
+[2025-12-03T19:00:10.078] 🔵 Phase de réservations en parallèle
+[2025-12-03T19:00:10.078] 🔵 Réservation gymnastique sportive
+[2025-12-03T19:00:10.079] 🔵 Réservation gymnastique sportive
+[2025-12-03T19:00:10.079] 🔵 Réservation gymnastique sportive
+[2025-12-03T19:00:10.079] 🔵 Réservation gymnastique sportive
+[2025-12-03T19:00:10.697] ✅ ❌ Réservation gymnastique sportive échouée (618.16ms)
+[2025-12-03T19:00:10.770] ✅ Réservation gymnastique sportive terminée (691.44ms)
+[2025-12-03T19:00:10.871] ✅ Réservation gymnastique sportive terminée (792.09ms)
+[2025-12-03T19:00:10.874] ✅ Réservation gymnastique sportive terminée (795.10ms)
+[2025-12-03T19:00:11.843] ✅ Toutes les réservations terminées (1764.94ms)
+[2025-12-03T19:00:11.843] ✅ FIN TRAITEMENT DE TOUS LES CRÉNEAUX (11539.57ms)
+[2025-12-03T19:00:11.843] 🔵 Envoi notification Discord fin
+[2025-12-03T19:00:12.253] ✅ Notification fin envoyée (409.22ms)
+════════════════════════════════════════════════════════════════════════════════
+✅ SCRIPT TERMINÉ AVEC SUCCÈS
+⏱️  Heure de début: 19:59:01,840
+⏱️  Heure de fin: 20:00:12,253
+⏱️  Durée totale d'exécution: 70.413s
+════════════════════════════════════════════════════════════════════════════════
+
+📊 RÉSUMÉ DES OPÉRATIONS:
+  1. gymnastique sportive failed: Réservation échouée: {"entityName":"creneau","errorKey":"noPlace","type":"https://www.jhipster.tech/problem/problem-with-message","title":"Pas de place disponible sur ce créneau","status":400,"message":"error.noPlace","params":"creneau"}
+  2. gymnastique sportive réussi
+  3. gymnastique sportive réussi
+  4. gymnastique sportive réussi
+
+📝 LOGS DE PERFORMANCE:
+  [2025-12-03T18:59:01.841] 🔵 INITIALISATION DU SCRIPT
+  [2025-12-03T18:59:01.841] 🔵 Envoi notification Discord démarrage
+  [2025-12-03T18:59:03.118] ✅ Notification envoyée (1277.56ms)
+  [2025-12-03T19:00:00.302] 🔵 HEURE EXACTE ATTEINTE - DÉMARRAGE DES RÉSERVATIONS
+  [2025-12-03T19:00:00.304] 🔵 DÉBUT TRAITEMENT DE TOUS LES CRÉNEAUX
+  [2025-12-03T19:00:00.304] 🔵 Récupération des créneaux depuis la DB
+  [2025-12-03T19:00:01.588] ✅ 4 créneau(x) récupéré(s) (1284.02ms)
+  [2025-12-03T19:00:01.588] 🔵 Phase de pré-login pour tous les utilisateurs
+  [2025-12-03T19:00:01.588] 🔵 Début login pour carte 122027...
+  [2025-12-03T19:00:03.528] ✅ Login réussi pour carte 122027... (1940.34ms)
+  [2025-12-03T19:00:03.529] 🔵 Début login pour carte 122027...
+  [2025-12-03T19:00:06.598] ✅ Login réussi pour carte 122027... (3069.09ms)
+  [2025-12-03T19:00:06.598] 🔵 Début login pour carte 122027...
+  [2025-12-03T19:00:08.541] ✅ Login réussi pour carte 122027... (1942.97ms)
+  [2025-12-03T19:00:08.541] 🔵 Début login pour carte 134729...
+  [2025-12-03T19:00:10.077] ✅ Login réussi pour carte 134729... (1536.34ms)
+  [2025-12-03T19:00:10.078] ✅ Tous les logins terminés (8489.65ms)
+  [2025-12-03T19:00:10.078] 🔵 Phase de réservations en parallèle
+  [2025-12-03T19:00:10.078] 🔵 Réservation gymnastique sportive
+  [2025-12-03T19:00:10.079] 🔵 Réservation gymnastique sportive
+  [2025-12-03T19:00:10.079] 🔵 Réservation gymnastique sportive
+  [2025-12-03T19:00:10.079] 🔵 Réservation gymnastique sportive
+  [2025-12-03T19:00:10.697] ✅ ❌ Réservation gymnastique sportive échouée (618.16ms)
+  [2025-12-03T19:00:10.770] ✅ Réservation gymnastique sportive terminée (691.44ms)
+  [2025-12-03T19:00:10.871] ✅ Réservation gymnastique sportive terminée (792.09ms)
+  [2025-12-03T19:00:10.874] ✅ Réservation gymnastique sportive terminée (795.10ms)
+  [2025-12-03T19:00:11.843] ✅ Toutes les réservations terminées (1764.94ms)
+  [2025-12-03T19:00:11.843] ✅ FIN TRAITEMENT DE TOUS LES CRÉNEAUX (11539.57ms)
+  [2025-12-03T19:00:11.843] 🔵 Envoi notification Discord fin
+  [2025-12-03T19:00:12.253] ✅ Notification fin envoyée (409.22ms)
+════════════════════════════════════════════════════════════════════════════════
+[2025-12-03T19:00:12.263] 🔵 Déconnexion de la base de données
+[2025-12-03T19:00:12.266] ✅ Déconnexion terminée (2.72ms)
+=== DIAGNOSTIC VARIABLES D'ENVIRONNEMENT ===
+DATABASE_URL: DÉFINIE
+SUAPS_PERIODE_ID: DÉFINIE
+DISCORD_WEBHOOK_URL: DÉFINIE
+===============================================
+════════════════════════════════════════════════════════════════════════════════
+🚀 DÉMARRAGE DU SCRIPT AUTO-RESERVATION
+════════════════════════════════════════════════════════════════════════════════
+[2025-12-09T18:59:01.540] 🔵 INITIALISATION DU SCRIPT
+[2025-12-09T18:59:01.540] 🔵 Envoi notification Discord démarrage
+[2025-12-09T18:59:02.192] ✅ Notification envoyée (651.98ms)
+⏰ Attente de l'heure exacte...
+🕐 19h59:02 (Paris)
+🕐 19h59:03 (Paris)
+🕐 19h59:04 (Paris)
+🕐 19h59:05 (Paris)
+🕐 19h59:06 (Paris)
+🕐 19h59:07 (Paris)
+🕐 19h59:08 (Paris)
+🕐 19h59:09 (Paris)
+🕐 19h59:10 (Paris)
+🕐 19h59:11 (Paris)
+🕐 19h59:12 (Paris)
+🕐 19h59:13 (Paris)
+🕐 19h59:14 (Paris)
+🕐 19h59:15 (Paris)
+🕐 19h59:16 (Paris)
+🕐 19h59:17 (Paris)
+🕐 19h59:18 (Paris)
+🕐 19h59:19 (Paris)
+🕐 19h59:20 (Paris)
+🕐 19h59:21 (Paris)
+🕐 19h59:22 (Paris)
+🕐 19h59:23 (Paris)
+🕐 19h59:24 (Paris)
+🕐 19h59:25 (Paris)
+🕐 19h59:26 (Paris)
+🕐 19h59:27 (Paris)
+🕐 19h59:28 (Paris)
+🕐 19h59:29 (Paris)
+🕐 19h59:30 (Paris)
+🕐 19h59:31 (Paris)
+🕐 19h59:32 (Paris)
+🕐 19h59:33 (Paris)
+🕐 19h59:34 (Paris)
+🕐 19h59:35 (Paris)
+🕐 19h59:36 (Paris)
+🕐 19h59:37 (Paris)
+🕐 19h59:38 (Paris)
+🕐 19h59:39 (Paris)
+🕐 19h59:40 (Paris)
+🕐 19h59:41 (Paris)
+🕐 19h59:42 (Paris)
+🕐 19h59:43 (Paris)
+🕐 19h59:44 (Paris)
+🕐 19h59:45 (Paris)
+🕐 19h59:46 (Paris)
+🕐 19h59:47 (Paris)
+🕐 19h59:48 (Paris)
+🕐 19h59:49 (Paris)
+🕐 19h59:50 (Paris)
+🕐 19h59:51 (Paris)
+🕐 19h59:52 (Paris)
+🕐 19h59:53 (Paris)
+🕐 19h59:54 (Paris)
+🕐 19h59:55 (Paris)
+🕐 19h59:56 (Paris)
+🕐 19h59:57 (Paris)
+🕐 19h59:58 (Paris)
+🕐 19h59:59 (Paris)
+🕐 20h00:00 (Paris)
+🎯 HEURE EXACTE ATTEINTE - DÉMARRAGE !
+[2025-12-09T19:00:00.399] 🔵 HEURE EXACTE ATTEINTE - DÉMARRAGE DES RÉSERVATIONS
+[2025-12-09T19:00:00.400] 🔵 DÉBUT TRAITEMENT DE TOUS LES CRÉNEAUX
+[2025-12-09T19:00:00.400] 🔵 Récupération des créneaux depuis la DB
+Récupération des créneaux actifs d'auto-réservation...
+Test de connexion à la base de données...
+Connexion réussie
+Exécution de la requête findMany...
+Trouvé 4 créneaux actifs
+[2025-12-09T19:00:02.033] ✅ 4 créneau(x) récupéré(s) (1632.39ms)
+[2025-12-09T19:00:02.033] 🔵 Phase de pré-login pour tous les utilisateurs
+[2025-12-09T19:00:02.033] 🔵 Début login pour carte 122027...
+[2025-12-09T19:00:03.527] ✅ Login réussi pour carte 122027... (1493.52ms)
+[2025-12-09T19:00:03.527] 🔵 Début login pour carte 122027...
+[2025-12-09T19:00:04.033] ✅ Login réussi pour carte 122027... (505.93ms)
+[2025-12-09T19:00:04.033] 🔵 Début login pour carte 122027...
+[2025-12-09T19:00:04.443] ✅ Login réussi pour carte 122027... (409.91ms)
+[2025-12-09T19:00:04.444] 🔵 Début login pour carte 134729...
+[2025-12-09T19:00:04.760] ✅ Login réussi pour carte 134729... (316.42ms)
+[2025-12-09T19:00:04.760] ✅ Tous les logins terminés (2727.26ms)
+[2025-12-09T19:00:04.760] 🔵 Phase de réservations en parallèle
+[2025-12-09T19:00:04.761] 🔵 Réservation gymnastique sportive
+[2025-12-09T19:00:04.761] 🔵 Réservation gymnastique sportive
+[2025-12-09T19:00:04.761] 🔵 Réservation gymnastique sportive
+[2025-12-09T19:00:04.761] 🔵 Réservation gymnastique sportive
+[2025-12-09T19:00:05.371] ✅ Réservation gymnastique sportive terminée (609.45ms)
+[2025-12-09T19:00:05.576] ✅ Réservation gymnastique sportive terminée (815.47ms)
+[2025-12-09T19:00:05.689] ✅ Réservation gymnastique sportive terminée (928.17ms)
+[2025-12-09T19:00:05.692] ✅ Réservation gymnastique sportive terminée (931.13ms)
+[2025-12-09T19:00:08.195] ✅ Toutes les réservations terminées (3434.41ms)
+[2025-12-09T19:00:08.195] ✅ FIN TRAITEMENT DE TOUS LES CRÉNEAUX (7795.24ms)
+[2025-12-09T19:00:08.196] 🔵 Envoi notification Discord fin
+[2025-12-09T19:00:08.890] ✅ Notification fin envoyée (694.76ms)
+════════════════════════════════════════════════════════════════════════════════
+✅ SCRIPT TERMINÉ AVEC SUCCÈS
+⏱️  Heure de début: 19:59:01,532
+⏱️  Heure de fin: 20:00:08,891
+⏱️  Durée totale d'exécution: 67.358s
+════════════════════════════════════════════════════════════════════════════════
+
+📊 RÉSUMÉ DES OPÉRATIONS:
+  1. gymnastique sportive réussi
+  2. gymnastique sportive réussi
+  3. gymnastique sportive réussi
+  4. gymnastique sportive réussi
+
+📝 LOGS DE PERFORMANCE:
+  [2025-12-09T18:59:01.540] 🔵 INITIALISATION DU SCRIPT
+  [2025-12-09T18:59:01.540] 🔵 Envoi notification Discord démarrage
+  [2025-12-09T18:59:02.192] ✅ Notification envoyée (651.98ms)
+  [2025-12-09T19:00:00.399] 🔵 HEURE EXACTE ATTEINTE - DÉMARRAGE DES RÉSERVATIONS
+  [2025-12-09T19:00:00.400] 🔵 DÉBUT TRAITEMENT DE TOUS LES CRÉNEAUX
+  [2025-12-09T19:00:00.400] 🔵 Récupération des créneaux depuis la DB
+  [2025-12-09T19:00:02.033] ✅ 4 créneau(x) récupéré(s) (1632.39ms)
+  [2025-12-09T19:00:02.033] 🔵 Phase de pré-login pour tous les utilisateurs
+  [2025-12-09T19:00:02.033] 🔵 Début login pour carte 122027...
+  [2025-12-09T19:00:03.527] ✅ Login réussi pour carte 122027... (1493.52ms)
+  [2025-12-09T19:00:03.527] 🔵 Début login pour carte 122027...
+  [2025-12-09T19:00:04.033] ✅ Login réussi pour carte 122027... (505.93ms)
+  [2025-12-09T19:00:04.033] 🔵 Début login pour carte 122027...
+  [2025-12-09T19:00:04.443] ✅ Login réussi pour carte 122027... (409.91ms)
+  [2025-12-09T19:00:04.444] 🔵 Début login pour carte 134729...
+  [2025-12-09T19:00:04.760] ✅ Login réussi pour carte 134729... (316.42ms)
+  [2025-12-09T19:00:04.760] ✅ Tous les logins terminés (2727.26ms)
+  [2025-12-09T19:00:04.760] 🔵 Phase de réservations en parallèle
+  [2025-12-09T19:00:04.761] 🔵 Réservation gymnastique sportive
+  [2025-12-09T19:00:04.761] 🔵 Réservation gymnastique sportive
+  [2025-12-09T19:00:04.761] 🔵 Réservation gymnastique sportive
+  [2025-12-09T19:00:04.761] 🔵 Réservation gymnastique sportive
+  [2025-12-09T19:00:05.371] ✅ Réservation gymnastique sportive terminée (609.45ms)
+  [2025-12-09T19:00:05.576] ✅ Réservation gymnastique sportive terminée (815.47ms)
+  [2025-12-09T19:00:05.689] ✅ Réservation gymnastique sportive terminée (928.17ms)
+  [2025-12-09T19:00:05.692] ✅ Réservation gymnastique sportive terminée (931.13ms)
+  [2025-12-09T19:00:08.195] ✅ Toutes les réservations terminées (3434.41ms)
+  [2025-12-09T19:00:08.195] ✅ FIN TRAITEMENT DE TOUS LES CRÉNEAUX (7795.24ms)
+  [2025-12-09T19:00:08.196] 🔵 Envoi notification Discord fin
+  [2025-12-09T19:00:08.890] ✅ Notification fin envoyée (694.76ms)
+════════════════════════════════════════════════════════════════════════════════
+[2025-12-09T19:00:08.894] 🔵 Déconnexion de la base de données
+[2025-12-09T19:00:08.895] ✅ Déconnexion terminée (0.92ms)
+=== DIAGNOSTIC VARIABLES D'ENVIRONNEMENT ===
+DATABASE_URL: DÉFINIE
+SUAPS_PERIODE_ID: DÉFINIE
+DISCORD_WEBHOOK_URL: DÉFINIE
+===============================================
+════════════════════════════════════════════════════════════════════════════════
+🚀 DÉMARRAGE DU SCRIPT AUTO-RESERVATION
+════════════════════════════════════════════════════════════════════════════════
+[2025-12-10T18:59:02.131] 🔵 INITIALISATION DU SCRIPT
+[2025-12-10T18:59:02.132] 🔵 Envoi notification Discord démarrage
+[2025-12-10T18:59:02.856] ✅ Notification envoyée (724.81ms)
+⏰ Attente de l'heure exacte...
+🕐 19h59:02 (Paris)
+🕐 19h59:03 (Paris)
+🕐 19h59:04 (Paris)
+🕐 19h59:05 (Paris)
+🕐 19h59:06 (Paris)
+🕐 19h59:07 (Paris)
+🕐 19h59:08 (Paris)
+🕐 19h59:09 (Paris)
+🕐 19h59:10 (Paris)
+🕐 19h59:11 (Paris)
+🕐 19h59:12 (Paris)
+🕐 19h59:13 (Paris)
+🕐 19h59:14 (Paris)
+🕐 19h59:15 (Paris)
+🕐 19h59:16 (Paris)
+🕐 19h59:17 (Paris)
+🕐 19h59:18 (Paris)
+🕐 19h59:19 (Paris)
+🕐 19h59:20 (Paris)
+🕐 19h59:21 (Paris)
+🕐 19h59:22 (Paris)
+🕐 19h59:23 (Paris)
+🕐 19h59:24 (Paris)
+🕐 19h59:25 (Paris)
+🕐 19h59:26 (Paris)
+🕐 19h59:27 (Paris)
+🕐 19h59:28 (Paris)
+🕐 19h59:29 (Paris)
+🕐 19h59:30 (Paris)
+🕐 19h59:31 (Paris)
+🕐 19h59:32 (Paris)
+🕐 19h59:33 (Paris)
+🕐 19h59:34 (Paris)
+🕐 19h59:35 (Paris)
+🕐 19h59:36 (Paris)
+🕐 19h59:37 (Paris)
+🕐 19h59:38 (Paris)
+🕐 19h59:39 (Paris)
+🕐 19h59:40 (Paris)
+🕐 19h59:41 (Paris)
+🕐 19h59:42 (Paris)
+🕐 19h59:43 (Paris)
+🕐 19h59:44 (Paris)
+🕐 19h59:46 (Paris)
+🕐 19h59:47 (Paris)
+🕐 19h59:48 (Paris)
+🕐 19h59:49 (Paris)
+🕐 19h59:50 (Paris)
+🕐 19h59:51 (Paris)
+🕐 19h59:52 (Paris)
+🕐 19h59:53 (Paris)
+🕐 19h59:54 (Paris)
+🕐 19h59:55 (Paris)
+🕐 19h59:56 (Paris)
+🕐 19h59:57 (Paris)
+🕐 19h59:58 (Paris)
+🕐 19h59:59 (Paris)
+🕐 20h00:00 (Paris)
+🎯 HEURE EXACTE ATTEINTE - DÉMARRAGE !
+[2025-12-10T19:00:00.041] 🔵 HEURE EXACTE ATTEINTE - DÉMARRAGE DES RÉSERVATIONS
+[2025-12-10T19:00:00.042] 🔵 DÉBUT TRAITEMENT DE TOUS LES CRÉNEAUX
+[2025-12-10T19:00:00.042] 🔵 Récupération des créneaux depuis la DB
+Récupération des créneaux actifs d'auto-réservation...
+Test de connexion à la base de données...
+Connexion réussie
+Exécution de la requête findMany...
+Trouvé 4 créneaux actifs
+[2025-12-10T19:00:01.092] ✅ 4 créneau(x) récupéré(s) (1049.25ms)
+[2025-12-10T19:00:01.092] 🔵 Phase de pré-login pour tous les utilisateurs
+[2025-12-10T19:00:01.092] 🔵 Début login pour carte 122027...
+[2025-12-10T19:00:01.905] ✅ Login réussi pour carte 122027... (813.28ms)
+[2025-12-10T19:00:01.905] 🔵 Début login pour carte 122027...
+[2025-12-10T19:00:02.213] ✅ Login réussi pour carte 122027... (307.60ms)
+[2025-12-10T19:00:02.213] 🔵 Début login pour carte 122027...
+[2025-12-10T19:00:02.540] ✅ Login réussi pour carte 122027... (326.85ms)
+[2025-12-10T19:00:02.540] 🔵 Début login pour carte 134729...
+[2025-12-10T19:00:02.877] ✅ Login réussi pour carte 134729... (336.80ms)
+[2025-12-10T19:00:02.877] ✅ Tous les logins terminés (1785.79ms)
+[2025-12-10T19:00:02.878] 🔵 Phase de réservations en parallèle
+[2025-12-10T19:00:02.878] 🔵 Réservation gymnastique sportive
+[2025-12-10T19:00:02.878] 🔵 Réservation gymnastique sportive
+[2025-12-10T19:00:02.878] 🔵 Réservation gymnastique sportive
+[2025-12-10T19:00:02.878] 🔵 Réservation gymnastique sportive
+[2025-12-10T19:00:02.990] ✅ ❌ Réservation gymnastique sportive échouée (112.29ms)
+[2025-12-10T19:00:03.556] ✅ ❌ Réservation gymnastique sportive échouée (677.76ms)
+[2025-12-10T19:00:03.560] ✅ ❌ Réservation gymnastique sportive échouée (681.02ms)
+[2025-12-10T19:00:03.563] ✅ ❌ Réservation gymnastique sportive échouée (684.54ms)
+[2025-12-10T19:00:04.564] ✅ Toutes les réservations terminées (1686.24ms)
+[2025-12-10T19:00:04.565] ✅ FIN TRAITEMENT DE TOUS LES CRÉNEAUX (4522.46ms)
+[2025-12-10T19:00:04.565] 🔵 Envoi notification Discord fin
+[2025-12-10T19:00:05.272] ✅ Notification fin envoyée (707.09ms)
+════════════════════════════════════════════════════════════════════════════════
+✅ SCRIPT TERMINÉ AVEC SUCCÈS
+⏱️  Heure de début: 19:59:02,131
+⏱️  Heure de fin: 20:00:05,272
+⏱️  Durée totale d'exécution: 63.141s
+════════════════════════════════════════════════════════════════════════════════
+
+📊 RÉSUMÉ DES OPÉRATIONS:
+  1. gymnastique sportive failed: Réservation échouée: {"entityName":"creneau","errorKey":"idinvalid","type":"https://www.jhipster.tech/problem/problem-with-message","title":"Pas de créneaux réservable","status":400,"message":"error.idinvalid","params":"creneau"}
+  2. gymnastique sportive failed: Réservation échouée: {"entityName":"creneau","errorKey":"idinvalid","type":"https://www.jhipster.tech/problem/problem-with-message","title":"Pas de créneaux réservable","status":400,"message":"error.idinvalid","params":"creneau"}
+  3. gymnastique sportive failed: Réservation échouée: {"entityName":"creneau","errorKey":"idinvalid","type":"https://www.jhipster.tech/problem/problem-with-message","title":"Pas de créneaux réservable","status":400,"message":"error.idinvalid","params":"creneau"}
+  4. gymnastique sportive failed: Réservation échouée: {"entityName":"creneau","errorKey":"idinvalid","type":"https://www.jhipster.tech/problem/problem-with-message","title":"Pas de créneaux réservable","status":400,"message":"error.idinvalid","params":"creneau"}
+
+📝 LOGS DE PERFORMANCE:
+  [2025-12-10T18:59:02.131] 🔵 INITIALISATION DU SCRIPT
+  [2025-12-10T18:59:02.132] 🔵 Envoi notification Discord démarrage
+  [2025-12-10T18:59:02.856] ✅ Notification envoyée (724.81ms)
+  [2025-12-10T19:00:00.041] 🔵 HEURE EXACTE ATTEINTE - DÉMARRAGE DES RÉSERVATIONS
+  [2025-12-10T19:00:00.042] 🔵 DÉBUT TRAITEMENT DE TOUS LES CRÉNEAUX
+  [2025-12-10T19:00:00.042] 🔵 Récupération des créneaux depuis la DB
+  [2025-12-10T19:00:01.092] ✅ 4 créneau(x) récupéré(s) (1049.25ms)
+  [2025-12-10T19:00:01.092] 🔵 Phase de pré-login pour tous les utilisateurs
+  [2025-12-10T19:00:01.092] 🔵 Début login pour carte 122027...
+  [2025-12-10T19:00:01.905] ✅ Login réussi pour carte 122027... (813.28ms)
+  [2025-12-10T19:00:01.905] 🔵 Début login pour carte 122027...
+  [2025-12-10T19:00:02.213] ✅ Login réussi pour carte 122027... (307.60ms)
+  [2025-12-10T19:00:02.213] 🔵 Début login pour carte 122027...
+  [2025-12-10T19:00:02.540] ✅ Login réussi pour carte 122027... (326.85ms)
+  [2025-12-10T19:00:02.540] 🔵 Début login pour carte 134729...
+  [2025-12-10T19:00:02.877] ✅ Login réussi pour carte 134729... (336.80ms)
+  [2025-12-10T19:00:02.877] ✅ Tous les logins terminés (1785.79ms)
+  [2025-12-10T19:00:02.878] 🔵 Phase de réservations en parallèle
+  [2025-12-10T19:00:02.878] 🔵 Réservation gymnastique sportive
+  [2025-12-10T19:00:02.878] 🔵 Réservation gymnastique sportive
+  [2025-12-10T19:00:02.878] 🔵 Réservation gymnastique sportive
+  [2025-12-10T19:00:02.878] 🔵 Réservation gymnastique sportive
+  [2025-12-10T19:00:02.990] ✅ ❌ Réservation gymnastique sportive échouée (112.29ms)
+  [2025-12-10T19:00:03.556] ✅ ❌ Réservation gymnastique sportive échouée (677.76ms)
+  [2025-12-10T19:00:03.560] ✅ ❌ Réservation gymnastique sportive échouée (681.02ms)
+  [2025-12-10T19:00:03.563] ✅ ❌ Réservation gymnastique sportive échouée (684.54ms)
+  [2025-12-10T19:00:04.564] ✅ Toutes les réservations terminées (1686.24ms)
+  [2025-12-10T19:00:04.565] ✅ FIN TRAITEMENT DE TOUS LES CRÉNEAUX (4522.46ms)
+  [2025-12-10T19:00:04.565] 🔵 Envoi notification Discord fin
+  [2025-12-10T19:00:05.272] ✅ Notification fin envoyée (707.09ms)
+════════════════════════════════════════════════════════════════════════════════
+[2025-12-10T19:00:05.275] 🔵 Déconnexion de la base de données
+[2025-12-10T19:00:05.275] ✅ Déconnexion terminée (0.70ms)
+=== DIAGNOSTIC VARIABLES D'ENVIRONNEMENT ===
+DATABASE_URL: DÉFINIE
+SUAPS_PERIODE_ID: DÉFINIE
+DISCORD_WEBHOOK_URL: DÉFINIE
+===============================================
+════════════════════════════════════════════════════════════════════════════════
+🚀 DÉMARRAGE DU SCRIPT AUTO-RESERVATION
+════════════════════════════════════════════════════════════════════════════════
+[2025-12-15T18:59:01.485] 🔵 INITIALISATION DU SCRIPT
+[2025-12-15T18:59:01.485] 🔵 Envoi notification Discord démarrage
+[2025-12-15T18:59:02.489] ✅ Notification envoyée (1004.43ms)
+⏰ Attente de l'heure exacte...
+🕐 19h59:02 (Paris)
+🕐 19h59:03 (Paris)
+🕐 19h59:04 (Paris)
+🕐 19h59:05 (Paris)
+🕐 19h59:06 (Paris)
+🕐 19h59:07 (Paris)
+🕐 19h59:08 (Paris)
+🕐 19h59:09 (Paris)
+🕐 19h59:10 (Paris)
+🕐 19h59:11 (Paris)
+🕐 19h59:12 (Paris)
+🕐 19h59:13 (Paris)
+🕐 19h59:14 (Paris)
+🕐 19h59:15 (Paris)
+🕐 19h59:16 (Paris)
+🕐 19h59:17 (Paris)
+🕐 19h59:18 (Paris)
+🕐 19h59:19 (Paris)
+🕐 19h59:20 (Paris)
+🕐 19h59:21 (Paris)
+🕐 19h59:22 (Paris)
+🕐 19h59:23 (Paris)
+🕐 19h59:24 (Paris)
+🕐 19h59:25 (Paris)
+🕐 19h59:26 (Paris)
+🕐 19h59:27 (Paris)
+🕐 19h59:28 (Paris)
+🕐 19h59:29 (Paris)
+🕐 19h59:30 (Paris)
+🕐 19h59:31 (Paris)
+🕐 19h59:32 (Paris)
+🕐 19h59:33 (Paris)
+🕐 19h59:34 (Paris)
+🕐 19h59:35 (Paris)
+🕐 19h59:36 (Paris)
+🕐 19h59:37 (Paris)
+🕐 19h59:38 (Paris)
+🕐 19h59:39 (Paris)
+🕐 19h59:40 (Paris)
+🕐 19h59:41 (Paris)
+🕐 19h59:42 (Paris)
+🕐 19h59:43 (Paris)
+🕐 19h59:44 (Paris)
+🕐 19h59:45 (Paris)
+🕐 19h59:46 (Paris)
+🕐 19h59:47 (Paris)
+🕐 19h59:48 (Paris)
+🕐 19h59:49 (Paris)
+🕐 19h59:50 (Paris)
+🕐 19h59:51 (Paris)
+🕐 19h59:52 (Paris)
+🕐 19h59:53 (Paris)
+🕐 19h59:54 (Paris)
+🕐 19h59:55 (Paris)
+🕐 19h59:56 (Paris)
+🕐 19h59:57 (Paris)
+🕐 19h59:58 (Paris)
+🕐 19h59:59 (Paris)
+🕐 20h00:00 (Paris)
+🎯 HEURE EXACTE ATTEINTE - DÉMARRAGE !
+[2025-12-15T19:00:00.691] 🔵 HEURE EXACTE ATTEINTE - DÉMARRAGE DES RÉSERVATIONS
+[2025-12-15T19:00:00.692] 🔵 DÉBUT TRAITEMENT DE TOUS LES CRÉNEAUX
+[2025-12-15T19:00:00.692] 🔵 Récupération des créneaux depuis la DB
+Récupération des créneaux actifs d'auto-réservation...
+Test de connexion à la base de données...
+Connexion réussie
+Exécution de la requête findMany...
+Trouvé 4 créneaux actifs
+[2025-12-15T19:00:02.179] ✅ 4 créneau(x) récupéré(s) (1486.77ms)
+[2025-12-15T19:00:02.179] 🔵 Phase de pré-login pour tous les utilisateurs
+[2025-12-15T19:00:02.179] 🔵 Début login pour carte 122027...
+[2025-12-15T19:00:03.004] ✅ Login réussi pour carte 122027... (824.06ms)
+[2025-12-15T19:00:03.004] 🔵 Début login pour carte 122027...
+[2025-12-15T19:00:03.411] ✅ Login réussi pour carte 122027... (407.47ms)
+[2025-12-15T19:00:03.411] 🔵 Début login pour carte 122027...
+[2025-12-15T19:00:03.821] ✅ Login réussi pour carte 122027... (409.59ms)
+[2025-12-15T19:00:03.821] 🔵 Début login pour carte 134729...
+[2025-12-15T19:00:04.230] ✅ Login réussi pour carte 134729... (408.90ms)
+[2025-12-15T19:00:04.230] ✅ Tous les logins terminés (2050.92ms)
+[2025-12-15T19:00:04.230] 🔵 Phase de réservations en parallèle
+[2025-12-15T19:00:04.231] 🔵 Réservation gymnastique sportive
+[2025-12-15T19:00:04.231] 🔵 Réservation gymnastique sportive
+[2025-12-15T19:00:04.231] 🔵 Réservation gymnastique sportive
+[2025-12-15T19:00:04.231] 🔵 Réservation gymnastique sportive
+[2025-12-15T19:00:04.365] ✅ ❌ Réservation gymnastique sportive échouée (133.88ms)
+[2025-12-15T19:00:04.458] ✅ ❌ Réservation gymnastique sportive échouée (226.84ms)
+[2025-12-15T19:00:04.478] ✅ ❌ Réservation gymnastique sportive échouée (246.53ms)
+[2025-12-15T19:00:04.486] ✅ ❌ Réservation gymnastique sportive échouée (254.99ms)
+[2025-12-15T19:00:05.223] ✅ Toutes les réservations terminées (992.79ms)
+[2025-12-15T19:00:05.224] ✅ FIN TRAITEMENT DE TOUS LES CRÉNEAUX (4531.60ms)
+[2025-12-15T19:00:05.224] 🔵 Envoi notification Discord fin
+[2025-12-15T19:00:05.766] ✅ Notification fin envoyée (542.54ms)
+════════════════════════════════════════════════════════════════════════════════
+✅ SCRIPT TERMINÉ AVEC SUCCÈS
+⏱️  Heure de début: 19:59:01,477
+⏱️  Heure de fin: 20:00:05,767
+⏱️  Durée totale d'exécution: 64.289s
+════════════════════════════════════════════════════════════════════════════════
+
+📊 RÉSUMÉ DES OPÉRATIONS:
+  1. gymnastique sportive failed: Réservation échouée: {"entityName":"creneau","errorKey":"idinvalid","type":"https://www.jhipster.tech/problem/problem-with-message","title":"Pas de créneaux réservable","status":400,"message":"error.idinvalid","params":"creneau"}
+  2. gymnastique sportive failed: Réservation échouée: {"entityName":"creneau","errorKey":"idinvalid","type":"https://www.jhipster.tech/problem/problem-with-message","title":"Pas de créneaux réservable","status":400,"message":"error.idinvalid","params":"creneau"}
+  3. gymnastique sportive failed: Réservation échouée: {"entityName":"creneau","errorKey":"idinvalid","type":"https://www.jhipster.tech/problem/problem-with-message","title":"Pas de créneaux réservable","status":400,"message":"error.idinvalid","params":"creneau"}
+  4. gymnastique sportive failed: Réservation échouée: {"entityName":"creneau","errorKey":"idinvalid","type":"https://www.jhipster.tech/problem/problem-with-message","title":"Pas de créneaux réservable","status":400,"message":"error.idinvalid","params":"creneau"}
+
+📝 LOGS DE PERFORMANCE:
+  [2025-12-15T18:59:01.485] 🔵 INITIALISATION DU SCRIPT
+  [2025-12-15T18:59:01.485] 🔵 Envoi notification Discord démarrage
+  [2025-12-15T18:59:02.489] ✅ Notification envoyée (1004.43ms)
+  [2025-12-15T19:00:00.691] 🔵 HEURE EXACTE ATTEINTE - DÉMARRAGE DES RÉSERVATIONS
+  [2025-12-15T19:00:00.692] 🔵 DÉBUT TRAITEMENT DE TOUS LES CRÉNEAUX
+  [2025-12-15T19:00:00.692] 🔵 Récupération des créneaux depuis la DB
+  [2025-12-15T19:00:02.179] ✅ 4 créneau(x) récupéré(s) (1486.77ms)
+  [2025-12-15T19:00:02.179] 🔵 Phase de pré-login pour tous les utilisateurs
+  [2025-12-15T19:00:02.179] 🔵 Début login pour carte 122027...
+  [2025-12-15T19:00:03.004] ✅ Login réussi pour carte 122027... (824.06ms)
+  [2025-12-15T19:00:03.004] 🔵 Début login pour carte 122027...
+  [2025-12-15T19:00:03.411] ✅ Login réussi pour carte 122027... (407.47ms)
+  [2025-12-15T19:00:03.411] 🔵 Début login pour carte 122027...
+  [2025-12-15T19:00:03.821] ✅ Login réussi pour carte 122027... (409.59ms)
+  [2025-12-15T19:00:03.821] 🔵 Début login pour carte 134729...
+  [2025-12-15T19:00:04.230] ✅ Login réussi pour carte 134729... (408.90ms)
+  [2025-12-15T19:00:04.230] ✅ Tous les logins terminés (2050.92ms)
+  [2025-12-15T19:00:04.230] 🔵 Phase de réservations en parallèle
+  [2025-12-15T19:00:04.231] 🔵 Réservation gymnastique sportive
+  [2025-12-15T19:00:04.231] 🔵 Réservation gymnastique sportive
+  [2025-12-15T19:00:04.231] 🔵 Réservation gymnastique sportive
+  [2025-12-15T19:00:04.231] 🔵 Réservation gymnastique sportive
+  [2025-12-15T19:00:04.365] ✅ ❌ Réservation gymnastique sportive échouée (133.88ms)
+  [2025-12-15T19:00:04.458] ✅ ❌ Réservation gymnastique sportive échouée (226.84ms)
+  [2025-12-15T19:00:04.478] ✅ ❌ Réservation gymnastique sportive échouée (246.53ms)
+  [2025-12-15T19:00:04.486] ✅ ❌ Réservation gymnastique sportive échouée (254.99ms)
+  [2025-12-15T19:00:05.223] ✅ Toutes les réservations terminées (992.79ms)
+  [2025-12-15T19:00:05.224] ✅ FIN TRAITEMENT DE TOUS LES CRÉNEAUX (4531.60ms)
+  [2025-12-15T19:00:05.224] 🔵 Envoi notification Discord fin
+  [2025-12-15T19:00:05.766] ✅ Notification fin envoyée (542.54ms)
+════════════════════════════════════════════════════════════════════════════════
+[2025-12-15T19:00:05.770] 🔵 Déconnexion de la base de données
+[2025-12-15T19:00:05.771] ✅ Déconnexion terminée (0.90ms)
+=== DIAGNOSTIC VARIABLES D'ENVIRONNEMENT ===
+DATABASE_URL: DÉFINIE
+SUAPS_PERIODE_ID: DÉFINIE
+DISCORD_WEBHOOK_URL: DÉFINIE
+===============================================
+════════════════════════════════════════════════════════════════════════════════
+🚀 DÉMARRAGE DU SCRIPT AUTO-RESERVATION
+════════════════════════════════════════════════════════════════════════════════
+[2025-12-16T18:59:02.220] 🔵 INITIALISATION DU SCRIPT
+[2025-12-16T18:59:02.221] 🔵 Envoi notification Discord démarrage
+[2025-12-16T18:59:03.263] ✅ Notification envoyée (1042.89ms)
+⏰ Attente de l'heure exacte...
+🕐 19h59:03 (Paris)
+🕐 19h59:04 (Paris)
+🕐 19h59:05 (Paris)
+🕐 19h59:06 (Paris)
+🕐 19h59:07 (Paris)
+🕐 19h59:08 (Paris)
+🕐 19h59:09 (Paris)
+🕐 19h59:10 (Paris)
+🕐 19h59:11 (Paris)
+🕐 19h59:12 (Paris)
+🕐 19h59:13 (Paris)
+🕐 19h59:14 (Paris)
+🕐 19h59:15 (Paris)
+🕐 19h59:16 (Paris)
+🕐 19h59:17 (Paris)
+🕐 19h59:18 (Paris)
+🕐 19h59:19 (Paris)
+🕐 19h59:20 (Paris)
+🕐 19h59:21 (Paris)
+🕐 19h59:22 (Paris)
+🕐 19h59:23 (Paris)
+🕐 19h59:24 (Paris)
+🕐 19h59:25 (Paris)
+🕐 19h59:26 (Paris)
+🕐 19h59:27 (Paris)
+🕐 19h59:28 (Paris)
+🕐 19h59:29 (Paris)
+🕐 19h59:30 (Paris)
+🕐 19h59:31 (Paris)
+🕐 19h59:32 (Paris)
+🕐 19h59:33 (Paris)
+🕐 19h59:34 (Paris)
+🕐 19h59:35 (Paris)
+🕐 19h59:36 (Paris)
+🕐 19h59:37 (Paris)
+🕐 19h59:38 (Paris)
+🕐 19h59:39 (Paris)
+🕐 19h59:40 (Paris)
+🕐 19h59:41 (Paris)
+🕐 19h59:42 (Paris)
+🕐 19h59:43 (Paris)
+🕐 19h59:44 (Paris)
+🕐 19h59:45 (Paris)
+🕐 19h59:46 (Paris)
+🕐 19h59:47 (Paris)
+🕐 19h59:48 (Paris)
+🕐 19h59:49 (Paris)
+🕐 19h59:50 (Paris)
+🕐 19h59:51 (Paris)
+🕐 19h59:52 (Paris)
+🕐 19h59:53 (Paris)
+🕐 19h59:54 (Paris)
+🕐 19h59:55 (Paris)
+🕐 19h59:56 (Paris)
+🕐 19h59:57 (Paris)
+🕐 19h59:58 (Paris)
+🕐 19h59:59 (Paris)
+🕐 20h00:00 (Paris)
+🎯 HEURE EXACTE ATTEINTE - DÉMARRAGE !
+[2025-12-16T19:00:00.445] 🔵 HEURE EXACTE ATTEINTE - DÉMARRAGE DES RÉSERVATIONS
+[2025-12-16T19:00:00.447] 🔵 DÉBUT TRAITEMENT DE TOUS LES CRÉNEAUX
+[2025-12-16T19:00:00.447] 🔵 Récupération des créneaux depuis la DB
+Récupération des créneaux actifs d'auto-réservation...
+Test de connexion à la base de données...
+Connexion réussie
+Exécution de la requête findMany...
+Trouvé 4 créneaux actifs
+[2025-12-16T19:00:02.340] ✅ 4 créneau(x) récupéré(s) (1893.15ms)
+[2025-12-16T19:00:02.340] 🔵 Phase de pré-login pour tous les utilisateurs
+[2025-12-16T19:00:02.341] 🔵 Début login pour carte 122027...
+[2025-12-16T19:00:03.947] ✅ Login réussi pour carte 122027... (1606.34ms)
+[2025-12-16T19:00:03.947] 🔵 Début login pour carte 122027...
+[2025-12-16T19:00:04.359] ✅ Login réussi pour carte 122027... (412.21ms)
+[2025-12-16T19:00:04.360] 🔵 Début login pour carte 122027...
+[2025-12-16T19:00:05.075] ✅ Login réussi pour carte 122027... (715.61ms)
+[2025-12-16T19:00:05.075] 🔵 Début login pour carte 134729...
+[2025-12-16T19:00:06.099] ✅ Login réussi pour carte 134729... (1023.64ms)
+[2025-12-16T19:00:06.099] ✅ Tous les logins terminés (3758.94ms)
+[2025-12-16T19:00:06.099] 🔵 Phase de réservations en parallèle
+[2025-12-16T19:00:06.100] 🔵 Réservation gymnastique sportive
+[2025-12-16T19:00:06.100] 🔵 Réservation gymnastique sportive
+[2025-12-16T19:00:06.100] 🔵 Réservation gymnastique sportive
+[2025-12-16T19:00:06.100] 🔵 Réservation gymnastique sportive
+[2025-12-16T19:00:06.236] ✅ ❌ Réservation gymnastique sportive échouée (135.73ms)
+[2025-12-16T19:00:06.328] ✅ ❌ Réservation gymnastique sportive échouée (227.28ms)
+[2025-12-16T19:00:07.184] ✅ ❌ Réservation gymnastique sportive échouée (1083.61ms)
+[2025-12-16T19:00:07.187] ✅ ❌ Réservation gymnastique sportive échouée (1087.09ms)
+[2025-12-16T19:00:10.058] ✅ Toutes les réservations terminées (3958.78ms)
+[2025-12-16T19:00:10.059] ✅ FIN TRAITEMENT DE TOUS LES CRÉNEAUX (9612.00ms)
+[2025-12-16T19:00:10.059] 🔵 Envoi notification Discord fin
+[2025-12-16T19:00:10.815] ✅ Notification fin envoyée (756.36ms)
+════════════════════════════════════════════════════════════════════════════════
+✅ SCRIPT TERMINÉ AVEC SUCCÈS
+⏱️  Heure de début: 19:59:02,220
+⏱️  Heure de fin: 20:00:10,816
+⏱️  Durée totale d'exécution: 68.596s
+════════════════════════════════════════════════════════════════════════════════
+
+📊 RÉSUMÉ DES OPÉRATIONS:
+  1. gymnastique sportive failed: Réservation échouée: {"entityName":"creneau","errorKey":"idinvalid","type":"https://www.jhipster.tech/problem/problem-with-message","title":"Pas de créneaux réservable","status":400,"message":"error.idinvalid","params":"creneau"}
+  2. gymnastique sportive failed: Réservation échouée: {"entityName":"creneau","errorKey":"idinvalid","type":"https://www.jhipster.tech/problem/problem-with-message","title":"Pas de créneaux réservable","status":400,"message":"error.idinvalid","params":"creneau"}
+  3. gymnastique sportive failed: Réservation échouée: {"entityName":"creneau","errorKey":"idinvalid","type":"https://www.jhipster.tech/problem/problem-with-message","title":"Pas de créneaux réservable","status":400,"message":"error.idinvalid","params":"creneau"}
+  4. gymnastique sportive failed: Réservation échouée: {"entityName":"creneau","errorKey":"idinvalid","type":"https://www.jhipster.tech/problem/problem-with-message","title":"Pas de créneaux réservable","status":400,"message":"error.idinvalid","params":"creneau"}
+
+📝 LOGS DE PERFORMANCE:
+  [2025-12-16T18:59:02.220] 🔵 INITIALISATION DU SCRIPT
+  [2025-12-16T18:59:02.221] 🔵 Envoi notification Discord démarrage
+  [2025-12-16T18:59:03.263] ✅ Notification envoyée (1042.89ms)
+  [2025-12-16T19:00:00.445] 🔵 HEURE EXACTE ATTEINTE - DÉMARRAGE DES RÉSERVATIONS
+  [2025-12-16T19:00:00.447] 🔵 DÉBUT TRAITEMENT DE TOUS LES CRÉNEAUX
+  [2025-12-16T19:00:00.447] 🔵 Récupération des créneaux depuis la DB
+  [2025-12-16T19:00:02.340] ✅ 4 créneau(x) récupéré(s) (1893.15ms)
+  [2025-12-16T19:00:02.340] 🔵 Phase de pré-login pour tous les utilisateurs
+  [2025-12-16T19:00:02.341] 🔵 Début login pour carte 122027...
+  [2025-12-16T19:00:03.947] ✅ Login réussi pour carte 122027... (1606.34ms)
+  [2025-12-16T19:00:03.947] 🔵 Début login pour carte 122027...
+  [2025-12-16T19:00:04.359] ✅ Login réussi pour carte 122027... (412.21ms)
+  [2025-12-16T19:00:04.360] 🔵 Début login pour carte 122027...
+  [2025-12-16T19:00:05.075] ✅ Login réussi pour carte 122027... (715.61ms)
+  [2025-12-16T19:00:05.075] 🔵 Début login pour carte 134729...
+  [2025-12-16T19:00:06.099] ✅ Login réussi pour carte 134729... (1023.64ms)
+  [2025-12-16T19:00:06.099] ✅ Tous les logins terminés (3758.94ms)
+  [2025-12-16T19:00:06.099] 🔵 Phase de réservations en parallèle
+  [2025-12-16T19:00:06.100] 🔵 Réservation gymnastique sportive
+  [2025-12-16T19:00:06.100] 🔵 Réservation gymnastique sportive
+  [2025-12-16T19:00:06.100] 🔵 Réservation gymnastique sportive
+  [2025-12-16T19:00:06.100] 🔵 Réservation gymnastique sportive
+  [2025-12-16T19:00:06.236] ✅ ❌ Réservation gymnastique sportive échouée (135.73ms)
+  [2025-12-16T19:00:06.328] ✅ ❌ Réservation gymnastique sportive échouée (227.28ms)
+  [2025-12-16T19:00:07.184] ✅ ❌ Réservation gymnastique sportive échouée (1083.61ms)
+  [2025-12-16T19:00:07.187] ✅ ❌ Réservation gymnastique sportive échouée (1087.09ms)
+  [2025-12-16T19:00:10.058] ✅ Toutes les réservations terminées (3958.78ms)
+  [2025-12-16T19:00:10.059] ✅ FIN TRAITEMENT DE TOUS LES CRÉNEAUX (9612.00ms)
+  [2025-12-16T19:00:10.059] 🔵 Envoi notification Discord fin
+  [2025-12-16T19:00:10.815] ✅ Notification fin envoyée (756.36ms)
+════════════════════════════════════════════════════════════════════════════════
+[2025-12-16T19:00:10.819] 🔵 Déconnexion de la base de données
+[2025-12-16T19:00:10.820] ✅ Déconnexion terminée (0.90ms)

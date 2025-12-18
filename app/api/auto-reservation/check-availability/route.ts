@@ -372,7 +372,7 @@ async function reserverCreneauAutomatiquement(creneau: any, sessionCookies: stri
         prenom: userData.prenom || "USER",
         code: creneau.userId,
         numero: creneau.userId,
-        tagHexa: processCodeCarte(creneau.codeCarte),
+        tagHexa: null,
         type: userData.type || "EXTERNE",
         typeExterne: userData.typeExterne || "ETUDIANT",
         email: userData.email || "",

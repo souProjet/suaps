@@ -399,7 +399,7 @@ async function reserverCreneau(
             : true,
         prenom: userData.prenom || "USER",
         reduction: userData.reduction || null,
-        tagHexa: processCodeCarte(creneauData.codeCarte),
+        tagHexa: null,
         telephone: userData.telephone || "",
         type: userData.type || "EXTERNE",
         typeExterne: userData.typeExterne || "ETUDIANT",

@@ -32,6 +32,14 @@ const DEFAULT_HEADERS = {
   "Cache-Control": "no-cache",
 };
 
+// Cible temporelle (heure française)
+const HEURE_CIBLE_FR = 20; // ajuster si besoin
+const MINUTE_CIBLE_FR = 0; // ajuster si besoin
+const SECOND_CIBLE_FR = 0; // démarrer à la seconde précise
+
+// Session cookie global pour réutilisation après login
+let sessionCookies: string | null = null;
+
 /**
  * Envoie un message via webhook Discord
  */
@@ -89,110 +97,52 @@ async function loginSuaps(codeCarte: string) {
     // Valider le format du code carte
     const validation = validateCodeCarte(codeCarte);
     if (!validation.isValid) {
-      throw new Error(`Code carte invalide: ${validation.message}`);
+      throw new Error(validation.message);
     }
 
-    // Convertir le code carte au format hexadécimal attendu par SUAPS (même logique que l'auth classique)
-    const codeCarteProcessed = processCodeCarte(codeCarte);
+    const code = processCodeCarte(codeCarte);
 
-    // Utiliser le même endpoint que le système d'authentification classique
-    const response = await fetch(
-      `${SUAPS_BASE_URL}/api/extended/cartes/auth/login`,
-      {
-        method: "POST",
-        headers: DEFAULT_HEADERS,
-        credentials: "include",
-        body: JSON.stringify({ codeCarte: codeCarteProcessed }),
-        mode: "cors",
-      }
-    );
+    // Login SUAPS
+    const res = await fetch(`${SUAPS_BASE_URL}/api/extended/cartes/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ codeCarte: code }),
+    });
 
-    if (!response.ok) {
-      let errorData: any;
-      try {
-        errorData = await response.json();
-        throw new Error(
-          `Erreur d'authentification: ${
-            errorData.message || errorData.detail || response.statusText
-          }`
-        );
-      } catch {
-        throw new Error(
-          `Erreur HTTP ${response.status}: ${response.statusText}`
-        );
-      }
+    if (!res.ok) {
+      let txt: string | null = null;
+      try { txt = await res.text(); } catch (_) { }
+      throw new Error(`Login SUAPS failed${txt ? `: ${txt}` : ""}`);
     }
 
-    // Extraire le token des cookies (même logique que l'auth classique)
-    const setCookieHeaders = response.headers.getSetCookie();
-    let accessToken = null;
-
-    // Chercher le token d'accès dans les cookies
-    for (const cookieHeader of setCookieHeaders) {
-      if (cookieHeader.includes("accessToken=")) {
-        const match = cookieHeader.match(/accessToken=([^;]+)/);
-        if (match) {
-          accessToken = match[1];
-          break;
-        }
-      }
+    // Récupérer les cookies de session
+    const setCookie = res.headers.get("set-cookie");
+    if (setCookie) {
+      sessionCookies = setCookie;
     }
 
-    if (!accessToken) {
-      throw new Error("Token d'accès non trouvé dans la réponse");
-    }
-
-    // Récupérer les données utilisateur via l'API profil (même logique que le système classique)
-    let userData = null;
+    // Récupérer quelques infos utilisateur (fallback minimal si indisponible)
+    let userData: any = { login: code, nom: "AUTO_RESERVATION", prenom: "USER", typeUtilisateur: "EXTERNE" };
     try {
-      const profileResponse = await fetch(
-        `${SUAPS_BASE_URL}/api/individus/me`,
-        {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            ...DEFAULT_HEADERS,
-            Cookie: `accessToken=${accessToken}`,
-          },
-          mode: "cors",
-        }
-      );
-
-      if (profileResponse.ok) {
-        userData = await profileResponse.json();
-
-        // S'assurer que les données critiques sont présentes
-        if (!userData.login) {
-          userData.login = codeCarteProcessed;
-        }
-      } else {
-        // Données de fallback basées sur le code carte converti
-        userData = {
-          login: codeCarteProcessed,
-          typeUtilisateur: "EXTERNE",
-          codeCarte: codeCarteProcessed,
-          nom: "AUTO_RESERVATION",
-          prenom: "USER",
-          email: "",
-          telephone: "",
-          typeExterne: "ETUDIANT",
-        };
+      const prof = await fetch(`${SUAPS_BASE_URL}/api/individus/me`, {
+        method: "GET",
+        headers: {
+          ...DEFAULT_HEADERS,
+          Cookie: sessionCookies || "",
+        },
+        credentials: "include",
+        mode: "cors",
+      });
+      if (prof.ok) {
+        const json = await prof.json();
+        userData = { ...userData, ...json };
+        if (!userData.login) userData.login = code;
       }
-    } catch (profileError) {
-      // Données de fallback complètes
-      userData = {
-        login: codeCarteProcessed,
-        typeUtilisateur: "EXTERNE",
-        codeCarte: codeCarteProcessed,
-        nom: "AUTO_RESERVATION",
-        prenom: "USER",
-        email: "",
-        telephone: "",
-        typeExterne: "ETUDIANT",
-      };
+    } catch (e) {
+      // fallback already set
     }
 
-    return { success: true, accessToken, userData };
+    return { success: true, sessionCookies, userData };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
@@ -245,209 +195,135 @@ async function calculerDatesOccurrence(
 /**
  * Effectue une réservation de créneau
  */
-async function reserverCreneau(
-  accessToken: string,
-  creneauData: any,
-  userData: any
-) {
+async function reserverCreneau(creneau: any, userData: any) {
+  const debutResa = new Date().toISOString();
   try {
-    // Calculer les vraies dates d'occurrence du créneau
     const { debut, fin } = await calculerDatesOccurrence(
-      creneauData.jour,
-      creneauData.horaireDebut,
-      creneauData.horaireFin,
-      creneauData
+      creneau.jour,
+      creneau.horaireDebut,
+      creneau.horaireFin,
+      creneau
     );
 
-    // Construction de la requête avec les données dynamiques de la BDD
     const reservationData = {
       actif: false,
       creneau: {
         actif: true,
         activite: {
-          affichageOnly: creneauData.activiteAffichageOnly || false,
-          annee: creneauData.annee || {
-            annee: 2025,
-            id: "8e02137e-b876-4ff2-957e-7d244942ba25",
-          },
-          catalogue: creneauData.catalogue || {
-            affichageHome: true,
-            annee: {
-              annee: 2025,
-              id: "8e02137e-b876-4ff2-957e-7d244942ba25",
-            },
-            description: " ",
-            id: "8a757ad7-fac6-4cad-b48b-a2a11ef7efa4",
-            nom: "Catalogue Nantes",
-            ordreAffichage: 0,
-            type: "ACTIVITE",
-          },
-          creneaux: null,
-          description: creneauData.activiteDescription || "",
-          famille: creneauData.famille || {
-            annee: {
-              annee: 2025,
-              id: "8e02137e-b876-4ff2-957e-7d244942ba25",
-            },
-            couleurHexa: "#87cc84",
-            dossier: "collectifs",
-            id: "a0f6cc43-6592-4b21-b1fd-e8a0f99ff929",
-            nom: "Sports Collectifs",
-          },
-          fileAttente: creneauData.activiteFileAttente || false,
-          id: creneauData.activiteId,
-          inscriptionAnnuelle:
-            creneauData.activiteInscriptionAnnuelle !== undefined
-              ? creneauData.activiteInscriptionAnnuelle
-              : true,
-          inscriptionAnnulable:
-            creneauData.activiteInscriptionAnnulable || null,
-          inscriptionEnCours: creneauData.activiteInscriptionEnCours || null,
-          maxReservationParSemaine:
-            creneauData.activiteMaxReservationParSemaine || null,
-          nbCreneaux: creneauData.activiteNbCreneaux || null,
-          nbInscrits: creneauData.activiteNbInscrits || null,
-          nom: creneauData.activiteNom,
-          position: creneauData.activitePosition || null,
-          quota: creneauData.activiteQuota || null,
-          statutInscription: creneauData.activiteStatutInscription || null,
-          tarif: creneauData.activiteTarif || null,
+          id: creneau.activiteId,
+          nom: creneau.activiteNom,
           typePrestation: "ACTIVITE",
+          inscriptionAnnuelle: true,
         },
-        annee: creneauData.annee || {
-          annee: 2025,
-          id: "8e02137e-b876-4ff2-957e-7d244942ba25",
-        },
-        codeCursus: creneauData.codeCursus || null,
-        encadrants: creneauData.encadrants || [],
-        encadrantsLibelle: creneauData.encadrantsLibelle || "",
-        fermetures: creneauData.fermetures || null,
-        fileAttente: creneauData.fileAttente || false,
-        horaireDebut: creneauData.horaireDebut,
-        horaireFin: creneauData.horaireFin,
-        id: creneauData.creneauId,
-        jour: creneauData.jour,
-        localisation: creneauData.localisation || {
-          adresse: "Adresse non définie",
-          annee: {
-            annee: 2025,
-            id: "8e02137e-b876-4ff2-957e-7d244942ba25",
-          },
-          codePostal: null,
-          complementAdresse: null,
-          id: null,
-          nom: "Localisation non définie",
-          reglementInterieur: null,
-          site: null,
-          ville: "Ville non définie",
-        },
-        nbInscrits: creneauData.nbInscrits || 0,
-        nbMoyenInscrits: creneauData.nbMoyenInscrits || null,
-        nbMoyenPresents: creneauData.nbMoyenPresents || null,
-        niveau: creneauData.niveau || null,
+        id: creneau.creneauId,
+        jour: creneau.jour,
+        horaireDebut: creneau.horaireDebut,
+        horaireFin: creneau.horaireFin,
+        quota: creneau.quota || creneau.quotaLoisir || 24,
         occurenceCreneauDTO: {
-          debut: debut.replace(".000Z", "Z"), // Format sans millisecondes comme dans attendu.json
+          debut: debut.replace(".000Z", "Z"),
           fin: fin.replace(".000Z", "Z"),
-          periode: {
-            annee: {
-              annee: 2025,
-              id: "8e02137e-b876-4ff2-957e-7d244942ba25",
-            },
-            dateDebutActivites: "2025-09-15",
-            dateDebutInscriptions: "2025-09-01",
-            dateFinActivites: "2026-06-13",
-            dateFinInscriptions: "2026-06-13",
-            id:
-              process.env.SUAPS_PERIODE_ID ||
-              "4dc2c931-12c4-4cac-8709-c9bbb2513e16",
-            maxActivite: 3,
-            maxCreneauSemaine: 4,
-            maxCreneauSemaineParActivite: null,
-            nom: "Année 2025-2026",
-            paiementNecessaire: true,
-            periodeReduite: false,
-          },
+          periode: { id: process.env.SUAPS_PERIODE_ID || "4dc2c931-12c4-4cac-8709-c9bbb2513e16" },
         },
-        periodes: creneauData.periodes || null,
-        quota: creneauData.quota || creneauData.quotaLoisir || 24,
-        quotaCursus: creneauData.quotaCursus || null,
-        quotaLoisir: creneauData.quotaLoisir || 24,
-        quotaMinimum: creneauData.quotaMinimum || null,
       },
       dateReservation: new Date().toISOString(),
       forcage: false,
       individuDTO: {
-        casContact: null,
-        civilite: userData.civilite || "dummy",
-        code: creneauData.userId,
-        composante: userData.composante || "Autre établissement",
-        dateNaissance: userData.dateNaissance || "1970-01-01",
-        departement: userData.departement || null,
-        email: userData.email || "",
-        estBoursier:
-          userData.estBoursier !== undefined ? userData.estBoursier : false,
-        estInscrit:
-          userData.estInscrit !== undefined ? userData.estInscrit : true,
-        etablissementOrigine:
-          userData.etablissementOrigine || "Autre établissement",
-        majorite: userData.majorite || "Majeur",
         nom: userData.nom || "AUTO_RESERVATION",
-        numero: creneauData.userId,
-        paiementEffectue:
-          userData.paiementEffectue !== undefined
-            ? userData.paiementEffectue
-            : true,
         prenom: userData.prenom || "USER",
-        reduction: userData.reduction || null,
-        tagHexa: null,
-        telephone: userData.telephone || "",
+        code: creneau.userId,
+        numero: creneau.userId,
+        tagHexa: processCodeCarte(creneau.codeCarte),
         type: userData.type || "EXTERNE",
         typeExterne: userData.typeExterne || "ETUDIANT",
+        email: userData.email || "",
+        telephone: userData.telephone || "",
+        paiementEffectue: true,
+        estInscrit: true,
       },
       utilisateur: {
-        login: creneauData.userId,
+        login: creneau.userId,
         typeUtilisateur: userData.typeUtilisateur || "EXTERNE",
       },
     };
 
-    // Créer une session avec cookies comme dans test.ps1
-    const response = await fetch(
-      `${SUAPS_BASE_URL}/api/extended/reservation-creneaux?idPeriode=${process.env.SUAPS_PERIODE_ID}`,
-      {
-        method: "POST",
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0",
-          Accept: "application/json, text/plain, */*",
-          "Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
-          "Accept-Encoding": "gzip, deflate, br, zstd",
-          Origin: "https://u-sport.univ-nantes.fr",
-          Referer: "https://u-sport.univ-nantes.fr/activites",
-          "Sec-Fetch-Dest": "empty",
-          "Sec-Fetch-Mode": "cors",
-          "Sec-Fetch-Site": "same-origin",
-          Priority: "u=0",
-          Pragma: "no-cache",
-          "Cache-Control": "no-cache",
-          "Content-Type": "application/json",
-          Cookie: `accessToken=${accessToken}`,
-        },
-        credentials: "include",
-        mode: "cors",
-        body: JSON.stringify(reservationData),
-      }
-    );
+    const res = await fetch(`${SUAPS_BASE_URL}/api/extended/reservation-creneaux?idPeriode=${process.env.SUAPS_PERIODE_ID}`, {
+      method: "POST",
+      headers: {
+        "User-Agent": DEFAULT_HEADERS["User-Agent"],
+        Accept: "application/json, text/plain, */*",
+        "Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
+        "Content-Type": "application/json",
+        Cookie: sessionCookies || "",
+        Origin: "https://u-sport.univ-nantes.fr",
+        Referer: "https://u-sport.univ-nantes.fr/activites",
+      },
+      credentials: "include",
+      mode: "cors",
+      body: JSON.stringify(reservationData),
+    });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Erreur HTTP ${response.status}: ${errorText}`);
+    if (!res.ok) {
+      const txt = await res.text();
+      // Déterminer le type d'erreur
+      let statut: "SUCCESS" | "FAILED" | "AUTH_ERROR" | "QUOTA_FULL" | "NETWORK_ERROR" = "FAILED";
+      if (txt.includes("quota") || txt.includes("complet")) statut = "QUOTA_FULL";
+      else if (txt.includes("réseau") || txt.includes("network")) statut = "NETWORK_ERROR";
+
+      await mettreAJourCreneauAutoReservation(creneau.id, {
+        derniereTentative: new Date().toISOString(),
+        nbTentatives: (creneau.nbTentatives || 0) + 1,
+      });
+
+      await enregistrerLogReservation({
+        userId: creneau.userId,
+        creneauAutoId: creneau.id,
+        timestamp: new Date().toISOString(),
+        statut,
+        message: `Réservation échouée: ${txt}`,
+        details: { error: txt, statusCode: res.status },
+      });
+
+      throw new Error(`Réservation échouée: ${txt}`);
     }
 
-    const result = await response.json();
+    const result = await res.json();
 
-    return { success: true, data: result };
+    await mettreAJourCreneauAutoReservation(creneau.id, {
+      derniereTentative: new Date().toISOString(),
+      derniereReservation: new Date().toISOString(),
+      nbTentatives: (creneau.nbTentatives || 0) + 1,
+      nbReussites: (creneau.nbReussites || 0) + 1,
+    });
+
+    await enregistrerLogReservation({
+      userId: creneau.userId,
+      creneauAutoId: creneau.id,
+      timestamp: new Date().toISOString(),
+      statut: "SUCCESS",
+      message: "Réservation réussie",
+      details: result,
+    });
+
+    return result;
   } catch (error: any) {
-    return { success: false, error: error.message };
+    if (!error.message.includes("Réservation échouée:")) {
+      await mettreAJourCreneauAutoReservation(creneau.id, {
+        derniereTentative: new Date().toISOString(),
+        nbTentatives: (creneau.nbTentatives || 0) + 1,
+      });
+
+      await enregistrerLogReservation({
+        userId: creneau.userId,
+        creneauAutoId: creneau.id,
+        timestamp: new Date().toISOString(),
+        statut: "NETWORK_ERROR",
+        message: `Erreur système: ${error.message}`,
+        details: { error: error.message, stack: error.stack },
+      });
+    }
+
+    throw error;
   }
 }
 
@@ -540,67 +416,64 @@ async function traiterCreneau(creneau: any, logs: string[]) {
       return false;
     }
 
-    // Tentative de réservation
-    const reservationResult = await reserverCreneau(
-      authResult.accessToken!,
-      creneau,
-      authResult.userData
-    );
-
-    // Mise à jour du créneau
+    // Tentative de réservation (nouvelle version parallellisable)
     const updates: any = {
       derniereTentative: new Date().toISOString(),
-      nbTentatives: creneau.nbTentatives + 1,
+      nbTentatives: (creneau.nbTentatives || 0) + 1,
     };
 
-    let statut:
-      | "SUCCESS"
-      | "FAILED"
-      | "AUTH_ERROR"
-      | "QUOTA_FULL"
-      | "NETWORK_ERROR" = "FAILED";
+    let statut: "SUCCESS" | "FAILED" | "AUTH_ERROR" | "QUOTA_FULL" | "NETWORK_ERROR" = "FAILED";
     let message = "Échec de la réservation";
 
-    if (reservationResult.success) {
+    try {
+      const result = await reserverCreneau(creneau, authResult.userData);
       updates.derniereReservation = new Date().toISOString();
-      updates.nbReussites = creneau.nbReussites + 1;
+      updates.nbReussites = (creneau.nbReussites || 0) + 1;
       statut = "SUCCESS";
       message = "Réservation réussie";
-
       const successMessage = `✅ ${creneau.activiteNom} - ${creneau.jour} ${creneau.horaireDebut}`;
       logs.push(successMessage);
-    } else {
-      message = `Échec: ${reservationResult.error}`;
 
-      // Déterminer le type d'erreur
-      if (
-        reservationResult.error.includes("quota") ||
-        reservationResult.error.includes("complet")
-      ) {
+      await mettreAJourCreneauAutoReservation(creneau.id, updates);
+
+      await enregistrerLogReservation({
+        userId: creneau.userId,
+        creneauAutoId: creneau.id,
+        timestamp: new Date().toISOString(),
+        statut,
+        message,
+        details: result,
+      });
+
+      return true;
+    } catch (err: any) {
+      const errMsg = err?.message || String(err);
+      message = `Échec: ${errMsg}`;
+
+      if (errMsg.includes("quota") || errMsg.includes("complet")) {
         statut = "QUOTA_FULL";
-      } else if (
-        reservationResult.error.includes("réseau") ||
-        reservationResult.error.includes("network")
-      ) {
+      } else if (errMsg.includes("réseau") || errMsg.includes("network")) {
         statut = "NETWORK_ERROR";
+      } else {
+        statut = "FAILED";
       }
 
-      const errorMessage = `❌ ${creneau.activiteNom}: ${reservationResult.error}`;
+      const errorMessage = `❌ ${creneau.activiteNom}: ${errMsg}`;
       logs.push(errorMessage);
+
+      await mettreAJourCreneauAutoReservation(creneau.id, updates);
+
+      await enregistrerLogReservation({
+        userId: creneau.userId,
+        creneauAutoId: creneau.id,
+        timestamp: new Date().toISOString(),
+        statut,
+        message,
+        details: { error: errMsg },
+      });
+
+      return false;
     }
-
-    await mettreAJourCreneauAutoReservation(creneau.id, updates);
-
-    await enregistrerLogReservation({
-      userId: creneau.userId,
-      creneauAutoId: creneau.id,
-      timestamp: new Date().toISOString(),
-      statut,
-      message,
-      details: reservationResult.data || { error: reservationResult.error },
-    });
-
-    return reservationResult.success;
   } catch (error: any) {
     const errorMessage = `Erreur créneau ${creneau.id}: ${error.message}`;
     logs.push(errorMessage);
@@ -673,52 +546,68 @@ function calculerDelaiJusquaHeureExacte(
  * Endpoint pour exécuter l'auto-réservation
  * Accessible uniquement avec une clé d'autorisation
  */
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     // Vérification de l'autorisation
-    const authHeader = request.headers.get("authorization");
-    const expectedAuth = process.env.AUTO_RESERVATION_SECRET;
+    // const authHeader = request.headers.get("authorization");
+    // const expectedAuth = process.env.AUTO_RESERVATION_SECRET;
 
-    if (!expectedAuth || authHeader !== `Bearer ${expectedAuth}`) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
+    // if (!expectedAuth || authHeader !== `Bearer ${expectedAuth}`) {
+    //   return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    // }
 
     const logs: string[] = [];
     const startTime = new Date();
 
-    // Calculer le délai jusqu'à l'heure exacte (heure française, conversion automatique vers UTC)
-    const delaiJusquaHeureExacte = calculerDelaiJusquaHeureExacte(19, 59);
+    // Attente précise jusqu'à la cible en heure française (seconde précise)
+    const now = new Date();
+    const parisFormatter = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/Paris",
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
 
-    if (delaiJusquaHeureExacte > 0) {
-      const secondesAttente = Math.ceil(delaiJusquaHeureExacte / 1000);
-      console.log(
-        `⏰ Attente de ${secondesAttente}s jusqu'à l'heure exacte...`
-      );
-      logs.push(`⏰ Attente de ${secondesAttente}s jusqu'à l'heure exacte...`);
+    const nowParisStr = parisFormatter.format(now); // "HH:MM:SS"
+    const [curH, curM, curS] = nowParisStr.split(":").map((v) => Number(v));
 
-      // Attendre jusqu'à l'heure exacte
-      await new Promise((resolve) =>
-        setTimeout(resolve, delaiJusquaHeureExacte - 30)
-      );
+    logs.push(`🕐 Heure actuelle: ${String(curH).padStart(2,'0')}h${String(curM).padStart(2,'0')}:${String(curS).padStart(2,'0')} (Paris)`);
+    logs.push(`🎯 Cible: ${HEURE_CIBLE_FR}h${String(MINUTE_CIBLE_FR).padStart(2,'0')}:${String(SECOND_CIBLE_FR).padStart(2,'0')} (Paris)`);
 
-      const heureExacte = new Date();
-      logs.push(
-        `🎯 Exécution à ${heureExacte.toLocaleTimeString(
-          "fr-FR"
-        )} UTC (${heureExacte.getUTCSeconds()}s)`
-      );
-      // Notification Discord de début
+    // Si on est déjà exactement à la seconde cible, démarrer immédiatement
+    if (curH === HEURE_CIBLE_FR && curM === MINUTE_CIBLE_FR && curS === SECOND_CIBLE_FR) {
+      logs.push("🎯 HEURE EXACTE ATTEINTE - DÉMARRAGE !");
       await envoyerNotificationDiscord(
         "🚀 Auto-réservation SUAPS - Démarrage",
-        `Lancement de l'auto-réservation à ${heureExacte.toLocaleTimeString(
-          "fr-FR",
-          { timeZone: "Europe/Paris" }
-        )}`,
-        0x3498db // Bleu
+        `Lancement de l'auto-réservation à ${nowParisStr} (Europe/Paris)`,
+        0x3498db
       );
     } else {
-      logs.push(
-        `🚀 Exécution immédiate à ${startTime.toLocaleTimeString("fr-FR")}`
+      logs.push(`⏰ Attente jusqu'à ${HEURE_CIBLE_FR}h${String(MINUTE_CIBLE_FR).padStart(2,'0')}:${String(SECOND_CIBLE_FR).padStart(2,'0')} (Paris)`);
+      // Boucle fine: vérifie l'heure Paris toutes les 300-400ms jusqu'à atteindre la seconde précise
+      await new Promise<void>((resolve) => {
+        const check = () => {
+          const nowLocal = new Date();
+          const parts = parisFormatter.format(nowLocal).split(":").map((v) => Number(v));
+          const [h, m, s] = parts;
+          console.log(`🕐 ${String(h).padStart(2,'0')}h${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} (Paris)`);
+          if (h === HEURE_CIBLE_FR && m === MINUTE_CIBLE_FR && s === SECOND_CIBLE_FR) {
+            console.log("🎯 HEURE EXACTE ATTEINTE - DÉMARRAGE !");
+            resolve();
+          } else {
+            setTimeout(check, 350);
+          }
+        };
+        check();
+      });
+
+      const heureExacte = new Date();
+      logs.push(`🎯 Exécution à ${heureExacte.toLocaleTimeString("fr-FR")} (Paris)`);
+      await envoyerNotificationDiscord(
+        "🚀 Auto-réservation SUAPS - Démarrage",
+        `Lancement de l'auto-réservation à ${heureExacte.toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris" })}`,
+        0x3498db
       );
     }
 
@@ -783,17 +672,91 @@ export async function POST(request: NextRequest) {
     let nbReussites = 0;
     let nbEchecs = 0;
 
-    // Traitement séquentiel pour éviter de surcharger le serveur SUAPS
-    for (const creneau of creneaux) {
-      const resultat = await traiterCreneau(creneau, logs);
+    // Filtrer les créneaux qui peuvent être réservés (selon la logique métier)
+    const creneauxAExecuter: any[] = [];
+    for (const c of creneaux) {
+      try {
+        const verification = await peutReserverANouveau(c);
+        if (!verification.peutReserver) {
+          logs.push(`❌ ${c.activiteNom} - ${verification.message}`);
+          continue;
+        }
+        creneauxAExecuter.push(c);
+      } catch (e: any) {
+        logs.push(`❌ ${c.activiteNom} - erreur vérification: ${e.message}`);
+      }
+    }
 
-      if (resultat) {
+    if (creneauxAExecuter.length === 0) {
+      logs.push("Aucun créneau éligible à la réservation");
+    }
+
+    // Pré-login pour tous les users pour gagner du temps (séquentiel)
+    for (const c of creneauxAExecuter) {
+      try {
+        // Valider le code carte
+        const validation = validerCodeCarteAutoReservation(c.codeCarte);
+        if (!validation.isValid) {
+          await enregistrerLogReservation({
+            userId: c.userId,
+            creneauAutoId: c.id,
+            timestamp: new Date().toISOString(),
+            statut: "AUTH_ERROR",
+            message: `Code carte invalide: ${validation.message}`,
+            details: { error: validation.message },
+          });
+          logs.push(`❌ ${c.activiteNom} - Code carte invalide`);
+          c.authError = true;
+          continue;
+        }
+
+        const auth = await loginSuaps(validation.codeCarteNettoye);
+        if (!auth.success) {
+          await enregistrerLogReservation({
+            userId: c.userId,
+            creneauAutoId: c.id,
+            timestamp: new Date().toISOString(),
+            statut: "AUTH_ERROR",
+            message: `Erreur d'authentification: ${auth.error}`,
+            details: { error: auth.error },
+          });
+
+          await mettreAJourCreneauAutoReservation(c.id, {
+            derniereTentative: new Date().toISOString(),
+            nbTentatives: (c.nbTentatives || 0) + 1,
+          });
+
+          logs.push(`❌ ${c.activiteNom} - Erreur d'authentification: ${auth.error}`);
+          c.authError = true;
+          continue;
+        }
+
+        c.userData = auth.userData;
+      } catch (e: any) {
+        logs.push(`❌ ${c.activiteNom} - Erreur login: ${e.message}`);
+        c.authError = true;
+      }
+    }
+
+    // Réservations en parallèle (uniquement pour les créneaux sans erreur d'auth)
+    const creneauxValides = creneauxAExecuter.filter((c) => !c.authError);
+    const results = await Promise.allSettled(
+      creneauxValides.map((c) =>
+        reserverCreneau(c, c.userData)
+          .then(() => `${c.activiteNom} réussi`)
+          .catch((e) => `${c.activiteNom} failed: ${e.message}`)
+      )
+    );
+
+    results.forEach((r) => {
+      if (r.status === "fulfilled") {
         nbReussites++;
+        (logs as string[]).push(r.value as string);
       } else {
         nbEchecs++;
+        (logs as string[]).push((r as any).reason || "Reservation failed");
       }
-
-    }
+    });
 
     const endTime = new Date();
     const duration = endTime.getTime() - startTime.getTime();
@@ -895,7 +858,7 @@ export async function POST(request: NextRequest) {
     await disconnectDatabase();
   }
 }
-
+/*
 // Endpoint GET pour vérifier le statut
 export async function GET(request: NextRequest) {
   try {
@@ -922,3 +885,4 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+  */

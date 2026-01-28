@@ -503,43 +503,43 @@ function calculerDelaiJusquaHeureExacte(
   targetHourFrench: number,
   targetMinuteFrench: number
 ): number {
-  // Conversion heure française vers UTC (France = UTC+2 en été, UTC+1 en hiver)
-  // Pour simplifier, on utilise UTC+2 (heure d'été française)
-  const targetHourUTC = (targetHourFrench - 2 + 24) % 24;
+  // Calcul du délai jusqu'à la prochaine occurrence de l'heure cible en heure française
+  const now = new Date();
+  const parisFormatter = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Paris',
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
+
+  const partsParis = parisFormatter.format(now).split(':').map(Number);
+  const parisHour = partsParis[0];
+  const utcHour = now.getUTCHours();
+  const offsetHours = (parisHour - utcHour + 24) % 24; // normalement 1 ou 2
+
+  const targetHourUTC = (targetHourFrench - offsetHours + 24) % 24;
   const targetMinuteUTC = targetMinuteFrench;
 
-  // Log de debug pour vérifier la conversion
-  console.log(
-    `🕐 Heure cible: ${targetHourFrench}h${targetMinuteFrench
-      .toString()
-      .padStart(2, "0")} (FR)`
-  );
+  // Construire la date cible en UTC pour aujourd'hui
+  const targetDateUTC = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+    targetHourUTC,
+    targetMinuteUTC,
+    0,
+    0
+  ));
 
-  const maintenant = new Date();
-  const heureActuelle = maintenant.getUTCHours();
-  const minuteActuelle = maintenant.getUTCMinutes();
-  const secondeActuelle = maintenant.getUTCSeconds();
-  const millisecondActuelle = maintenant.getUTCMilliseconds();
-
-  // Si on est exactement à l'heure et minute cible (en UTC), attendre jusqu'à la fin de cette minute
-  if (heureActuelle === targetHourUTC && minuteActuelle === targetMinuteUTC) {
-    const secondesRestantes = 60 - secondeActuelle;
-    const millisecondesRestantes = 1000 - millisecondActuelle;
-    return secondesRestantes * 1000 + millisecondesRestantes;
+  // Si la cible est déjà passée aujourd'hui, prendre le lendemain
+  if (targetDateUTC.getTime() <= now.getTime()) {
+    targetDateUTC.setUTCDate(targetDateUTC.getUTCDate() + 1);
   }
 
-  // Si on est dans la minute qui suit, pas d'attente
-  const minuteSuivante = targetMinuteUTC + 1;
-  const heureSuivante =
-    minuteSuivante >= 60 ? (targetHourUTC + 1) % 24 : targetHourUTC;
-  const minuteNormalisee = minuteSuivante >= 60 ? 0 : minuteSuivante;
-
-  if (heureActuelle === heureSuivante && minuteActuelle === minuteNormalisee) {
-    return 0;
-  }
-
-  // Dans les autres cas, exécuter immédiatement (pour les tests ou autres cas)
-  return 0;
+  const delay = targetDateUTC.getTime() - now.getTime();
+  console.log(`🕐 Heure cible (FR): ${targetHourFrench}:${String(targetMinuteFrench).padStart(2,'0')} -> délai ${Math.round(delay/1000)}s`);
+  return delay;
 }
 
 /**
@@ -548,11 +548,12 @@ function calculerDelaiJusquaHeureExacte(
  */
 export async function GET(request: NextRequest) {
   try {
-    // Vérification de l'autorisation
+    // Vérification de l'autorisation — protéger l'exécution longue/cron
     // const authHeader = request.headers.get("authorization");
     // const expectedAuth = process.env.AUTO_RESERVATION_SECRET;
 
     // if (!expectedAuth || authHeader !== `Bearer ${expectedAuth}`) {
+    //   console.warn('Auto-reservation: requête non autorisée ou secret absent');
     //   return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     // }
 

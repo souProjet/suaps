@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+// Ce route handler lit les cookies de la requête et doit donc être traité
+// en mode dynamique par Next.js lors de la génération.
+export const dynamic = 'force-dynamic';
 import { UserProfile } from '@/types/suaps';
 
 export async function GET(request: NextRequest) {

@@ -575,6 +575,7 @@ export async function GET(request: NextRequest) {
     logs.push(`🕐 Heure actuelle: ${String(curH).padStart(2,'0')}h${String(curM).padStart(2,'0')}:${String(curS).padStart(2,'0')} (Paris)`);
     logs.push(`🎯 Cible: ${HEURE_CIBLE_FR}h${String(MINUTE_CIBLE_FR).padStart(2,'0')}:${String(SECOND_CIBLE_FR).padStart(2,'0')} (Paris)`);
 
+
     // Si on est déjà exactement à la seconde cible, démarrer immédiatement
     if (curH === HEURE_CIBLE_FR && curM === MINUTE_CIBLE_FR && curS === SECOND_CIBLE_FR) {
       logs.push("🎯 HEURE EXACTE ATTEINTE - DÉMARRAGE !");
@@ -585,6 +586,17 @@ export async function GET(request: NextRequest) {
       );
     } else {
       logs.push(`⏰ Attente jusqu'à ${HEURE_CIBLE_FR}h${String(MINUTE_CIBLE_FR).padStart(2,'0')}:${String(SECOND_CIBLE_FR).padStart(2,'0')} (Paris)`);
+      
+      const delaiInitial = calculerDelaiJusquaHeureExacte(HEURE_CIBLE_FR, MINUTE_CIBLE_FR);
+      if (delaiInitial > 60000) { 
+        logs.push(`⏳ Délai initial trop long (${Math.round(delaiInitial/1000)}s), interruption de la requête.`);
+        return NextResponse.json({
+          success: false,
+          message: "Délai initial trop long",
+          logs,
+        });
+      }
+
       // Boucle fine: vérifie l'heure Paris toutes les 300-400ms jusqu'à atteindre la seconde précise
       await new Promise<void>((resolve) => {
         const check = () => {
